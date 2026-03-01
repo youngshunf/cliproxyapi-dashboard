@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle } from "@/components/ui/modal";
@@ -21,64 +22,64 @@ interface OAuthSectionProps {
 const OAUTH_PROVIDERS = [
   {
     id: "claude" as const,
-    name: "Claude Code",
-    description: "Anthropic Claude (Pro/Max subscription)",
+    nameKey: "providers.claude.name",
+    descriptionKey: "providers.claude.description",
     authEndpoint: "/api/management/anthropic-auth-url?is_webui=true",
     requiresCallback: true,
   },
   {
     id: "gemini-cli" as const,
-    name: "Gemini CLI",
-    description: "Google Gemini (via Google OAuth)",
+    nameKey: "providers.geminiCli.name",
+    descriptionKey: "providers.geminiCli.description",
     authEndpoint: "/api/management/gemini-cli-auth-url?project_id=ALL&is_webui=true",
     requiresCallback: true,
   },
   {
     id: "codex" as const,
-    name: "Codex",
-    description: "OpenAI Codex (Plus/Pro subscription)",
+    nameKey: "providers.codex.name",
+    descriptionKey: "providers.codex.description",
     authEndpoint: "/api/management/codex-auth-url?is_webui=true",
     requiresCallback: true,
   },
   {
     id: "antigravity" as const,
-    name: "Antigravity",
-    description: "Google Antigravity (via Google OAuth)",
+    nameKey: "providers.antigravity.name",
+    descriptionKey: "providers.antigravity.description",
     authEndpoint: "/api/management/antigravity-auth-url?is_webui=true",
     requiresCallback: true,
   },
   {
     id: "iflow" as const,
-    name: "iFlow",
-    description: "iFlytek iFlow (via OAuth)",
+    nameKey: "providers.iflow.name",
+    descriptionKey: "providers.iflow.description",
     authEndpoint: "/api/management/iflow-auth-url?is_webui=true",
     requiresCallback: true,
   },
   {
     id: "kimi" as const,
-    name: "Kimi",
-    description: "Moonshot AI Kimi (device OAuth)",
+    nameKey: "providers.kimi.name",
+    descriptionKey: "providers.kimi.description",
     authEndpoint: "/api/management/kimi-auth-url?is_webui=true",
     requiresCallback: false,
   },
   {
     id: "qwen" as const,
-    name: "Qwen Code",
-    description: "Alibaba Qwen Code (device OAuth)",
+    nameKey: "providers.qwen.name",
+    descriptionKey: "providers.qwen.description",
     authEndpoint: "/api/management/qwen-auth-url?is_webui=true",
     requiresCallback: false,
   },
   {
     id: "copilot" as const,
-    name: "GitHub Copilot",
-    description: "GitHub Copilot (via GitHub device OAuth)",
+    nameKey: "providers.copilot.name",
+    descriptionKey: "providers.copilot.description",
     authEndpoint: "/api/management/github-auth-url?is_webui=true",
     requiresCallback: false,
   },
   {
     id: "kiro" as const,
-    name: "Kiro",
-    description: "AWS CodeWhisperer / Kiro (device OAuth)",
+    nameKey: "providers.kiro.name",
+    descriptionKey: "providers.kiro.description",
     authEndpoint: "/api/management/kiro-auth-url?is_webui=true",
     requiresCallback: false,
   },
@@ -149,50 +150,21 @@ function isTabVisible(): boolean {
   return document.visibilityState === "visible";
 }
 
-const validateCallbackUrl = (value: string) => {
-  if (!value.trim()) {
-    return { status: CALLBACK_VALIDATION.EMPTY, message: "Paste the full URL." };
-  }
-
-  let parsedUrl: URL;
-  try {
-    parsedUrl = new URL(value.trim());
-  } catch {
-    return {
-      status: CALLBACK_VALIDATION.INVALID,
-      message: "That doesn't look like a valid URL.",
-    };
-  }
-
-  const code = parsedUrl.searchParams.get("code");
-  const state = parsedUrl.searchParams.get("state");
-
-  if (!code || !state) {
-    return {
-      status: CALLBACK_VALIDATION.INVALID,
-      message: "URL must include both code and state parameters.",
-    };
-  }
-
-  return {
-    status: CALLBACK_VALIDATION.VALID,
-    message: "Callback URL looks good. Ready to submit.",
-  };
-};
-
 export function OAuthSection({
   showToast,
   currentUser,
   refreshProviders,
   onAccountCountChange,
 }: OAuthSectionProps) {
+  const t = useTranslations("providers.oauthSection");
+  const common = useTranslations("common");
   const [isOAuthModalOpen, setIsOAuthModalOpen] = useState(false);
   const [oauthModalStatus, setOauthModalStatus] = useState<ModalStatus>(MODAL_STATUS.IDLE);
   const [selectedOAuthProviderId, setSelectedOAuthProviderId] = useState<OAuthProviderId | null>(null);
   const [authState, setAuthState] = useState<string | null>(null);
   const [callbackUrl, setCallbackUrl] = useState("");
   const [callbackValidation, setCallbackValidation] = useState<CallbackValidation>(CALLBACK_VALIDATION.EMPTY);
-  const [callbackMessage, setCallbackMessage] = useState("Paste the full URL.");
+  const [callbackMessage, setCallbackMessage] = useState(() => t("callbackMessages.pasteFull"));
   const [oauthErrorMessage, setOauthErrorMessage] = useState<string | null>(null);
   const pollingIntervalRef = useRef<number | null>(null);
   const pollingAttemptsRef = useRef(0);
@@ -209,6 +181,38 @@ export function OAuthSection({
 
   const selectedOAuthProvider = getOAuthProviderById(selectedOAuthProviderId);
   const selectedOAuthProviderRequiresCallback = selectedOAuthProvider?.requiresCallback ?? true;
+  const getProviderLabel = (provider: OAuthProvider | null) => (provider ? t(provider.nameKey) : "");
+
+  const validateCallbackUrl = (value: string) => {
+    if (!value.trim()) {
+      return { status: CALLBACK_VALIDATION.EMPTY, message: t("callbackMessages.pasteFull") };
+    }
+
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(value.trim());
+    } catch {
+      return {
+        status: CALLBACK_VALIDATION.INVALID,
+        message: t("callbackMessages.invalidUrl"),
+      };
+    }
+
+    const code = parsedUrl.searchParams.get("code");
+    const state = parsedUrl.searchParams.get("state");
+
+    if (!code || !state) {
+      return {
+        status: CALLBACK_VALIDATION.INVALID,
+        message: t("callbackMessages.missingParams"),
+      };
+    }
+
+    return {
+      status: CALLBACK_VALIDATION.VALID,
+      message: t("callbackMessages.ready"),
+    };
+  };
 
   const stopPolling = useCallback(() => {
     if (pollingIntervalRef.current !== null) {
@@ -231,7 +235,7 @@ export function OAuthSection({
     try {
       const res = await fetch("/api/providers/oauth");
       if (!res.ok) {
-        showToast("Failed to load OAuth accounts", "error");
+        showToast(t("errors.loadAccounts"), "error");
         setOauthAccountsLoading(false);
         return;
       }
@@ -243,10 +247,10 @@ export function OAuthSection({
       setOauthAccountsLoading(false);
     } catch {
       setOauthAccountsLoading(false);
-      showToast("Network error", "error");
-      setOauthErrorMessage("Network error while loading accounts.");
+      showToast(common("networkError"), "error");
+      setOauthErrorMessage(t("errors.loadAccountsNetwork"));
     }
-  }, [onAccountCountChange, showToast]);
+  }, [common, onAccountCountChange, showToast, t]);
 
   const openAuthPopup = (url: string) => {
     const popup = window.open(url, "oauth", "width=600,height=800");
@@ -267,7 +271,7 @@ export function OAuthSection({
       if (pollingAttemptsRef.current > 60) {
         stopPolling();
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("Timed out waiting for authorization.");
+        setOauthErrorMessage(t("errors.timeout"));
         return;
       }
 
@@ -278,7 +282,7 @@ export function OAuthSection({
         if (!res.ok) {
           stopPolling();
           setOauthModalStatus(MODAL_STATUS.ERROR);
-          setOauthErrorMessage("Failed to check authorization status.");
+          setOauthErrorMessage(t("errors.statusCheckFailed"));
           return;
         }
 
@@ -302,7 +306,7 @@ export function OAuthSection({
         if (data.status === "ok") {
           stopPolling();
           setOauthModalStatus(MODAL_STATUS.SUCCESS);
-          showToast("OAuth account connected", "success");
+          showToast(t("success.connected"), "success");
           await refreshProviders();
           void loadAccounts();
           return;
@@ -311,13 +315,13 @@ export function OAuthSection({
         if (data.status === "error") {
           stopPolling();
           setOauthModalStatus(MODAL_STATUS.ERROR);
-          setOauthErrorMessage(data.error || "OAuth authorization failed.");
+          setOauthErrorMessage(data.error || t("errors.authorizationFailed"));
           return;
         }
       } catch {
         stopPolling();
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("Network error while polling authorization.");
+        setOauthErrorMessage(t("errors.pollNetwork"));
       }
     }, isTabVisible() ? OAUTH_STATUS_POLL_INTERVAL_MS : OAUTH_STATUS_POLL_INTERVAL_HIDDEN_MS);
   };
@@ -332,7 +336,7 @@ export function OAuthSection({
     setAuthState(null);
     setCallbackUrl("");
     setCallbackValidation(CALLBACK_VALIDATION.EMPTY);
-    setCallbackMessage("Paste the full URL.");
+    setCallbackMessage(t("callbackMessages.pasteFull"));
     setOauthErrorMessage(null);
     setDeviceCodeInfo(null);
     deviceCodePopupOpenedRef.current = false;
@@ -373,7 +377,7 @@ export function OAuthSection({
         stopNoCallbackClaimPolling();
         stopPolling();
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage(data.error || "Failed to complete OAuth ownership claim.");
+        setOauthErrorMessage(data.error || t("errors.ownershipClaimFailed"));
         return;
       }
 
@@ -405,20 +409,20 @@ export function OAuthSection({
     setOauthErrorMessage(null);
     setCallbackUrl("");
     setCallbackValidation(CALLBACK_VALIDATION.EMPTY);
-    setCallbackMessage("Paste the full URL.");
+    setCallbackMessage(t("callbackMessages.pasteFull"));
 
     try {
       const res = await fetch(provider.authEndpoint);
       if (!res.ok) {
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("Failed to start OAuth flow.");
+        setOauthErrorMessage(t("errors.startFailed"));
         return;
       }
 
       const data: AuthUrlResponse = await res.json();
       if (!data.state) {
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("OAuth response missing state.");
+        setOauthErrorMessage(t("errors.missingState"));
         return;
       }
 
@@ -427,8 +431,8 @@ export function OAuthSection({
         setAuthState(data.state);
         setOauthModalStatus(MODAL_STATUS.POLLING);
         setCallbackValidation(CALLBACK_VALIDATION.VALID);
-        setCallbackMessage("Waiting for device authorization details...");
-        showToast("Initializing device authorization flow...", "info");
+        setCallbackMessage(t("callbackMessages.deviceWaiting"));
+        showToast(t("toast.deviceInit"), "info");
         pollAuthStatus(data.state);
         stopNoCallbackClaimPolling();
         void claimOAuthWithoutCallback(provider.id, data.state);
@@ -437,13 +441,13 @@ export function OAuthSection({
 
       if (!data.url) {
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("OAuth response missing URL.");
+        setOauthErrorMessage(t("errors.missingUrl"));
         return;
       }
       const popupOpened = openAuthPopup(data.url);
       if (!popupOpened) {
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("Popup blocked. Allow pop-ups and try again.");
+        setOauthErrorMessage(t("errors.popupBlocked"));
         return;
       }
       authStateRef.current = data.state;
@@ -451,13 +455,13 @@ export function OAuthSection({
       if (provider.requiresCallback) {
         setOauthModalStatus(MODAL_STATUS.WAITING);
         setCallbackValidation(CALLBACK_VALIDATION.EMPTY);
-        setCallbackMessage("Paste the full URL.");
-        showToast("OAuth window opened. Follow the steps below.", "info");
+        setCallbackMessage(t("callbackMessages.pasteFull"));
+        showToast(t("toast.windowOpenedWithCallback"), "info");
       } else {
         setOauthModalStatus(MODAL_STATUS.POLLING);
         setCallbackValidation(CALLBACK_VALIDATION.VALID);
-        setCallbackMessage("No callback URL needed. Complete sign-in in the popup window.");
-        showToast("OAuth window opened. Complete sign-in in the popup.", "info");
+        setCallbackMessage(t("callbackMessages.noCallback"));
+        showToast(t("toast.windowOpened"), "info");
         if (data.user_code && data.url) {
           setDeviceCodeInfo({
             verificationUrl: data.url,
@@ -472,7 +476,7 @@ export function OAuthSection({
       pollAuthStatus(data.state);
     } catch {
       setOauthModalStatus(MODAL_STATUS.ERROR);
-      setOauthErrorMessage("Network error while starting OAuth flow.");
+      setOauthErrorMessage(t("errors.startNetwork"));
     }
   };
 
@@ -490,7 +494,7 @@ export function OAuthSection({
       console.warn("[OAuth] Submit failed - provider:", currentProvider, "state:", currentState,
                    "stateFromState:", selectedOAuthProviderId, "providerFromState:", authState);
       setOauthModalStatus(MODAL_STATUS.ERROR);
-      setOauthErrorMessage("Missing provider or state. Please restart the flow.");
+      setOauthErrorMessage(t("errors.missingProviderState"));
       return;
     }
 
@@ -518,7 +522,7 @@ export function OAuthSection({
       if (!res.ok) {
         setOauthModalStatus(MODAL_STATUS.ERROR);
         setOauthErrorMessage(
-          data.error || "Failed to relay the OAuth callback URL."
+          data.error || t("errors.callbackRelayFailed")
         );
         return;
       }
@@ -528,7 +532,7 @@ export function OAuthSection({
       pollAuthStatus(currentState);
     } catch {
       setOauthModalStatus(MODAL_STATUS.ERROR);
-      setOauthErrorMessage("Network error while submitting callback URL.");
+      setOauthErrorMessage(t("errors.callbackNetwork"));
     }
   };
 
@@ -549,14 +553,14 @@ export function OAuthSection({
       });
       if (!res.ok) {
         const data = await res.json();
-        showToast(data.error || "Failed to remove OAuth account", "error");
+        showToast(data.error || t("errors.removeFailed"), "error");
         return;
       }
-      showToast("OAuth account removed", "success");
+      showToast(t("success.removed"), "success");
       await refreshProviders();
       void loadAccounts();
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
     }
   };
 
@@ -584,27 +588,29 @@ export function OAuthSection({
       <section id="provider-oauth" className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-slate-100">OAuth Accounts</h2>
-            <p className="text-xs text-slate-400">Subscription-based provider connections</p>
+            <h2 className="text-sm font-semibold text-slate-100">{t("title")}</h2>
+            <p className="text-xs text-slate-400">{t("subtitle")}</p>
           </div>
-          <span className="text-xs font-medium text-slate-400">{accounts.length} connected</span>
+          <span className="text-xs font-medium text-slate-400">
+            {t("connectedCount", { count: accounts.length })}
+          </span>
         </div>
 
         <div className="space-y-3">
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Connected Accounts</h3>
-            <p className="mt-1 text-xs text-slate-500">Active OAuth provider connections</p>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{t("connectedTitle")}</h3>
+            <p className="mt-1 text-xs text-slate-500">{t("connectedSubtitle")}</p>
           </div>
           {oauthAccountsLoading ? (
             <div className="flex items-center justify-center rounded-md border border-slate-700/70 bg-slate-900/25 p-8">
               <div className="flex flex-col items-center gap-3">
                 <div className="size-8 animate-spin rounded-full border-4 border-white/20 border-t-blue-500"></div>
-                <p className="text-sm text-slate-400">Loading accounts...</p>
+                <p className="text-sm text-slate-400">{t("loading")}</p>
               </div>
             </div>
           ) : accounts.length === 0 ? (
             <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-3 text-xs text-slate-400">
-              No OAuth accounts connected yet. Connect your first account below.
+              {t("empty")}
             </div>
           ) : (
             <div className="divide-y divide-slate-700/70 rounded-md border border-slate-700/70 bg-slate-900/25">
@@ -630,7 +636,7 @@ export function OAuthSection({
                           className="px-2.5 py-1 text-xs"
                           onClick={() => confirmDeleteOAuth(account.id)}
                         >
-                          Disconnect
+                          {t("actions.disconnect")}
                         </Button>
                       </div>
                     )}
@@ -641,11 +647,11 @@ export function OAuthSection({
           )}
 
           <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-3 text-xs text-slate-400">
-            <strong className="text-slate-200">Note:</strong> OAuth flows open in a popup window. Make sure pop-ups are allowed in your browser.
+            <strong className="text-slate-200">{t("note.label")}</strong> {t("note.body")}
           </div>
 
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Connect New Account</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{t("connectTitle")}</h3>
           </div>
           <div className="overflow-hidden rounded-md border border-slate-700/70 bg-slate-900/25">
             {OAUTH_PROVIDERS.map((provider, index) => (
@@ -657,15 +663,15 @@ export function OAuthSection({
                 )}
               >
                 <div className="space-y-1">
-                  <div className="text-sm font-medium text-slate-100">{provider.name}</div>
-                  <p className="text-xs leading-relaxed text-slate-400">{provider.description}</p>
+                  <div className="text-sm font-medium text-slate-100">{t(provider.nameKey)}</div>
+                  <p className="text-xs leading-relaxed text-slate-400">{t(provider.descriptionKey)}</p>
                 </div>
                 <Button
                   variant="secondary"
                   onClick={() => handleOAuthConnect(provider.id)}
                   className="shrink-0 px-2.5 py-1 text-xs"
                 >
-                  Connect
+                  {t("actions.connect")}
                 </Button>
               </div>
             ))}
@@ -676,13 +682,15 @@ export function OAuthSection({
       <Modal isOpen={isOAuthModalOpen} onClose={handleOAuthModalClose}>
         <ModalHeader>
           <ModalTitle>
-            {selectedOAuthProvider ? `Connect ${selectedOAuthProvider.name}` : "Connect"}
+            {selectedOAuthProvider
+              ? t("modal.title", { provider: getProviderLabel(selectedOAuthProvider) })
+              : t("modal.titleFallback")}
           </ModalTitle>
         </ModalHeader>
         <ModalContent>
           {oauthModalStatus === MODAL_STATUS.LOADING && (
             <div className="rounded-xl border-l-4 border-white/30 bg-white/5 p-4 text-sm text-white/80 backdrop-blur-xl">
-              Fetching authorization link...
+              {t("modal.loading")}
             </div>
           )}
 
@@ -694,32 +702,26 @@ export function OAuthSection({
             <div className="space-y-4">
               <div className="rounded-xl border-l-4 border-purple-400/60 bg-white/10 p-4 text-sm backdrop-blur-xl">
                 <div className="font-medium text-white">
-                  Step-by-step
+                  {t("modal.stepTitle")}
                 </div>
                 <ol className="mt-3 list-decimal space-y-2 pl-4 text-white/90">
-                  <li>Log in and authorize in the popup window.</li>
-                  <li>
-                    After authorizing, the page will fail to load (this is
-                    expected).
-                  </li>
-                  <li>
-                    Our server runs remotely, so the OAuth redirect can&apos;t reach
-                    it directly. Copy the FULL URL from the address bar.
-                  </li>
-                  <li>Paste the URL below and submit.</li>
+                  <li>{t("modal.steps.step1")}</li>
+                  <li>{t("modal.steps.step2")}</li>
+                  <li>{t("modal.steps.step3")}</li>
+                  <li>{t("modal.steps.step4")}</li>
                 </ol>
               </div>
 
               <div>
                 <div className="mb-2 text-xs font-medium text-white/90">
-                  Paste callback URL
+                  {t("modal.callbackLabel")}
                 </div>
                 <Input
                   type="text"
                   name="callbackUrl"
                   value={callbackUrl}
                   onChange={handleCallbackChange}
-                  placeholder="https://localhost/callback?code=...&state=..."
+                  placeholder={t("modal.callbackPlaceholder")}
                   disabled={
                     oauthModalStatus === MODAL_STATUS.SUBMITTING ||
                     oauthModalStatus === MODAL_STATUS.POLLING
@@ -747,21 +749,21 @@ export function OAuthSection({
             !selectedOAuthProviderRequiresCallback && (
             <div className="rounded-xl border-l-4 border-purple-400/60 bg-white/10 p-4 text-sm backdrop-blur-xl">
               <div className="font-medium text-white">
-                Device Authorization
+                {t("modal.deviceTitle")}
               </div>
               <ol className="mt-3 list-decimal space-y-2 pl-4 text-white/90">
-                <li>A browser window has opened with the authorization page.</li>
-                <li>Log in and approve the access request.</li>
-                <li>Once approved, this dialog will update automatically.</li>
+                <li>{t("modal.deviceSteps.step1")}</li>
+                <li>{t("modal.deviceSteps.step2")}</li>
+                <li>{t("modal.deviceSteps.step3")}</li>
               </ol>
               {deviceCodeInfo && (
                 <div className="mt-4 space-y-3">
                   <div className="rounded-lg bg-slate-800/60 p-3">
-                    <p className="text-xs font-medium text-slate-400">Your authorization code:</p>
+                    <p className="text-xs font-medium text-slate-400">{t("modal.deviceCodeLabel")}</p>
                     <p className="mt-1 select-all font-mono text-lg font-bold tracking-wider text-white">{deviceCodeInfo.userCode}</p>
                   </div>
                   <p className="text-xs text-slate-400">
-                    Enter this code at{" "}
+                    {t("modal.deviceCodeHint")}{" "}
                     <a href={deviceCodeInfo.verificationUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">
                       {deviceCodeInfo.verificationUrl}
                     </a>
@@ -774,14 +776,14 @@ export function OAuthSection({
           {oauthModalStatus === MODAL_STATUS.POLLING && (
             <div className="mt-4 rounded-xl border-l-4 border-blue-400/60 bg-blue-500/20 p-4 text-sm text-white backdrop-blur-xl">
               {selectedOAuthProviderRequiresCallback
-                ? "Callback submitted. Waiting for CLIProxyAPI to finish token exchange..."
-                : "Waiting for CLIProxyAPI to finish OAuth authorization..."}
+                ? t("modal.pollingWithCallback")
+                : t("modal.pollingWithoutCallback")}
             </div>
           )}
 
           {oauthModalStatus === MODAL_STATUS.SUCCESS && (
             <div className="rounded-xl border-l-4 border-green-400/60 bg-green-500/20 p-4 text-sm text-white backdrop-blur-xl">
-              OAuth account connected successfully.
+              {t("success.message")}
             </div>
           )}
 
@@ -793,7 +795,7 @@ export function OAuthSection({
         </ModalContent>
         <ModalFooter>
           <Button variant="ghost" onClick={handleOAuthModalClose}>
-            Close
+            {common("close")}
           </Button>
           {oauthModalStatus !== MODAL_STATUS.SUCCESS && selectedOAuthProviderRequiresCallback && (
             <Button
@@ -802,15 +804,15 @@ export function OAuthSection({
               disabled={isOAuthSubmitDisabled}
             >
               {oauthModalStatus === MODAL_STATUS.SUBMITTING
-                ? "Submitting..."
+                ? t("actions.submitting")
                 : oauthModalStatus === MODAL_STATUS.POLLING
-                  ? "Waiting..."
-                  : "Submit URL"}
+                  ? t("actions.waiting")
+                  : t("actions.submitUrl")}
             </Button>
           )}
           {oauthModalStatus === MODAL_STATUS.SUCCESS && (
             <Button variant="secondary" onClick={handleOAuthModalClose}>
-              Done
+              {t("actions.done")}
             </Button>
           )}
         </ModalFooter>
@@ -823,10 +825,10 @@ export function OAuthSection({
           setPendingOAuthDelete(null);
         }}
         onConfirm={handleOAuthDelete}
-        title="Remove OAuth Account"
-        message={`Remove OAuth account ${pendingOAuthDelete?.accountName}?`}
-        confirmLabel="Remove"
-        cancelLabel="Cancel"
+        title={t("confirm.title")}
+        message={t("confirm.message", { name: pendingOAuthDelete?.accountName ?? "" })}
+        confirmLabel={t("confirm.confirmLabel")}
+        cancelLabel={common("cancel")}
         variant="danger"
       />
     </>

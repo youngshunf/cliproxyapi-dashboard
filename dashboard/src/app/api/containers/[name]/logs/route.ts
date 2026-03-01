@@ -5,6 +5,11 @@ import { prisma } from "@/lib/db";
 import { CONTAINER_CONFIG, isValidContainerName } from "@/lib/containers";
 import { execFile } from "child_process";
 import { promisify } from "util";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 const execFileAsync = promisify(execFile);
 
@@ -19,7 +24,7 @@ export async function GET(
 
   if (!session) {
     return NextResponse.json(
-      { error: "Unauthorized" },
+      { error: t("errors.auth.unauthorized") },
       { status: 401 }
     );
   }
@@ -31,7 +36,7 @@ export async function GET(
 
   if (!user?.isAdmin) {
     return NextResponse.json(
-      { error: "Forbidden: Admin access required" },
+      { error: t("errors.auth.adminRequired") },
       { status: 403 }
     );
   }
@@ -40,7 +45,7 @@ export async function GET(
 
   if (!isValidContainerName(name)) {
     return NextResponse.json(
-      { error: "Invalid or unrecognized container name" },
+      { error: t("errors.container.invalidName") },
       { status: 400 }
     );
   }
@@ -52,7 +57,7 @@ export async function GET(
     const parsed = parseInt(linesParam, 10);
     if (isNaN(parsed) || parsed < 1) {
       return NextResponse.json(
-        { error: "Parameter 'lines' must be a positive integer" },
+        { error: t("errors.validation.invalidLines") },
         { status: 400 }
       );
     }
@@ -82,7 +87,7 @@ export async function GET(
   } catch (error) {
     logger.error({ err: error, containerName: name }, "Container logs error");
     return NextResponse.json(
-      { error: "Failed to fetch container logs" },
+      { error: t("errors.generic.fetchFailed", { resource: t("resources.container") }) },
       { status: 500 }
     );
   }

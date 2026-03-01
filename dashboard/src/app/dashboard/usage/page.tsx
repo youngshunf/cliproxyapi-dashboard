@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { useTranslations } from "next-intl";
 
 interface KeyUsage {
   keyName: string;
@@ -106,6 +107,7 @@ export default function UsagePage() {
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
   const { showToast } = useToast();
+  const t = useTranslations("usage");
   const isFirstLoadRef = useRef(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -122,7 +124,7 @@ export default function UsagePage() {
         const res = await fetch(`/api/usage/history?from=${from}&to=${to}`, { signal: abortController.signal });
 
         if (!res.ok) {
-          showToast("Failed to load usage data", "error");
+          showToast(t("failedLoad"), "error");
           setLoading(false);
           return;
         }
@@ -135,7 +137,7 @@ export default function UsagePage() {
         setLoading(false);
       } catch {
         if (abortController.signal.aborted) return;
-        showToast("Network error", "error");
+        showToast(t("networkError"), "error");
         setLoading(false);
       }
     }
@@ -186,7 +188,7 @@ export default function UsagePage() {
       const res = await fetch(`/api/usage/history?from=${from}&to=${to}`);
 
       if (!res.ok) {
-        showToast("Failed to load usage data", "error");
+        showToast(t("failedLoad"), "error");
         setLoading(false);
         return;
       }
@@ -196,7 +198,7 @@ export default function UsagePage() {
       setIsAdmin(json.isAdmin);
       setLoading(false);
     } catch {
-      showToast("Network error", "error");
+      showToast(t("networkError"), "error");
       setLoading(false);
     }
   };
@@ -210,10 +212,10 @@ export default function UsagePage() {
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-100">Usage Statistics</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
             <div className="mt-1 flex items-center gap-2">
               <div className={`h-2 w-2 rounded-full ${collectorStatusColor}`}></div>
-              <p className="text-xs text-slate-400">Last synced: {collectorTimeAgo}</p>
+              <p className="text-xs text-slate-400">{t("lastSynced", { time: collectorTimeAgo })}</p>
             </div>
           </div>
           <Button onClick={handleRefresh} disabled={loading}>
@@ -223,40 +225,40 @@ export default function UsagePage() {
       </section>
 
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Time Period</h2>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{t("timePeriod")}</h2>
         <div className="flex flex-wrap gap-2">
           <Button
             onClick={() => handleFilterChange("today")}
             variant={activeFilter === "today" ? "primary" : "secondary"}
             className="text-xs"
           >
-            Today
+            {t("today")}
           </Button>
           <Button
             onClick={() => handleFilterChange("7d")}
             variant={activeFilter === "7d" ? "primary" : "secondary"}
             className="text-xs"
           >
-            7 Days
+            {t("days7")}
           </Button>
           <Button
             onClick={() => handleFilterChange("30d")}
             variant={activeFilter === "30d" ? "primary" : "secondary"}
             className="text-xs"
           >
-            30 Days
+            {t("days30")}
           </Button>
           <Button
             onClick={() => handleFilterChange("all")}
             variant={activeFilter === "all" ? "primary" : "secondary"}
             className="text-xs"
           >
-            All Time
+            {t("allTime")}
           </Button>
         </div>
         <div className="mt-3 flex flex-wrap items-end gap-2">
           <div>
-            <label htmlFor="custom-from" className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">From</label>
+            <label htmlFor="custom-from" className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("from")}</label>
             <input
               id="custom-from"
               type="date"
@@ -266,7 +268,7 @@ export default function UsagePage() {
             />
           </div>
           <div>
-            <label htmlFor="custom-to" className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">To</label>
+            <label htmlFor="custom-to" className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("to")}</label>
             <input
               id="custom-to"
               type="date"
@@ -276,7 +278,7 @@ export default function UsagePage() {
             />
           </div>
           <Button onClick={handleCustomDateChange} disabled={!customFrom || !customTo} className="text-xs">
-            Apply
+            {t("apply")}
           </Button>
         </div>
       </section>
@@ -293,19 +295,19 @@ export default function UsagePage() {
         <>
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Total Requests</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("totalRequests")}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-100">{usageData.totals.totalRequests.toLocaleString()}</p>
             </div>
             <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Successful</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("successful")}</p>
               <p className="mt-0.5 text-xs font-semibold text-emerald-300">{usageData.totals.successCount.toLocaleString()}</p>
             </div>
             <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Failed</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("failed")}</p>
               <p className="mt-0.5 text-xs font-semibold text-rose-300">{usageData.totals.failureCount.toLocaleString()}</p>
             </div>
             <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Total Tokens</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("totalTokens")}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-100">{usageData.totals.totalTokens.toLocaleString()}</p>
             </div>
           </div>
@@ -313,15 +315,15 @@ export default function UsagePage() {
           {hasInputOutputBreakdown && (
             <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
               <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Input Tokens</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("inputTokens")}</p>
                 <p className="mt-0.5 text-xs font-semibold text-slate-100">{usageData.totals.inputTokens.toLocaleString()}</p>
               </div>
               <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Output Tokens</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("outputTokens")}</p>
                 <p className="mt-0.5 text-xs font-semibold text-slate-100">{usageData.totals.outputTokens.toLocaleString()}</p>
               </div>
               <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Total Tokens</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("totalTokens")}</p>
                 <p className="mt-0.5 text-xs font-semibold text-slate-100">{usageData.totals.totalTokens.toLocaleString()}</p>
               </div>
             </div>
@@ -329,25 +331,25 @@ export default function UsagePage() {
 
           {Object.keys(usageData.keys).length === 0 ? (
             <section className="rounded-md border border-slate-700/70 bg-slate-900/25 p-6 text-center">
-              <p className="text-sm text-slate-400">No usage data yet</p>
+              <p className="text-sm text-slate-400">{t("noUsageData")}</p>
             </section>
           ) : (
             <section className="space-y-2">
-              <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Usage by API Key</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{t("usageByApiKey")}</h2>
               <div className="overflow-x-auto">
                 <div className="min-w-[600px] rounded-md border border-slate-700/70 bg-slate-900/25">
                   <table className="w-full text-sm">
                   <thead className="border-b border-slate-700/70 bg-slate-900/60">
                     <tr>
                       <th className="p-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400 w-8"></th>
-                      <th className="p-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Key Name</th>
+                      <th className="p-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("keyName")}</th>
                       {isAdmin && (
-                        <th className="p-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Username</th>
+                        <th className="p-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("username")}</th>
                       )}
-                      <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Total</th>
-                      <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Success</th>
+                      <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("total")}</th>
+                      <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("success")}</th>
                       <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Failed</th>
-                      <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Tokens</th>
+                      <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("tokens")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -397,11 +399,11 @@ export default function UsagePage() {
                                   <table className="w-full text-xs">
                                     <thead className="border-b border-slate-700/60">
                                       <tr>
-                                        <th className="p-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Model</th>
-                                        <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Requests</th>
-                                        <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Input</th>
-                                        <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Output</th>
-                                        <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Total</th>
+                                        <th className="p-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("model")}</th>
+                                        <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("requests")}</th>
+                                        <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("input")}</th>
+                                        <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("output")}</th>
+                                        <th className="p-2 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("total")}</th>
                                       </tr>
                                     </thead>
                                     <tbody>

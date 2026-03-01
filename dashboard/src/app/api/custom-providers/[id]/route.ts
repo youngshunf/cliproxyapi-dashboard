@@ -9,6 +9,11 @@ import { AUDIT_ACTION, extractIpAddress, logAuditAsync } from "@/lib/audit";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { syncCustomProviderToProxy } from "@/lib/providers/custom-provider-sync";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 const FETCH_TIMEOUT_MS = 10_000;
 
@@ -58,7 +63,10 @@ export async function PATCH(
   const { id } = await params;
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -74,11 +82,17 @@ export async function PATCH(
     });
 
     if (!existingProvider) {
-      return NextResponse.json({ error: "Provider not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: t("errors.resource.notFound", { resource: t("resources.provider") }) },
+        { status: 404 }
+      );
     }
 
     if (existingProvider.userId !== session.userId) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+      return NextResponse.json(
+        { error: t("errors.auth.forbidden") },
+        { status: 403 }
+      );
     }
 
     if (validated.name) {
@@ -91,7 +105,10 @@ export async function PATCH(
       });
 
       if (nameConflict) {
-        return NextResponse.json({ error: "Provider name already exists" }, { status: 409 });
+        return NextResponse.json(
+          { error: t("errors.customProviders.nameExists") },
+          { status: 409 }
+        );
       }
     }
 
@@ -101,7 +118,10 @@ export async function PATCH(
         select: { id: true },
       });
       if (!groupExists) {
-        return NextResponse.json({ error: "Provider group not found" }, { status: 404 });
+        return NextResponse.json(
+          { error: t("errors.resource.notFound", { resource: t("resources.providerGroup") }) },
+          { status: 404 }
+        );
       }
     }
 
@@ -203,7 +223,7 @@ export async function PATCH(
       syncMessage = syncResult.syncMessage;
     } else {
       syncStatus = "failed";
-      syncMessage = "Backend sync failed - could not retrieve API key for update";
+      syncMessage = t("errors.sync.apiKeyMissing");
       logger.error("Failed to sync updated custom provider: no API key available");
     }
 
@@ -226,7 +246,10 @@ export async function PATCH(
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
     logger.error({ err: error }, "PATCH /api/custom-providers/[id] error");
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: t("errors.internal.serverError") },
+      { status: 500 }
+    );
   }
 }
 
@@ -237,7 +260,10 @@ export async function DELETE(
   const { id } = await params;
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -249,11 +275,17 @@ export async function DELETE(
     });
 
     if (!existingProvider) {
-      return NextResponse.json({ error: "Provider not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: t("errors.resource.notFound", { resource: t("resources.provider") }) },
+        { status: 404 }
+      );
     }
 
     if (existingProvider.userId !== session.userId) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+      return NextResponse.json(
+        { error: t("errors.auth.forbidden") },
+        { status: 403 }
+      );
     }
 
     await prisma.customProvider.delete({
@@ -304,7 +336,9 @@ export async function DELETE(
           if (!putRes.ok) {
             await putRes.body?.cancel();
             syncStatus = "failed";
-            syncMessage = "Backend sync failed - provider deleted but may still work temporarily";
+            syncMessage = t("errors.sync.failed", {
+              action: t("messages.sync.actionDeleted"),
+            });
             logger.error({ statusCode: putRes.status }, "Failed to sync deleted custom provider to Management API");
           } else {
             invalidateProxyModelsCache();
@@ -312,23 +346,30 @@ export async function DELETE(
         } else {
           await getRes.body?.cancel();
           syncStatus = "failed";
-          syncMessage = "Backend sync failed - provider deleted but may still work temporarily";
+          syncMessage = t("errors.sync.failed", {
+            action: t("messages.sync.actionDeleted"),
+          });
           logger.error({ statusCode: getRes.status }, "Failed to fetch current config from Management API");
         }
       } catch (syncError) {
         syncStatus = "failed";
-        syncMessage = "Backend sync failed - provider deleted but may still work temporarily";
+        syncMessage = t("errors.sync.failed", {
+          action: t("messages.sync.actionDeleted"),
+        });
         logger.error({ err: syncError }, "Failed to sync deleted custom provider to Management API");
       }
     } else {
       syncStatus = "failed";
-      syncMessage = "Backend sync unavailable - management API key not configured";
+      syncMessage = t("errors.sync.unavailable");
     }
 
     return NextResponse.json({ success: true, syncStatus, syncMessage });
 
   } catch (error) {
     logger.error({ err: error }, "DELETE /api/custom-providers/[id] error");
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: t("errors.internal.serverError") },
+      { status: 500 }
+    );
   }
 }

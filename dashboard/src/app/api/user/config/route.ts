@@ -4,6 +4,11 @@ import { validateOrigin } from "@/lib/auth/origin";
 import { prisma } from "@/lib/db";
 import type { McpEntry } from "@/lib/config-generators/opencode";
 import { logger } from "@/lib/logger";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 interface UserConfigRequest {
   mcpServers?: McpEntry[];
@@ -63,7 +68,10 @@ function validateUserConfigRequest(body: unknown): UserConfigRequest | null {
 export async function GET() {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
   
   try {
@@ -80,7 +88,7 @@ export async function GET() {
   } catch (error) {
     logger.error({ err: error }, "Failed to fetch user config");
     return NextResponse.json(
-      { error: "Failed to fetch config" },
+      { error: t("errors.generic.fetchFailed", { resource: t("resources.config") }) },
       { status: 500 }
     );
   }
@@ -89,7 +97,10 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
   
   const originError = validateOrigin(request);
@@ -103,7 +114,7 @@ export async function PUT(request: NextRequest) {
     
     if (!validatedConfig) {
       return NextResponse.json(
-        { error: "Invalid config data" },
+        { error: t("errors.validation.invalidRequestBody") },
         { status: 400 }
       );
     }
@@ -114,7 +125,10 @@ export async function PUT(request: NextRequest) {
     });
     
     if (!userExists) {
-      return NextResponse.json({ error: "User not found - please log in again" }, { status: 401 });
+      return NextResponse.json(
+        { error: t("errors.resource.notFound", { resource: t("resources.user") }) },
+        { status: 401 }
+      );
     }
 
     const existing = await prisma.agentModelOverride.findUnique({
@@ -151,7 +165,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     logger.error({ err: error }, "Failed to update user config");
     return NextResponse.json(
-      { error: "Failed to update config" },
+      { error: t("errors.generic.updateFailed", { resource: t("resources.config") }) },
       { status: 500 }
     );
   }

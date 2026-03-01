@@ -5,6 +5,11 @@ import { z } from "zod";
 import { checkRateLimitWithPreset } from "@/lib/auth/rate-limit";
 import { logger } from "@/lib/logger";
 import { FetchModelsSchema } from "@/lib/validation/schemas";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 interface OpenAIModel {
   id: string;
@@ -84,7 +89,7 @@ export async function POST(request: NextRequest) {
   const rateLimit = checkRateLimitWithPreset(request, "custom-providers-fetch-models", "CUSTOM_PROVIDERS");
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Too many fetch requests. Try again later." },
+      { error: t("errors.providerModels.rateLimit") },
       {
         status: 429,
         headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
@@ -94,7 +99,10 @@ export async function POST(request: NextRequest) {
 
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.providerModels.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -111,13 +119,16 @@ export async function POST(request: NextRequest) {
     try {
       parsedUrl = new URL(`${normalizedBaseUrl}/models`);
     } catch {
-      return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
+      return NextResponse.json(
+        { error: t("errors.providerModels.invalidUrl") },
+        { status: 400 }
+      );
     }
 
     if (isPrivateHost(parsedUrl.hostname)) {
       logger.warn({ hostname: parsedUrl.hostname }, "Blocked SSRF attempt to private host");
       return NextResponse.json(
-        { error: "Cannot connect to private or localhost addresses" },
+        { error: t("errors.providerModels.privateAddress") },
         { status: 400 }
       );
     }
@@ -145,19 +156,19 @@ export async function POST(request: NextRequest) {
         await response.body?.cancel();
         if (response.status === 401 || response.status === 403) {
           return NextResponse.json(
-            { error: "Authentication failed. Check your API key." },
+            { error: t("errors.providerModels.authFailed") },
             { status: 401 }
           );
         }
         if (response.status === 404) {
           return NextResponse.json(
-            { error: "Models endpoint not found. This may not be an OpenAI-compatible API." },
+            { error: t("errors.providerModels.endpointNotFound") },
             { status: 404 }
           );
         }
         logger.error({ status: response.status, url: modelsEndpoint }, "Failed to fetch models from provider");
         return NextResponse.json(
-          { error: `Failed to fetch models (HTTP ${response.status})` },
+          { error: t("errors.providerModels.httpFailed", { status: response.status }) },
           { status: response.status }
         );
       }
@@ -170,14 +181,14 @@ export async function POST(request: NextRequest) {
       if (!Array.isArray(modelList)) {
         logger.error({ responseData }, "Invalid models response format");
         return NextResponse.json(
-          { error: "Invalid response format from provider" },
+          { error: t("errors.providerModels.invalidResponse") },
           { status: 500 }
         );
       }
 
       if (modelList.length === 0) {
         return NextResponse.json(
-          { error: "No models found from this provider" },
+          { error: t("errors.providerModels.noneFound") },
           { status: 404 }
         );
       }
@@ -196,21 +207,21 @@ export async function POST(request: NextRequest) {
         if (fetchError.name === "AbortError") {
           logger.error({ url: modelsEndpoint }, "Fetch models request timed out");
           return NextResponse.json(
-            { error: "Request timed out. The provider may be unreachable." },
+            { error: t("errors.providerModels.timeout") },
             { status: 504 }
           );
         }
         
         logger.error({ err: fetchError, url: modelsEndpoint }, "Failed to fetch models from provider");
         return NextResponse.json(
-          { error: `Network error: ${fetchError.message}` },
+          { error: t("errors.providerModels.networkError", { message: fetchError.message }) },
           { status: 503 }
         );
       }
 
       logger.error({ err: fetchError }, "Unknown error fetching models");
       return NextResponse.json(
-        { error: "Failed to fetch models from provider" },
+        { error: t("errors.providerModels.fetchFailed") },
         { status: 500 }
       );
     }
@@ -220,6 +231,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
     logger.error({ err: error }, "POST /api/custom-providers/fetch-models error");
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: t("errors.internal.serverError") },
+      { status: 500 }
+    );
   }
 }

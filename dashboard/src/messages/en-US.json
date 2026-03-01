@@ -1,0 +1,1089 @@
+{
+  "app": {
+    "title": "CLIProxyAPI Dashboard",
+    "description": "Management dashboard for CLIProxyAPI"
+  },
+  "nav": {
+    "general": "General",
+    "access": "Access",
+    "admin": "Admin",
+    "quickStart": "Quick Start",
+    "providers": "Providers",
+    "usage": "Usage",
+    "quota": "Quota",
+    "apiKeys": "API Keys",
+    "settings": "Settings",
+    "monitoring": "Monitoring",
+    "containers": "Containers",
+    "config": "Config",
+    "users": "Users",
+    "logs": "Logs",
+    "logout": "Logout",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "brandTitle": "CLIProxy",
+    "brandSubtitle": "Management"
+  },
+  "common": {
+    "networkError": "Network error. Please try again.",
+    "loading": "Loading...",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "login": {
+    "brand": "CLIProxyAPI",
+    "subtitle": "Sign in to your dashboard",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "errorFallback": "Login failed",
+    "footer": "CLIProxyAPI Management Dashboard"
+  },
+  "apiKeys": {
+    "title": "API Keys",
+    "description": "Manage dashboard access keys for clients and integrations.",
+    "createKey": "Create Key",
+    "createApiKey": "Create API Key",
+    "emptyTitle": "No API keys created yet",
+    "emptyDescription": "Create your first API key to access the dashboard programmatically",
+    "table": {
+      "name": "Name",
+      "created": "Created",
+      "lastUsed": "Last Used",
+      "actions": "Actions"
+    },
+    "never": "Never",
+    "delete": "Delete",
+    "defaultName": "Default",
+    "modal": {
+      "createTitle": "Create API Key",
+      "keyName": "Key Name",
+      "placeholder": "e.g. Development, Production, CLI",
+      "helper": "Give your key a descriptive name for easy identification",
+      "creating": "Creating...",
+      "create": "Create Key",
+      "newTitle": "New API Key",
+      "copyNow": "Copy this key now",
+      "copyAction": "Copy API key",
+      "oneTimeNotice": "This key will only be shown once. Store it securely.",
+      "saved": "I have saved it"
+    },
+    "confirm": {
+      "title": "Delete API Key",
+      "message": "Are you sure you want to delete this API key?"
+    },
+    "toast": {
+      "loadFailed": "Failed to load API keys",
+      "createFailed": "Failed to create API key",
+      "createSuccess": "API key created successfully",
+      "deleteFailed": "Failed to delete API key",
+      "deleteSuccess": "API key deleted successfully",
+      "copied": "API key copied"
+    }
+  },
+  "providers": {
+    "title": "AI Provider Configuration",
+    "description": "Manage API keys, OAuth accounts, and custom provider endpoints in one place.",
+    "stats": {
+      "apiKeys": "API Keys",
+      "apiKeysValue": "{total} configured{hasUser, select, yes { · {own} yours} other {}}",
+      "activeProviders": "Active Providers",
+      "activeProvidersValue": "{active}/{total}",
+      "oauthAccounts": "OAuth Accounts",
+      "oauthAccountsValue": "{count} connected",
+      "customProviders": "Custom Providers",
+      "customProvidersValue": "{count} configured"
+    },
+    "loading": "Loading providers...",
+    "apiKeySection": {
+      "title": "API Key Providers",
+      "subtitle": "Direct provider access keys",
+      "totalKeys": "{count, plural, one {# key total} other {# keys total}}",
+      "table": {
+        "provider": "Provider",
+        "status": "Status",
+        "keys": "Keys",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "keysCount": "{count, plural, one {# key} other {# keys}}",
+      "actions": {
+        "addKey": "Add Key",
+        "remove": "Remove"
+      },
+      "empty": "No API keys configured.",
+      "owner": {
+        "you": "You",
+        "team": "Team"
+      },
+      "modal": {
+        "title": "{provider} - Add API Key",
+        "label": "API Key",
+        "helper": "Your API key will be stored securely and associated with your account",
+        "usage": "Usage: You have contributed {count} / {max} keys total",
+        "add": "Add API Key",
+        "adding": "Adding..."
+      },
+      "confirm": {
+        "title": "Remove API Key",
+        "message": "Are you sure you want to remove this key?",
+        "confirmLabel": "Remove"
+      },
+      "errors": {
+        "apiKeyRequired": "API key is required",
+        "addFailed": "Failed to add provider key",
+        "duplicateKey": "This API key has already been contributed",
+        "deleteFailed": "Failed to delete provider key"
+      },
+      "success": {
+        "added": "Provider key added successfully",
+        "deleted": "Provider key deleted"
+      },
+      "providers": {
+        "claude": {
+          "name": "Claude (Anthropic)",
+          "description": "Official Anthropic API"
+        },
+        "gemini": {
+          "name": "Gemini (Google)",
+          "description": "Google Gemini API"
+        },
+        "codex": {
+          "name": "OpenAI / Codex",
+          "description": "OpenAI API including GPT models"
+        },
+        "openai": {
+          "name": "OpenAI Compatible",
+          "description": "Custom providers like OpenRouter"
+        }
+      }
+    },
+    "oauthSection": {
+      "title": "OAuth Accounts",
+      "subtitle": "Subscription-based provider connections",
+      "connectedCount": "{count} connected",
+      "connectedTitle": "Connected Accounts",
+      "connectedSubtitle": "Active OAuth provider connections",
+      "loading": "Loading accounts...",
+      "empty": "No OAuth accounts connected yet. Connect your first account below.",
+      "note": {
+        "label": "Note:",
+        "body": "OAuth flows open in a popup window. Make sure pop-ups are allowed in your browser."
+      },
+      "connectTitle": "Connect New Account",
+      "actions": {
+        "connect": "Connect",
+        "disconnect": "Disconnect",
+        "submitting": "Submitting...",
+        "waiting": "Waiting...",
+        "submitUrl": "Submit URL",
+        "done": "Done"
+      },
+      "modal": {
+        "title": "Connect {provider}",
+        "titleFallback": "Connect",
+        "loading": "Fetching authorization link...",
+        "stepTitle": "Step-by-step",
+        "steps": {
+          "step1": "Log in and authorize in the popup window.",
+          "step2": "After authorizing, the page will fail to load (this is expected).",
+          "step3": "Our server runs remotely, so the OAuth redirect can't reach it directly. Copy the FULL URL from the address bar.",
+          "step4": "Paste the URL below and submit."
+        },
+        "callbackLabel": "Paste callback URL",
+        "callbackPlaceholder": "https://localhost/callback?code=...&state=...",
+        "deviceTitle": "Device Authorization",
+        "deviceSteps": {
+          "step1": "A browser window has opened with the authorization page.",
+          "step2": "Log in and approve the access request.",
+          "step3": "Once approved, this dialog will update automatically."
+        },
+        "deviceCodeLabel": "Your authorization code:",
+        "deviceCodeHint": "Enter this code at",
+        "pollingWithCallback": "Callback submitted. Waiting for CLIProxyAPI to finish token exchange...",
+        "pollingWithoutCallback": "Waiting for CLIProxyAPI to finish OAuth authorization..."
+      },
+      "callbackMessages": {
+        "pasteFull": "Paste the full URL.",
+        "invalidUrl": "That doesn't look like a valid URL.",
+        "missingParams": "URL must include both code and state parameters.",
+        "ready": "Callback URL looks good. Ready to submit.",
+        "deviceWaiting": "Waiting for device authorization details...",
+        "noCallback": "No callback URL needed. Complete sign-in in the popup window."
+      },
+      "errors": {
+        "loadAccounts": "Failed to load OAuth accounts",
+        "loadAccountsNetwork": "Network error while loading accounts.",
+        "timeout": "Timed out waiting for authorization.",
+        "statusCheckFailed": "Failed to check authorization status.",
+        "authorizationFailed": "OAuth authorization failed.",
+        "pollNetwork": "Network error while polling authorization.",
+        "ownershipClaimFailed": "Failed to complete OAuth ownership claim.",
+        "startFailed": "Failed to start OAuth flow.",
+        "missingState": "OAuth response missing state.",
+        "missingUrl": "OAuth response missing URL.",
+        "popupBlocked": "Popup blocked. Allow pop-ups and try again.",
+        "startNetwork": "Network error while starting OAuth flow.",
+        "missingProviderState": "Missing provider or state. Please restart the flow.",
+        "callbackRelayFailed": "Failed to relay the OAuth callback URL.",
+        "callbackNetwork": "Network error while submitting callback URL.",
+        "removeFailed": "Failed to remove OAuth account"
+      },
+      "success": {
+        "connected": "OAuth account connected",
+        "removed": "OAuth account removed",
+        "message": "OAuth account connected successfully."
+      },
+      "toast": {
+        "deviceInit": "Initializing device authorization flow...",
+        "windowOpenedWithCallback": "OAuth window opened. Follow the steps below.",
+        "windowOpened": "OAuth window opened. Complete sign-in in the popup."
+      },
+      "confirm": {
+        "title": "Remove OAuth Account",
+        "message": "Remove OAuth account {name}?",
+        "confirmLabel": "Remove"
+      },
+      "providers": {
+        "claude": {
+          "name": "Claude Code",
+          "description": "Anthropic Claude (Pro/Max subscription)"
+        },
+        "geminiCli": {
+          "name": "Gemini CLI",
+          "description": "Google Gemini (via Google OAuth)"
+        },
+        "codex": {
+          "name": "Codex",
+          "description": "OpenAI Codex (Plus/Pro subscription)"
+        },
+        "antigravity": {
+          "name": "Antigravity",
+          "description": "Google Antigravity (via Google OAuth)"
+        },
+        "iflow": {
+          "name": "iFlow",
+          "description": "iFlytek iFlow (via OAuth)"
+        },
+        "kimi": {
+          "name": "Kimi",
+          "description": "Moonshot AI Kimi (device OAuth)"
+        },
+        "qwen": {
+          "name": "Qwen Code",
+          "description": "Alibaba Qwen Code (device OAuth)"
+        },
+        "copilot": {
+          "name": "GitHub Copilot",
+          "description": "GitHub Copilot (via GitHub device OAuth)"
+        },
+        "kiro": {
+          "name": "Kiro",
+          "description": "AWS CodeWhisperer / Kiro (device OAuth)"
+        }
+      }
+    },
+    "customSection": {
+      "title": "Custom Providers",
+      "subtitle": "OpenAI-compatible endpoints and mappings",
+      "loading": "Loading custom providers...",
+      "empty": {
+        "title": "No custom providers configured",
+        "description": "Add an OpenAI-compatible provider to extend your AI capabilities",
+        "action": "Add Custom Provider"
+      },
+      "actions": {
+        "manageGroups": "Manage Groups",
+        "addProvider": "Add Custom Provider",
+        "edit": "Edit",
+        "delete": "Delete",
+        "moveUp": "Move Up",
+        "moveDown": "Move Down",
+        "moveGroupUp": "Move Group Up",
+        "moveGroupDown": "Move Group Down"
+      },
+      "status": {
+        "active": "Active",
+        "disabled": "Disabled"
+      },
+      "groupEmpty": "No providers in this group",
+      "table": {
+        "name": "Name",
+        "endpoint": "Endpoint",
+        "models": "Models",
+        "order": "Order",
+        "actions": "Actions"
+      },
+      "ungrouped": "Ungrouped",
+      "confirm": {
+        "title": "Delete Provider Group",
+        "message": "Are you sure you want to delete this group? The providers inside will not be deleted, they will just become ungrouped. This action cannot be undone.",
+        "confirmLabel": "Delete"
+      },
+      "errors": {
+        "loadFailed": "Failed to load custom providers",
+        "deleteProviderFailed": "Failed to delete custom provider",
+        "updateGroupFailed": "Failed to update group",
+        "deleteGroupFailed": "Failed to delete group",
+        "reorderGroupsFailed": "Failed to reorder groups",
+        "reorderProvidersFailed": "Failed to reorder providers"
+      },
+      "success": {
+        "providerDeleted": "Custom provider deleted",
+        "groupDeleted": "Group deleted"
+      }
+    },
+    "groupModal": {
+      "title": {
+        "create": "Create Provider Group",
+        "edit": "Edit Provider Group"
+      },
+      "fields": {
+        "name": {
+          "label": "Group Name",
+          "placeholder": "e.g. Production Models"
+        },
+        "color": {
+          "label": "Color (Optional)",
+          "selectLabel": "Select color {color}",
+          "clearLabel": "No color"
+        }
+      },
+      "actions": {
+        "create": "Create Group",
+        "save": "Save Changes",
+        "saving": "Saving..."
+      },
+      "success": {
+        "created": "Group created successfully",
+        "updated": "Group updated successfully"
+      },
+      "errors": {
+        "createFailed": "Failed to create group",
+        "updateFailed": "Failed to update group",
+        "generic": "An error occurred"
+      }
+    },
+    "customModal": {
+      "title": {
+        "create": "Add Custom Provider",
+        "edit": "Edit Custom Provider"
+      },
+      "fields": {
+        "name": {
+          "label": "Name",
+          "placeholder": "My Custom Provider"
+        },
+        "providerId": {
+          "label": "Provider ID"
+        },
+        "baseUrl": {
+          "label": "Base URL",
+          "placeholder": "https://api.example.com/v1"
+        },
+        "apiKey": {
+          "label": "API Key",
+          "placeholder": "sk-...",
+          "placeholderEditable": "Leave empty to keep existing key"
+        },
+        "prefix": {
+          "label": "Prefix (Optional)",
+          "placeholder": "custom/"
+        },
+        "headers": {
+          "label": "Headers (Optional)",
+          "placeholderKey": "Header-Name",
+          "placeholderValue": "Header-Value"
+        },
+        "models": {
+          "label": "Model Mappings"
+        },
+        "excluded": {
+          "label": "Excluded Models (Optional)"
+        },
+        "group": {
+          "label": "Group (Optional)",
+          "none": "No group"
+        }
+      },
+      "helpers": {
+        "providerId": "Lowercase letters, numbers, and hyphens",
+        "cannotChange": "Cannot be changed.",
+        "autoGenerated": "Automatically generated from name",
+        "keepExistingKey": "Leave empty to keep the existing API key",
+        "prefix": "Model name prefix used for routing",
+        "manualMapping": "Map upstream model names to aliases",
+        "excluded": "Supports wildcards: gpt-4, claude-*, *-mini",
+        "group": "Assign this provider to a group for organization"
+      },
+      "actions": {
+        "addHeader": "+ Add Header",
+        "fetchModels": "Fetch Models",
+        "addModel": "+ Add Model",
+        "addSelected": "Add Selected ({count})",
+        "selectAll": "Select All",
+        "deselectAll": "Deselect All",
+        "addExclusion": "+ Add Exclusion",
+        "updating": "Updating...",
+        "creating": "Creating...",
+        "updateProvider": "Update Provider",
+        "createProvider": "Create Provider"
+      },
+      "fetch": {
+        "title": "Auto-Discover Models",
+        "loading": "Fetching...",
+        "available": "Available Models ({count})",
+        "selected": "{count} selected",
+        "selectAll": "Select All",
+        "deselectAll": "Deselect All"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "nameTooLong": "Name must be 100 characters or fewer",
+        "providerIdInvalid": "Provider ID must contain only lowercase letters, numbers, and hyphens",
+        "baseUrlHttps": "Base URL must start with https://",
+        "apiKeyRequired": "API Key is required",
+        "modelsRequired": "At least one model mapping is required"
+      },
+      "toast": {
+        "created": "Custom provider created",
+        "updated": "Custom provider updated",
+        "saveFailed": "Failed to save provider",
+        "baseUrlApiKey": "Enter a valid Base URL (https) and API Key first",
+        "fetchFailed": "Failed to fetch models",
+        "modelsFound": "Found {count} models",
+        "modelsAdded": "Added {count, plural, one {# model} other {# models}}"
+      }
+    },
+    "admin": {
+      "title": "Admin Settings",
+      "subtitle": "Provider limits and policies",
+      "keyLimitsTitle": "Key Contribution Limits",
+      "keyLimitsDescription": "Control how many provider keys each user can contribute",
+      "maxKeysLabel": "Max Keys Per User",
+      "maxKeysHelper": "Maximum number of provider keys a single user can contribute (current: {count})",
+      "updateSuccess": "Setting updated successfully",
+      "updateFailed": "Failed to update setting",
+      "save": "Save"
+    }
+  },
+  "setup": {
+    "title": "Setup",
+    "brand": "CLIProxyAPI",
+    "subtitle": "First-time setup",
+    "notice": "Create your administrator account. Keep these credentials secure.",
+    "username": "Username",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "usernamePlaceholder": "admin",
+    "passwordPlaceholder": "Minimum 8 characters",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "submit": "Create Account",
+    "submitting": "Creating account...",
+    "errorFallback": "Setup failed",
+    "footer": "CLIProxyAPI Management Dashboard"
+  },
+  "quickStart": {
+    "title": "Quick Start",
+    "subtitle": "Configure providers, generate client config, and validate access from one place.",
+    "actions": {
+      "providers": "Providers",
+      "apiKeys": "API Keys",
+      "settings": "Settings"
+    },
+    "statusCards": {
+      "service": {
+        "label": "Service",
+        "value": {
+          "online": "Online",
+          "offline": "Offline"
+        }
+      },
+      "providers": {
+        "label": "Providers",
+        "value": "{count} configured"
+      },
+      "apiKeys": {
+        "label": "API Keys",
+        "value": "{count} active"
+      },
+      "proxyUrl": {
+        "label": "Proxy URL"
+      }
+    },
+    "setup": {
+      "checklistTitle": "Setup Checklist",
+      "progress": "{completed}/{total} steps complete",
+      "items": {
+        "providerConnected": "Provider connected",
+        "apiKeyCreated": "API key created",
+        "modelCatalogAvailable": "Model catalog available"
+      },
+      "links": {
+        "providers": "Providers",
+        "apiKeys": "API Keys",
+        "verifyProviders": "Verify providers"
+      }
+    },
+    "publisher": {
+      "title": "Publisher / Subscriber",
+      "description": "Share your config template or subscribe to another user."
+    },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Reference setup snippets for external clients.",
+      "claudeTitle": "Using with Claude Code",
+      "claudeDescription": {
+        "sentence1": "As an alternative, you can use CLIProxyAPI with Claude Code by setting environment variables before launching it.",
+        "sentence2": {
+          "part1": "Replace ",
+          "part2": " with your key from the ",
+          "postLink": " page.",
+          "linkText": "API Keys"
+        }
+      }
+    }
+  },
+  "errors": {
+    "auth": {
+      "unauthorized": "Unauthorized",
+      "invalidCredentials": "Invalid credentials",
+      "forbidden": "Insufficient permissions",
+      "adminRequired": "Admin access required"
+    },
+    "validation": {
+      "missingFields": "Missing required fields: {fields}",
+      "invalidInputTypes": "Invalid input types",
+      "invalidRequestBody": "Invalid request body",
+      "invalidCookieData": "Invalid cookie data: {error}",
+      "providerGroupsNotOwned": "One or more provider groups do not belong to the current user",
+      "providersNotOwned": "One or more providers do not belong to the current user",
+      "duplicateProviderIds": "providerIds must not contain duplicates",
+      "passwordDifferent": "New password must be different from current password",
+      "invalidUrl": "Invalid URL",
+      "invalidParameter": "Invalid parameter: {param}",
+      "missingParameter": "Missing required parameter: {param}",
+      "invalidDateFormat": "Invalid date format. Use YYYY-MM-DD.",
+      "invalidDateRange": "from date must be before to date",
+      "confirmationRequired": "Confirmation required",
+      "invalidVersionFormat": "Invalid version format",
+      "invalidJson": "Invalid JSON",
+      "invalidLines": "Parameter 'lines' must be a positive integer",
+      "failed": "Validation failed"
+    },
+    "rateLimit": {
+      "tooMany": "Too many requests. Try again later.",
+      "login": "Too many login attempts. Try again later.",
+      "apiKeyCreate": "Too many API key creation requests. Try again later.",
+      "customProviderCreate": "Too many custom provider creation requests. Try again later."
+    },
+    "syncToken": {
+      "expired": "Sync token expired",
+      "apiKeyDeleted": "The API key assigned to this sync token has been deleted. Please update the sync token."
+    },
+    "providerModels": {
+      "httpFailed": "Failed to fetch models (HTTP {status})",
+      "invalidResponse": "Invalid response format from provider",
+      "noneFound": "No models found from this provider",
+      "timeout": "Request timed out. The provider may be unreachable.",
+      "networkError": "Network error: {message}",
+      "fetchFailed": "Failed to fetch models from provider",
+      "rateLimit": "Too many fetch requests. Try again later.",
+      "unauthorized": "Unauthorized",
+      "invalidUrl": "Invalid URL",
+      "privateAddress": "Cannot connect to private or localhost addresses",
+      "authFailed": "Authentication failed. Check your API key.",
+      "endpointNotFound": "Models endpoint not found. This may not be an OpenAI-compatible API."
+    },
+    "sync": {
+      "unavailable": "Backend sync unavailable - management API key not configured",
+      "failed": "Backend sync failed - provider {action} but may not work immediately",
+      "apiKeyMissing": "Backend sync failed - could not retrieve API key for update"
+    },
+    "resource": {
+      "notFound": "{resource} not found",
+      "providerGroupNotFound": "Provider group not found",
+      "perplexityCookieNotFound": "Perplexity cookie not found"
+    },
+    "conflict": {
+      "providerGroupNameExists": "Provider group name already exists"
+    },
+    "internal": {
+      "serverError": "Internal server error",
+      "databaseError": "Database operation failed"
+    },
+    "container": {
+      "invalidName": "Invalid or unrecognized container name",
+      "actionNotAllowed": "Action '{action}' is not allowed on container '{name}'",
+      "actionFailed": "Failed to perform action: {message}",
+      "unknown": "Unknown error"
+    },
+    "configSharing": {
+      "templateNotFound": "Template not found",
+      "fetchTemplateFailed": "Failed to fetch config template",
+      "invalidRequestBody": "Invalid request body",
+      "alreadyPublished": "User already has a published template",
+      "createTemplateFailed": "Failed to create config template",
+      "updateTemplateFailed": "Failed to update config template",
+      "deleteTemplateFailed": "Failed to delete config template",
+      "shareCodeRequired": "shareCode is required",
+      "templateNotFoundByShareCode": "Template not found with provided share code",
+      "templateInactive": "Template is not active",
+      "cannotSubscribeSelf": "Cannot subscribe to your own template",
+      "apiKeyRequired": "Cannot subscribe without at least one API key. Please add an API key first.",
+      "subscriptionNotFound": "Subscription not found",
+      "fetchSubscriptionFailed": "Failed to fetch subscription",
+      "createSubscriptionFailed": "Failed to create subscription",
+      "updateSubscriptionFailed": "Failed to update subscription",
+      "deleteSubscriptionFailed": "Failed to delete subscription",
+      "invalidSubscribeBody": "Invalid request body: shareCode is required",
+      "invalidUpdateBody": "Invalid request body: isActive is required"
+    },
+    "apiKeys": {
+      "notFoundOrDenied": "API key not found or access denied"
+    },
+    "customProviders": {
+      "nameExists": "Provider name already exists",
+      "idTaken": "Provider ID already taken"
+    },
+    "generic": {
+      "fetchFailed": "Failed to fetch {resource}",
+      "createFailed": "Failed to create {resource}",
+      "updateFailed": "Failed to update {resource}",
+      "deleteFailed": "Failed to delete {resource}",
+      "listFailed": "Failed to list {resource}",
+      "removeFailed": "Failed to remove {resource}",
+      "checkFailed": "Failed to check {resource}",
+      "triggerFailed": "Failed to trigger {action}",
+      "serverConfigError": "Server configuration error",
+      "invalidRequestPath": "Invalid request path",
+      "payloadTooLarge": "Payload too large",
+      "requestTimeout": "Request timeout",
+      "responseTooLarge": "Response too large"
+    },
+    "update": {
+      "failed": "Update failed"
+    }
+  },
+  "resources": {
+    "template": "Template",
+    "subscription": "Subscription",
+    "token": "Token",
+    "apiKey": "API Key",
+    "apiKeys": "API Keys",
+    "user": "User",
+    "provider": "Provider",
+    "providerGroup": "Provider group",
+    "config": "Config",
+    "oauthAccount": "OAuth account",
+    "container": "Container",
+    "syncToken": "Sync token",
+    "update": "Update"
+  },
+  "messages": {
+    "container": {
+      "actionCompleted": "Container '{name}' {action} completed"
+    },
+    "apiKeys": {
+      "defaultName": "Default",
+      "syncPending": "Key created - backend sync in progress",
+      "syncDeletePending": "Backend sync pending - key deleted but may still work temporarily"
+    },
+    "configSharing": {
+      "defaultName": "My Config"
+    },
+    "sync": {
+      "actionCreated": "created",
+      "actionUpdated": "updated",
+      "actionDeleted": "deleted"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage account, security, config sync, and system operations.",
+    "accountSecurity": "Account & Security",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "minChars": "Minimum 8 characters",
+    "changing": "Changing...",
+    "changePasswordBtn": "Change Password",
+    "passwordMismatch": "New passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordChanged": "Password changed successfully",
+    "failedChangePassword": "Failed to change password",
+    "configSync": "Config Sync",
+    "syncTokens": "Sync Tokens",
+    "generateTokenDesc": "Generate tokens to sync OpenCode configurations",
+    "generating": "Generating...",
+    "generateToken": "Generate Token",
+    "newTokenGenerated": "New Token Generated",
+    "copyToClipboard": "Copy to Clipboard",
+    "tokenOnceWarning": "This token will only be shown once. Copy it now.",
+    "loadingTokens": "Loading tokens...",
+    "noTokens": "No sync tokens configured. Generate one to get started.",
+    "revoked": "Revoked",
+    "created": "Created",
+    "lastUsed": "Last used",
+    "revoke": "Revoke",
+    "syncApiKey": "Sync API Key",
+    "autoFirstAvailable": "Auto (first available)",
+    "noApiKeysCreate": "No API keys — create one first",
+    "setupInstructions": "Setup Instructions",
+    "addToPlugin": "1. Add to opencode.jsonc plugin array:",
+    "createConfigFile": "2. Create config file:",
+    "standard": "Standard:",
+    "withOcxProfile": "With OCX Profile:",
+    "pluginAutoInstall": "The plugin will be auto-installed from npm when opencode starts.",
+    "tokenGenerated": "Token generated successfully",
+    "failedGenerateToken": "Failed to generate token",
+    "tokenRevoked": "Token revoked successfully",
+    "failedRevokeToken": "Failed to revoke token",
+    "apiKeyUpdated": "API key updated for sync token",
+    "failedUpdateApiKey": "Failed to update API key",
+    "tokenCopied": "Token copied to clipboard",
+    "failedCopyToken": "Failed to copy token",
+    "system": "System",
+    "cliProxyUpdates": "CLIProxyAPI Updates",
+    "updateAvailable": "Update Available",
+    "checkingUpdates": "Checking for updates...",
+    "currentVersion": "Current Version",
+    "latestVersion": "Latest Version",
+    "digest": "Digest",
+    "updating": "Updating...",
+    "updateToLatest": "Update to Latest",
+    "upToDate": "Up to Date",
+    "refresh": "Refresh",
+    "availableVersions": "Available Versions",
+    "failedCheckUpdates": "Failed to check for updates",
+    "updatedRestarting": "Updated to {version}. Service is restarting...",
+    "updateFailed": "Update failed",
+    "networkErrorUpdate": "Network error during update",
+    "dashboardUpdates": "Dashboard Updates",
+    "viewReleaseNotes": "View release notes",
+    "dashboardUpdatedRestarting": "Dashboard updated. Restarting...",
+    "sessionControl": "Session Control",
+    "sessionControlDesc": "Immediately revoke all active user sessions across all devices.",
+    "revoking": "Revoking...",
+    "forceLogoutAll": "Force Logout All Users",
+    "allSessionsRevoked": "All sessions revoked",
+    "failedRevokeSessions": "Failed to revoke sessions",
+    "systemInfo": "System Information",
+    "environment": "Environment",
+    "versionDetails": "Version Details",
+    "dashboardVersion": "Dashboard Version:",
+    "cliProxyApi": "CLIProxyAPI:",
+    "loading": "Loading...",
+    "unknown": "Unknown",
+    "networkError": "Network error",
+    "confirmUpdateProxy": "Update CLIProxyAPI",
+    "confirmUpdateProxyMsg": "Update CLIProxyAPI to {version}? The service will restart.",
+    "confirmUpdateDashboard": "Update Dashboard",
+    "confirmUpdateDashboardMsg": "Update Dashboard to latest version? The container will restart.",
+    "confirmRevokeToken": "Revoke Token",
+    "confirmRevokeTokenMsg": "Are you sure you want to revoke this token?",
+    "confirmForceLogout": "Force Logout All Users",
+    "confirmForceLogoutMsg": "Force logout all users from all devices? This action cannot be undone.",
+    "update": "Update",
+    "cancel": "Cancel"
+  },
+  "config": {
+    "title": "Configuration",
+    "description": "Configure system settings, streaming, retry behavior, and logging.",
+    "loadingConfig": "Loading configuration...",
+    "failedLoad": "Failed to load configuration",
+    "retry": "Retry",
+    "unsavedChanges": "Unsaved changes",
+    "discardChanges": "Discard Changes",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "savedSuccess": "Configuration saved successfully",
+    "failedSave": "Failed to save configuration",
+    "discarded": "Changes discarded",
+    "warningInvalid": "Invalid configuration may prevent the service from starting. Review changes carefully before saving.",
+    "generalSettings": "General Settings",
+    "upstreamProxy": "Upstream Proxy",
+    "upstreamProxyDesc": "Optional SOCKS5/HTTP/HTTPS proxy for outbound requests to AI providers. Leave empty for direct connection.",
+    "proxyPlaceholder": "socks5://proxy:1080 or http://proxy:8080",
+    "forceModelPrefix": "Force Model Prefix",
+    "forceModelPrefixDesc": "Require model names to include a provider prefix",
+    "debugMode": "Debug Mode",
+    "debugModeDesc": "Enable verbose debug logging",
+    "commercialMode": "Commercial Mode",
+    "commercialModeDesc": "Enable commercial features and licensing",
+    "wsAuth": "WebSocket Authentication",
+    "wsAuthDesc": "Require authentication for WebSocket connections",
+    "streaming": "Streaming",
+    "keepaliveSeconds": "Keepalive Seconds",
+    "keepaliveSecondsDesc": "SSE keepalive interval in seconds",
+    "bootstrapRetries": "Bootstrap Retries",
+    "bootstrapRetriesDesc": "Number of bootstrap retry attempts",
+    "nonStreamKeepalive": "Non-Stream Keepalive Interval",
+    "nonStreamKeepaliveDesc": "Emit blank lines every N seconds for non-streaming responses to prevent idle timeouts (0 = disabled)",
+    "retryResilience": "Retry & Resilience",
+    "requestRetry": "Request Retry Attempts",
+    "requestRetryDesc": "Maximum number of retry attempts for failed requests",
+    "maxRetryInterval": "Max Retry Interval (seconds)",
+    "maxRetryIntervalDesc": "Maximum interval between retry attempts",
+    "routingStrategy": "Routing Strategy",
+    "routingStrategyDesc": "Load balancing strategy for multiple providers",
+    "roundRobin": "Round Robin",
+    "random": "Random",
+    "leastLoaded": "Least Loaded",
+    "switchProject": "Switch Project on Quota Exceeded",
+    "switchProjectDesc": "Automatically switch to another project when quota is exceeded",
+    "switchPreviewModel": "Switch Preview Model on Quota Exceeded",
+    "switchPreviewModelDesc": "Fall back to preview models when quota is exceeded",
+    "logging": "Logging",
+    "loggingToFile": "Logging to File",
+    "loggingToFileDesc": "Enable persistent file-based logging",
+    "usageStatistics": "Usage Statistics",
+    "usageStatisticsDesc": "Collect anonymous usage statistics",
+    "maxLogSize": "Max Total Log Size (MB)",
+    "maxLogSizeDesc": "Maximum total size of all log files (0 = unlimited)",
+    "maxErrorLogFiles": "Max Error Log Files",
+    "maxErrorLogFilesDesc": "Maximum number of error log files to retain",
+    "advancedRawJson": "Advanced: Raw JSON Editor",
+    "showRawJson": "Show Raw JSON",
+    "hideRawJson": "Hide Raw JSON",
+    "rawJsonWarning": "This section shows the complete configuration including fields managed on other pages. Only edit this if you know what you are doing. Changes here will NOT be saved from this editor.",
+    "readOnlyView": "This is a read-only view of the full configuration. Use the structured forms above to make changes.",
+    "tip": "Changes are saved immediately to the management API. The service may need to be restarted for some configuration changes to take effect.",
+    "networkError": "Network error",
+    "warning": "Warning"
+  },
+  "logs": {
+    "title": "Logs",
+    "refresh": "Refresh",
+    "clearLogs": "Clear Logs",
+    "confirmClearTitle": "Clear All Logs",
+    "confirmClearMsg": "Clear all logs? This cannot be undone.",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "recentLogs": "Recent Logs",
+    "loadingLogs": "Loading logs...",
+    "noLogs": "No logs available. File logging may be disabled in the CLIProxyAPI configuration.",
+    "checkConfigPre": "Check ",
+    "checkConfigCode": "logging-to-file",
+    "checkConfigPost": " in config.",
+    "previous": "← Previous",
+    "next": "Next →",
+    "pageOf": "Page {current} of {total}",
+    "tip": "Logs are fetched from the CLIProxyAPI service. Recent entries are shown here. For complete logs, check the Docker container logs.",
+    "failedLoad": "Failed to load logs",
+    "failedClear": "Failed to clear logs",
+    "logsCleared": "Logs cleared",
+    "networkError": "Network error"
+  },
+  "usage": {
+    "title": "Usage Statistics",
+    "lastSynced": "Last synced: {time}",
+    "refresh": "Refresh",
+    "timePeriod": "Time Period",
+    "today": "Today",
+    "days7": "7 Days",
+    "days30": "30 Days",
+    "allTime": "All Time",
+    "from": "From",
+    "to": "To",
+    "apply": "Apply",
+    "loadingStats": "Loading statistics...",
+    "unableToLoad": "Unable to load usage statistics",
+    "totalRequests": "Total Requests",
+    "successful": "Successful",
+    "failed": "Failed",
+    "totalTokens": "Total Tokens",
+    "inputTokens": "Input Tokens",
+    "outputTokens": "Output Tokens",
+    "noUsageData": "No usage data yet",
+    "usageByApiKey": "Usage by API Key",
+    "keyName": "Key Name",
+    "username": "Username",
+    "total": "Total",
+    "success": "Success",
+    "tokens": "Tokens",
+    "model": "Model",
+    "requests": "Requests",
+    "input": "Input",
+    "output": "Output",
+    "failedLoad": "Failed to load usage data",
+    "networkError": "Network error"
+  },
+  "quota": {
+    "title": "Quota",
+    "description": "Monitor OAuth account quotas and usage windows.",
+    "loading": "Loading...",
+    "refresh": "Refresh",
+    "loadingQuota": "Loading quota data...",
+    "activeAccounts": "Active Accounts",
+    "overallCapacity": "Overall Capacity",
+    "lowCapacity": "Low Capacity",
+    "providers": "Providers",
+    "providerCapacity": "Provider Capacity",
+    "provider": "Provider",
+    "longTerm": "Long-Term",
+    "shortTerm": "Short-Term",
+    "healthy": "Healthy",
+    "issues": "Issues",
+    "accounts": "Accounts",
+    "account": "Account",
+    "status": "Status",
+    "active": "Active",
+    "error": "Error",
+    "unsupported": "Unsupported",
+    "quotaNotAvailable": "Quota monitoring not available for this provider.",
+    "noAccountsFound": "No accounts found for the selected filter.",
+    "unknown": "Unknown",
+    "resetting": "Resetting...",
+    "resetsIn": "Resets in {time}",
+    "noData": "No Data",
+    "all": "All"
+  },
+  "containers": {
+    "title": "Containers",
+    "description": "Monitor and manage Docker containers.",
+    "refresh": "Refresh",
+    "loading": "Loading containers...",
+    "failedLoad": "Failed to load containers",
+    "noContainers": "No containers found.",
+    "name": "Name",
+    "image": "Image",
+    "status": "Status",
+    "ports": "Ports",
+    "created": "Created",
+    "actions": "Actions",
+    "running": "Running",
+    "stopped": "Stopped",
+    "restarting": "Restarting",
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart",
+    "viewLogs": "View Logs",
+    "starting": "Starting...",
+    "stopping": "Stopping...",
+    "containerStarted": "Container started",
+    "containerStopped": "Container stopped",
+    "containerRestarted": "Container restarted",
+    "failedStart": "Failed to start container",
+    "failedStop": "Failed to stop container",
+    "failedRestart": "Failed to restart container",
+    "networkError": "Network error",
+    "confirmStop": "Stop Container",
+    "confirmStopMsg": "Stop container {name}? Services using this container will be interrupted.",
+    "confirmRestart": "Restart Container",
+    "confirmRestartMsg": "Restart container {name}? Services may be briefly interrupted.",
+    "cancel": "Cancel",
+    "containerLogs": "Container Logs",
+    "close": "Close",
+    "noLogs": "No logs available",
+    "tip": "Manage Docker containers running on this host. Use with caution — stopping critical containers may affect service availability.",
+    "uptime": "Uptime",
+    "resources": "Resources",
+    "failedAction": "Action failed"
+  },
+  "monitoring": {
+    "title": "Monitoring",
+    "serviceStatus": "Service Status",
+    "running": "RUNNING",
+    "stopped": "STOPPED",
+    "uptime": "Uptime",
+    "restarting": "Restarting...",
+    "restartService": "Restart Service",
+    "confirmRestartTitle": "Restart Service",
+    "confirmRestartMsg": "Are you sure you want to restart the CLIProxyAPI service?",
+    "restart": "Restart",
+    "cancel": "Cancel",
+    "usageStats": "Usage Statistics",
+    "totalRequests": "Total Requests",
+    "success": "Success",
+    "failed": "Failed",
+    "totalTokens": "Total Tokens",
+    "requestsByModel": "Requests by Model",
+    "tokens": "tokens",
+    "requestsByHour": "Requests by Hour",
+    "loadingUsage": "Loading usage statistics...",
+    "liveLogs": "Live Logs",
+    "clear": "Clear",
+    "checkingLogging": "Checking logging status...",
+    "fileLoggingDisabled": "File logging is disabled",
+    "enableLoggingDesc": "Enable file logging in CLIProxyAPI to view live logs here.",
+    "enabling": "Enabling...",
+    "enableFileLogging": "Enable File Logging",
+    "logsUnavailable": "Logs unavailable",
+    "retry": "Retry",
+    "waitingForLogs": "Waiting for logs...",
+    "scrollToBottom": "Scroll to bottom to enable auto-scroll"
+  },
+  "adminLogs": {
+    "title": "Application Logs",
+    "description": "Dashboard application event log.",
+    "level": "Level:",
+    "autoRefresh": "Auto-refresh (5s)",
+    "refresh": "Refresh",
+    "clearing": "Clearing...",
+    "clearLogs": "Clear Logs",
+    "persistentEnabled": "Persistent storage enabled",
+    "persistentDisabled": "Persistent storage disabled",
+    "memoryLogs": "Memory: {count} logs",
+    "fileLogs": "File: {count} logs ({size} KB)",
+    "rotatedFiles": "Rotated files: {count}",
+    "logEntries": "Log Entries",
+    "showing": "Showing {shown} of {total} logs",
+    "loading": "Loading...",
+    "noLogs": "No logs found. Logs will appear here when application events occur.",
+    "time": "Time",
+    "message": "Message",
+    "details": "Details",
+    "hide": "Hide",
+    "show": "Show",
+    "noAdditionalDetails": "No additional details",
+    "confirmClearTitle": "Clear All Logs",
+    "confirmClearMsg": "Are you sure you want to clear all logs?",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "logsCleared": "Logs cleared",
+    "failedLoad": "Failed to load logs",
+    "failedClear": "Failed to clear logs",
+    "adminRequired": "Admin access required",
+    "networkError": "Network error"
+  },
+  "adminUsers": {
+    "title": "User Management",
+    "description": "Manage dashboard users and roles.",
+    "createUser": "Create User",
+    "loading": "Loading...",
+    "failedLoad": "Failed to load users.",
+    "retry": "Retry",
+    "noUsers": "No users found. Create one to get started.",
+    "username": "Username",
+    "role": "Role",
+    "created": "Created",
+    "apiKeys": "API Keys",
+    "admin": "Admin",
+    "user": "User",
+    "createNewUser": "Create New User",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "usernamePlaceholder": "Enter username",
+    "minChars": "Minimum 8 characters",
+    "reenterPassword": "Re-enter password",
+    "grantAdmin": "Grant admin privileges",
+    "adminDesc": "Admins can manage users and access all system features",
+    "cancel": "Cancel",
+    "creating": "Creating...",
+    "userCreated": "User created successfully",
+    "failedCreate": "Failed to create user",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "usernameRequired": "Username is required",
+    "adminRequired": "Admin access required",
+    "networkError": "Network error"
+  }
+}

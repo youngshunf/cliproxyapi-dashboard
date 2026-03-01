@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
+import { useTranslations } from "next-intl";
 
 interface ContainerInfo {
   name: string;
@@ -50,6 +51,7 @@ export default function ContainersPage() {
   const [pendingAction, setPendingAction] = useState<{ containerName: string; displayName: string; action: string } | null>(null);
   const logsEndRef = useRef<HTMLDivElement>(null);
   const { showToast } = useToast();
+  const t = useTranslations("containers");
 
   useEffect(() => {
     if (logsEndRef.current && logLines.length > 0) {
@@ -104,7 +106,7 @@ export default function ContainersPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        showToast(data.error || "Action failed", "error");
+        showToast(data.error || t("failedAction"), "error");
       }
       const refreshRes = await fetch("/api/containers/list");
       if (refreshRes.ok) {
@@ -120,7 +122,7 @@ export default function ContainersPage() {
         setFetchError(message);
       }
     } catch {
-      showToast("Network error", "error");
+      showToast(t("networkError"), "error");
     } finally {
       setActionLoading((prev) => ({ ...prev, [containerName]: false }));
     }
@@ -187,11 +189,11 @@ export default function ContainersPage() {
   return (
     <div className="space-y-4">
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
-        <h1 className="text-xl font-semibold tracking-tight text-slate-100">Containers</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
       </section>
 
       {loading ? (
-        <div className="rounded-md border border-slate-700/70 bg-slate-900/25 p-6 text-center text-sm text-slate-400">Loading containers...</div>
+        <div className="rounded-md border border-slate-700/70 bg-slate-900/25 p-6 text-center text-sm text-slate-400">{t("loading")}</div>
       ) : (
         <>
           {fetchError && (
@@ -208,8 +210,8 @@ export default function ContainersPage() {
                   </svg>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-slate-100">No containers found</h3>
-                  <p className="text-xs text-slate-400">No Docker containers are currently running or available</p>
+                  <h3 className="text-sm font-semibold text-slate-100">{t("noContainers")}</h3>
+                  <p className="text-xs text-slate-400">{t("tip")}</p>
                 </div>
               </div>
             </div>
@@ -217,11 +219,11 @@ export default function ContainersPage() {
           <div className="overflow-x-auto">
             <div className="min-w-[600px] overflow-hidden rounded-md border border-slate-700/70 bg-slate-900/25">
               <div className="grid grid-cols-[minmax(0,1.2fr)_80px_100px_100px_minmax(140px,auto)] border-b border-slate-700/70 bg-slate-900/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">
-                <span>Container</span>
-                <span>State</span>
-                <span>Uptime</span>
-                <span>Resources</span>
-                <span>Actions</span>
+                <span>{t("name")}</span>
+                <span>{t("status")}</span>
+                <span>{t("uptime")}</span>
+                <span>{t("resources")}</span>
+                <span>{t("actions")}</span>
               </div>
             {containers.map((container) => {
               const isActionLoading = actionLoading[container.name] || false;
@@ -280,7 +282,7 @@ export default function ContainersPage() {
                     className="px-3 py-1 text-xs"
                     disabled={logsLoading}
                   >
-                    {logsLoading ? "Loading..." : "Refresh"}
+                    {logsLoading ? t("loading") : t("refresh")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -293,9 +295,9 @@ export default function ContainersPage() {
               </div>
                 <div className="h-96 overflow-auto rounded-sm border border-slate-700/70 bg-black/40 p-3 font-mono text-[10px] sm:p-4 sm:text-xs">
                   {logsLoading ? (
-                    <div className="text-slate-500">Loading logs...</div>
+                    <div className="text-slate-500">{t("loading")}</div>
                   ) : logLines.length === 0 ? (
-                    <div className="text-slate-500">No logs available</div>
+                    <div className="text-slate-500">{t("noLogs")}</div>
                   ) : (
                     logLines.map((entry) => (
                       <div key={entry.id} className="mb-1 break-all text-slate-200">
@@ -320,7 +322,7 @@ export default function ContainersPage() {
         title={`${pendingAction?.action} Container`}
         message={`Are you sure you want to ${pendingAction?.action} ${pendingAction?.displayName}?`}
         confirmLabel={pendingAction?.action || "Confirm"}
-        cancelLabel="Cancel"
+        cancelLabel={t("cancel")}
         variant={pendingAction?.action.toLowerCase() === "stop" ? "danger" : "warning"}
       />
     </div>

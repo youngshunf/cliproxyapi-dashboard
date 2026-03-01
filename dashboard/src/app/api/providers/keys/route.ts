@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     if (!isContributeKeyRequest(body)) {
-      return Errors.validation("Invalid request body");
+      return Errors.validation("errors.validation.invalidRequestBody");
     }
 
     if (!isValidProvider(body.provider)) {

@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { type ReactNode, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
 interface ConfirmDialogProps {
@@ -21,11 +22,14 @@ export function ConfirmDialog({
   onConfirm,
   title,
   message,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel,
+  cancelLabel,
   variant = "warning"
 }: ConfirmDialogProps) {
+  const t = useTranslations("common");
   const previousOverflowRef = useRef<string>("");
+  const resolvedConfirmLabel = confirmLabel ?? t("confirm");
+  const resolvedCancelLabel = cancelLabel ?? t("cancel");
 
   useEffect(() => {
     if (isOpen) {
@@ -136,7 +140,7 @@ export function ConfirmDialog({
 
         <div className="flex gap-3">
           <Button variant="ghost" onClick={onClose} className="flex-1">
-            {cancelLabel}
+            {resolvedCancelLabel}
           </Button>
           <button
             type="button"
@@ -149,7 +153,7 @@ export function ConfirmDialog({
               variant === "info" && "bg-blue-500 hover:bg-blue-600 text-white focus:ring-blue-500/50"
             )}
           >
-            {confirmLabel}
+            {resolvedConfirmLabel}
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -59,6 +60,8 @@ export default function ProvidersPage() {
   const [oauthAccountCount, setOauthAccountCount] = useState(0);
   const [customProviderCount, setCustomProviderCount] = useState(0);
   const { showToast } = useToast();
+  const t = useTranslations("providers");
+  const common = useTranslations("common");
 
   const loadCurrentUser = useCallback(async (): Promise<CurrentUser | null> => {
     try {
@@ -136,31 +139,31 @@ export default function ProvidersPage() {
     <div className="space-y-4">
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <h1 className="text-xl font-semibold tracking-tight text-slate-100">
-          AI Provider Configuration
+          {t("title")}
         </h1>
         <p className="mt-1 text-sm text-slate-400">
-          Manage API keys, OAuth accounts, and custom provider endpoints in one place.
+          {t("description")}
         </p>
       </section>
 
       <section className="grid grid-cols-2 gap-2 lg:grid-cols-4">
         <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">API Keys</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{t("stats.apiKeys")}</p>
           <p className="mt-0.5 text-xs font-semibold text-slate-100">
-            {totalApiKeys} configured{currentUser ? ` · ${ownApiKeyCount} yours` : ""}
+            {t("stats.apiKeysValue", { total: totalApiKeys, own: ownApiKeyCount, hasUser: currentUser ? "yes" : "no" })}
           </p>
         </div>
         <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">Active Providers</p>
-          <p className="mt-0.5 text-xs font-semibold text-slate-100">{activeApiProviders}/{API_KEY_PROVIDERS.length}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{t("stats.activeProviders")}</p>
+          <p className="mt-0.5 text-xs font-semibold text-slate-100">{t("stats.activeProvidersValue", { active: activeApiProviders, total: API_KEY_PROVIDERS.length })}</p>
         </div>
         <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">OAuth Accounts</p>
-          <p className="mt-0.5 text-xs font-semibold text-slate-100">{oauthAccountCount} connected</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{t("stats.oauthAccounts")}</p>
+          <p className="mt-0.5 text-xs font-semibold text-slate-100">{t("stats.oauthAccountsValue", { count: oauthAccountCount })}</p>
         </div>
         <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">Custom Providers</p>
-          <p className="mt-0.5 text-xs font-semibold text-slate-100">{customProviderCount} configured</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{t("stats.customProviders")}</p>
+          <p className="mt-0.5 text-xs font-semibold text-slate-100">{t("stats.customProvidersValue", { count: customProviderCount })}</p>
         </div>
       </section>
 
@@ -169,7 +172,7 @@ export default function ProvidersPage() {
           <div className="flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <div className="size-8 animate-spin rounded-full border-4 border-white/20 border-t-blue-500"></div>
-              <p className="text-white/80">Loading providers...</p>
+              <p className="text-white/80">{t("loading")}</p>
             </div>
           </div>
         </div>
@@ -200,19 +203,19 @@ export default function ProvidersPage() {
           {currentUser?.isAdmin && (
             <section id="provider-admin" className="space-y-3">
               <div>
-                <h2 className="text-sm font-semibold text-slate-100">Admin Settings</h2>
-                <p className="text-xs text-slate-400">Provider limits and policies</p>
+                <h2 className="text-sm font-semibold text-slate-100">{t("admin.title")}</h2>
+                <p className="text-xs text-slate-400">{t("admin.subtitle")}</p>
               </div>
 
               <div className="rounded-md border border-slate-700/70 bg-slate-900/30 p-4">
-                <h3 className="text-sm font-semibold text-slate-100">Key Contribution Limits</h3>
+                <h3 className="text-sm font-semibold text-slate-100">{t("admin.keyLimitsTitle")}</h3>
                 <p className="mt-1 text-sm text-slate-400">
-                  Control how many provider keys each user can contribute
+                  {t("admin.keyLimitsDescription")}
                 </p>
                 <div className="flex items-center gap-4">
                   <div className="flex-1">
                     <label htmlFor="max-keys" className="mb-2 block text-sm font-semibold text-slate-300">
-                      Max Keys Per User
+                      {t("admin.maxKeysLabel")}
                     </label>
                     <Input
                       type="number"
@@ -226,7 +229,7 @@ export default function ProvidersPage() {
                       }}
                     />
                     <p className="mt-1.5 text-xs text-slate-500">
-                      Maximum number of provider keys a single user can contribute (current: {maxKeysPerUser})
+                      {t("admin.maxKeysHelper", { count: maxKeysPerUser })}
                     </p>
                   </div>
                   <Button
@@ -243,17 +246,17 @@ export default function ProvidersPage() {
                           }),
                         });
                         if (res.ok) {
-                          showToast("Setting updated successfully", "success");
+                          showToast(t("admin.updateSuccess"), "success");
                         } else {
                           const data = await res.json();
-                          showToast(data.error || "Failed to update setting", "error");
+                          showToast(data.error || t("admin.updateFailed"), "error");
                         }
                       } catch {
-                        showToast("Network error", "error");
+                        showToast(common("networkError"), "error");
                       }
                     }}
                   >
-                    Save
+                    {t("admin.save")}
                   </Button>
                 </div>
               </div>

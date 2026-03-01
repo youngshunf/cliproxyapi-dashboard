@@ -31,7 +31,7 @@ export async function PATCH(
     });
 
     if (!existingGroup) {
-      return Errors.notFound("Provider group");
+      return Errors.notFound("errors.resource.providerGroupNotFound");
     }
 
     if (existingGroup.userId !== session.userId) {
@@ -49,7 +49,7 @@ export async function PATCH(
       });
 
       if (nameConflict) {
-        return Errors.conflict("Provider group name already exists");
+        return Errors.conflict("errors.conflict.providerGroupNameExists");
       }
     }
 
@@ -117,7 +117,7 @@ export async function DELETE(
     });
 
     if (!existingGroup) {
-      return Errors.notFound("Provider group");
+      return Errors.notFound("errors.resource.providerGroupNotFound");
     }
 
     if (existingGroup.userId !== session.userId) {

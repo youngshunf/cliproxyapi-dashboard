@@ -4,6 +4,11 @@ import { validateOrigin } from "@/lib/auth/origin";
 import { generateShareCode } from "@/lib/share-code";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 interface PublishResponse {
   id: string;
@@ -50,7 +55,10 @@ function isUpdatePublishRequest(body: unknown): body is UpdatePublishRequest {
 export async function GET() {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   try {
@@ -65,7 +73,7 @@ export async function GET() {
 
     if (!template) {
       return NextResponse.json(
-        { error: "Template not found" },
+        { error: t("errors.configSharing.templateNotFound") },
         { status: 404 }
       );
     }
@@ -84,7 +92,7 @@ export async function GET() {
   } catch (error) {
     logger.error({ err: error }, "Failed to fetch config template");
     return NextResponse.json(
-      { error: "Failed to fetch config template" },
+      { error: t("errors.configSharing.fetchTemplateFailed") },
       { status: 500 }
     );
   }
@@ -93,7 +101,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -106,7 +117,7 @@ export async function POST(request: NextRequest) {
     
     if (!isCreatePublishRequest(body)) {
       return NextResponse.json(
-        { error: "Invalid request body" },
+        { error: t("errors.configSharing.invalidRequestBody") },
         { status: 400 }
       );
     }
@@ -117,13 +128,16 @@ export async function POST(request: NextRequest) {
 
     if (existingTemplate) {
       return NextResponse.json(
-        { error: "User already has a published template" },
+        { error: t("errors.configSharing.alreadyPublished") },
         { status: 409 }
       );
     }
 
     const shareCode = generateShareCode();
-    const name = body.name && body.name.trim() ? body.name.trim() : "My Config";
+    const name =
+      body.name && body.name.trim()
+        ? body.name.trim()
+        : t("messages.configSharing.defaultName");
 
     const template = await prisma.configTemplate.create({
       data: {
@@ -152,7 +166,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     logger.error({ err: error }, "Failed to create config template");
     return NextResponse.json(
-      { error: "Failed to create config template" },
+      { error: t("errors.configSharing.createTemplateFailed") },
       { status: 500 }
     );
   }
@@ -161,7 +175,10 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -174,7 +191,7 @@ export async function PATCH(request: NextRequest) {
     
     if (!isUpdatePublishRequest(body)) {
       return NextResponse.json(
-        { error: "Invalid request body" },
+        { error: t("errors.configSharing.invalidRequestBody") },
         { status: 400 }
       );
     }
@@ -185,7 +202,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!existingTemplate) {
       return NextResponse.json(
-        { error: "Template not found" },
+        { error: t("errors.configSharing.templateNotFound") },
         { status: 404 }
       );
     }
@@ -224,7 +241,7 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     logger.error({ err: error }, "Failed to update config template");
     return NextResponse.json(
-      { error: "Failed to update config template" },
+      { error: t("errors.configSharing.updateTemplateFailed") },
       { status: 500 }
     );
   }
@@ -233,7 +250,10 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -248,7 +268,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!existingTemplate) {
       return NextResponse.json(
-        { error: "Template not found" },
+        { error: t("errors.configSharing.templateNotFound") },
         { status: 404 }
       );
     }
@@ -261,7 +281,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     logger.error({ err: error }, "Failed to delete config template");
     return NextResponse.json(
-      { error: "Failed to delete config template" },
+      { error: t("errors.configSharing.deleteTemplateFailed") },
       { status: 500 }
     );
   }

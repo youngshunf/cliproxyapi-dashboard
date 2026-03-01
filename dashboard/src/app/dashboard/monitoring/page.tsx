@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useTranslations } from "next-intl";
 
 interface StatusResponse {
   running: boolean;
@@ -112,6 +113,7 @@ export default function MonitoringPage() {
   const [enablingLogging, setEnablingLogging] = useState(false);
   const logsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const restartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const t = useTranslations("monitoring");
 
   useEffect(() => {
     if (autoScroll && logsEndRef.current) {
@@ -359,28 +361,28 @@ export default function MonitoringPage() {
   return (
     <div className="space-y-4">
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
-        <h1 className="text-xl font-semibold tracking-tight text-slate-100">Monitoring</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
       </section>
 
       <section className="rounded-md border border-slate-700/70 bg-slate-900/25 p-4">
-        <h2 className="mb-3 text-sm font-semibold text-slate-100">Service Status</h2>
+        <h2 className="mb-3 text-sm font-semibold text-slate-100">{t("serviceStatus")}</h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-white/90">CLIProxyAPI</span>
               {status?.running ? (
                 <span className="rounded-sm border border-emerald-400/40 bg-emerald-500/20 px-2 py-1 text-xs font-medium text-emerald-200">
-                  RUNNING
+                  {t("running")}
                 </span>
               ) : (
                 <span className="rounded-sm border border-rose-400/40 bg-rose-500/20 px-2 py-1 text-xs font-medium text-rose-200">
-                  STOPPED
+                  {t("stopped")}
                 </span>
               )}
             </div>
 
             {status?.uptime !== null && status?.uptime !== undefined && (
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-white/90">Uptime</span>
+                <span className="text-sm font-medium text-white/90">{t("uptime")}</span>
                 <span className="text-sm text-white/70">{formatUptime(status.uptime)}</span>
               </div>
             )}
@@ -392,7 +394,7 @@ export default function MonitoringPage() {
                  disabled={restarting}
                  className="flex-1 py-2 text-sm"
                >
-                 {restarting ? "Restarting..." : "Restart Service"}
+                 {restarting ? t("restarting") : t("restartService")}
                </Button>
              </div>
           </div>
@@ -402,38 +404,38 @@ export default function MonitoringPage() {
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
         onConfirm={handleRestart}
-        title="Restart Service"
-        message="Are you sure you want to restart the CLIProxyAPI service?"
-        confirmLabel="Restart"
-        cancelLabel="Cancel"
+        title={t("confirmRestartTitle")}
+        message={t("confirmRestartMsg")}
+        confirmLabel={t("restart")}
+        cancelLabel={t("cancel")}
         variant="warning"
       />
 
       <section className="rounded-md border border-slate-700/70 bg-slate-900/25 p-4">
-        <h2 className="mb-3 text-sm font-semibold text-slate-100">Usage Statistics</h2>
+        <h2 className="mb-3 text-sm font-semibold text-slate-100">{t("usageStats")}</h2>
            {usage ? (
              <div className="space-y-4">
               <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                 <div className="rounded-md border border-slate-700/70 bg-slate-900/30 px-2.5 py-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Total Requests</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("totalRequests")}</p>
                   <p className="mt-0.5 text-xs font-semibold text-slate-100">
                     {(usage.usage?.total_requests ?? 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="rounded-md border border-slate-700/70 bg-slate-900/30 px-2.5 py-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Success</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("success")}</p>
                   <p className="mt-0.5 text-xs font-semibold text-emerald-300">
                     {(usage.usage?.success_count ?? 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="rounded-md border border-slate-700/70 bg-slate-900/30 px-2.5 py-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Failed</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("failed")}</p>
                   <p className="mt-0.5 text-xs font-semibold text-rose-300">
                     {(usage.usage?.failure_count ?? 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="rounded-md border border-slate-700/70 bg-slate-900/30 px-2.5 py-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Total Tokens</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("totalTokens")}</p>
                   <p className="mt-0.5 text-xs font-semibold text-slate-100">
                   {(usage.usage?.total_tokens ?? 0).toLocaleString()}
                   </p>
@@ -442,7 +444,7 @@ export default function MonitoringPage() {
 
               {modelStats.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Requests by Model</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{t("requestsByModel")}</h3>
                   <div className="overflow-hidden rounded-sm border border-slate-700/70 bg-slate-900/25">
                     {modelStats.map((stat) => (
                       <div
@@ -450,7 +452,7 @@ export default function MonitoringPage() {
                         className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 border-b border-slate-700/60 px-3 py-2 last:border-b-0"
                       >
                         <span className="truncate text-xs text-slate-200">{stat.model}</span>
-                        <span className="whitespace-nowrap text-xs text-slate-400">{stat.tokens.toLocaleString()} tokens</span>
+                        <span className="whitespace-nowrap text-xs text-slate-400">{stat.tokens.toLocaleString()} {t("tokens")}</span>
                         <span className="whitespace-nowrap text-right text-xs text-slate-300">{stat.requests.toLocaleString()}</span>
                       </div>
                     ))}
@@ -460,7 +462,7 @@ export default function MonitoringPage() {
 
               {hourlyData.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Requests by Hour</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{t("requestsByHour")}</h3>
                   <div className="overflow-hidden rounded-sm border border-slate-700/70 bg-slate-900/25">
                     {hourlyData.map((item) => {
                       const maxCount = Math.max(...hourlyData.map((d) => d.count));
@@ -486,13 +488,13 @@ export default function MonitoringPage() {
               )}
             </div>
           ) : (
-            <div className="text-sm text-slate-400">Loading usage statistics...</div>
+            <div className="text-sm text-slate-400">{t("loadingUsage")}</div>
           )}
       </section>
 
       <section className="rounded-md border border-slate-700/70 bg-slate-900/25 p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-100">Live Logs</h2>
+          <h2 className="text-sm font-semibold text-slate-100">{t("liveLogs")}</h2>
           {loggingState === LOGGING_STATE.ENABLED && (
             <Button
               variant="ghost"
@@ -510,7 +512,7 @@ export default function MonitoringPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                <span className="text-sm">Checking logging status...</span>
+                <span className="text-sm">{t("checkingLogging")}</span>
               </div>
             </div>
           )}
@@ -521,7 +523,7 @@ export default function MonitoringPage() {
                 <span className="text-xl">&#128196;</span>
               </div>
               <div className="text-center space-y-2">
-                <p className="text-sm font-medium text-white/90">File logging is disabled</p>
+                <p className="text-sm font-medium text-white/90">{t("fileLoggingDisabled")}</p>
                 <p className="text-xs text-white/60 max-w-sm">
                   Enable file logging in CLIProxyAPI to view live logs here.
                 </p>
@@ -532,7 +534,7 @@ export default function MonitoringPage() {
                 disabled={enablingLogging}
                 className="mt-2"
               >
-                {enablingLogging ? "Enabling..." : "Enable File Logging"}
+                {enablingLogging ? t("enabling") : t("enableFileLogging")}
               </Button>
             </div>
           )}
@@ -543,7 +545,7 @@ export default function MonitoringPage() {
                 <span className="text-xl">&#9888;</span>
               </div>
               <div className="text-center space-y-2">
-                <p className="text-sm font-medium text-white/90">Logs unavailable</p>
+                <p className="text-sm font-medium text-white/90">{t("logsUnavailable")}</p>
                 <p className="text-xs text-white/60 max-w-sm">
                   {loggingError}
                 </p>
@@ -566,7 +568,7 @@ export default function MonitoringPage() {
                 className="h-96 overflow-auto rounded-sm border border-slate-700/70 bg-black/40 p-3 font-mono text-[10px] sm:p-4 sm:text-xs"
               >
                 {logs.length === 0 ? (
-                  <div className="text-slate-500">Waiting for logs...</div>
+                  <div className="text-slate-500">{t("waitingForLogs")}</div>
                 ) : (
                   logs.map((log) => (
                     <div

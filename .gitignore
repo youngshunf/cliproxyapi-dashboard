@@ -119,3 +119,6 @@ infrastructure/.env
 
 # OpenCode (local dev state)
 /.opencode/
+
+# Worktrees
+/.worktrees/

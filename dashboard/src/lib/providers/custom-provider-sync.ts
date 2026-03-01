@@ -2,8 +2,12 @@ import "server-only";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { invalidateProxyModelsCache } from "@/lib/cache";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
 
 const FETCH_TIMEOUT_MS = 10_000;
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 async function fetchWithTimeout(url: string, options: RequestInit): Promise<Response> {
   const controller = new AbortController();
@@ -61,7 +65,7 @@ export async function syncCustomProviderToProxy(
   if (!secretKey) {
     return {
       syncStatus: "failed",
-      syncMessage: "Backend sync unavailable - management API key not configured"
+      syncMessage: t("errors.sync.unavailable")
     };
   }
 
@@ -78,9 +82,16 @@ export async function syncCustomProviderToProxy(
       if (!getRes.ok) {
         await getRes.body?.cancel();
         logger.error({ status: getRes.status }, "Failed to fetch current config from Management API");
+        const actionLabel = t(
+          operation === "create"
+            ? "messages.sync.actionCreated"
+            : "messages.sync.actionUpdated"
+        );
         return {
           syncStatus: "failed",
-          syncMessage: `Backend sync failed - provider ${operation === "create" ? "created" : "updated"} but may not work immediately`
+          syncMessage: t("errors.sync.failed", {
+            action: actionLabel,
+          })
         };
       }
 
@@ -126,9 +137,16 @@ export async function syncCustomProviderToProxy(
     if (!putRes.ok) {
       await putRes.body?.cancel();
       logger.error({ status: putRes.status }, `Failed to sync custom provider to Management API (${operation})`);
+      const actionLabel = t(
+        operation === "create"
+          ? "messages.sync.actionCreated"
+          : "messages.sync.actionUpdated"
+      );
       return {
         syncStatus: "failed",
-        syncMessage: `Backend sync failed - provider ${operation === "create" ? "created" : "updated"} but may not work immediately`
+        syncMessage: t("errors.sync.failed", {
+          action: actionLabel,
+        })
       };
     }
 
@@ -140,9 +158,16 @@ export async function syncCustomProviderToProxy(
 
   } catch (syncError) {
     logger.error({ err: syncError }, `Failed to sync custom provider to Management API (${operation})`);
+    const actionLabel = t(
+      operation === "create"
+        ? "messages.sync.actionCreated"
+        : "messages.sync.actionUpdated"
+    );
     return {
       syncStatus: "failed",
-      syncMessage: `Backend sync failed - provider ${operation === "create" ? "created" : "updated"} but may not work immediately`
+      syncMessage: t("errors.sync.failed", {
+        action: actionLabel,
+      })
     };
   }
 }

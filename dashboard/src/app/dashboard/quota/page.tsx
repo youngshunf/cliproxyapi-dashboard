@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface QuotaModel {
   id: string;
@@ -268,6 +269,7 @@ export default function QuotaPage() {
   const [loading, setLoading] = useState(true);
   const [selectedProvider, setSelectedProvider] = useState<ProviderType>(PROVIDERS.ALL);
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+  const t = useTranslations("quota");
 
   useEffect(() => {
     const fetchQuota = async () => {
@@ -348,8 +350,8 @@ export default function QuotaPage() {
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-100">Quota</h1>
-            <p className="mt-1 text-sm text-slate-400">Monitor OAuth account quotas and usage windows.</p>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
+            <p className="mt-1 text-sm text-slate-400">{t("description")}</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <div className="flex flex-wrap gap-1">
@@ -365,7 +367,7 @@ export default function QuotaPage() {
               ))}
             </div>
             <Button onClick={fetchQuota} disabled={loading} className="px-2.5 py-1 text-xs">
-              {loading ? "Loading..." : "Refresh"}
+              {loading ? t("loading") : t("refresh")}
             </Button>
           </div>
         </div>
@@ -379,34 +381,34 @@ export default function QuotaPage() {
         <>
           <section className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Active Accounts</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("activeAccounts")}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-100">{activeAccounts}</p>
             </div>
             <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Overall Capacity</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("overallCapacity")}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-100">{Math.round(overallCapacity.value * 100)}%</p>
             </div>
             <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Low Capacity</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("lowCapacity")}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-100">{lowCapacityCount}</p>
             </div>
             <div className="rounded-md border border-slate-700/70 bg-slate-900/25 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Providers</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("providers")}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-100">{providerSummaries.length}</p>
             </div>
           </section>
 
           {providerSummaries.length > 0 && (
             <section className="space-y-2">
-              <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Provider Capacity</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{t("providerCapacity")}</h2>
               <div className="overflow-x-auto rounded-md border border-slate-700/70 bg-slate-900/25">
                 <div className="min-w-[600px]">
                 <div className="grid grid-cols-[minmax(0,1fr)_160px_160px_120px_100px] border-b border-slate-700/70 bg-slate-900/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">
-                  <span>Provider</span>
-                  <span>Long-Term</span>
-                  <span>Short-Term</span>
-                  <span>Healthy</span>
-                  <span>Issues</span>
+                  <span>{t("provider")}</span>
+                  <span>{t("longTerm")}</span>
+                  <span>{t("shortTerm")}</span>
+                  <span>{t("healthy")}</span>
+                  <span>{t("issues")}</span>
                 </div>
                 {providerSummaries.map((summary) => {
                   const longTerm = summary.windowCapacities.filter((w) => !w.isShortTerm);
@@ -454,16 +456,16 @@ export default function QuotaPage() {
           )}
 
           <section className="space-y-2">
-            <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Accounts</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{t("accounts")}</h2>
             <div className="overflow-x-auto rounded-md border border-slate-700/70 bg-slate-900/25">
               <div className="min-w-[650px]">
               <div className="grid grid-cols-[24px_minmax(0,1fr)_120px_120px_140px_140px] border-b border-slate-700/70 bg-slate-900/60 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">
                 <span></span>
-                <span>Account</span>
-                <span>Provider</span>
-                <span>Status</span>
-                <span>Long-Term</span>
-                <span>Short-Term</span>
+                <span>{t("account")}</span>
+                <span>{t("provider")}</span>
+                <span>{t("status")}</span>
+                <span>{t("longTerm")}</span>
+                <span>{t("shortTerm")}</span>
               </div>
 
               {filteredAccounts.map((account) => {
@@ -518,7 +520,7 @@ export default function QuotaPage() {
                             <p className="mb-2 break-all text-xs text-rose-300">{account.error}</p>
                           )}
                           {!account.supported && !account.error && (
-                            <p className="mb-2 text-xs text-amber-300">Quota monitoring not available for this provider.</p>
+                            <p className="mb-2 text-xs text-amber-300">{t("quotaNotAvailable")}</p>
                           )}
 
                           {account.groups && account.groups.length > 0 && (

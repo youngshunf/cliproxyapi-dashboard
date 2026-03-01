@@ -8,6 +8,11 @@ import { promisify } from "util";
 import { z } from "zod";
 import { ContainerActionSchema, formatZodError } from "@/lib/validation/schemas";
 import { logger } from "@/lib/logger";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 const execFileAsync = promisify(execFile);
 
@@ -21,7 +26,7 @@ export async function POST(
 
   if (!session) {
     return NextResponse.json(
-      { error: "Unauthorized" },
+      { error: t("errors.auth.unauthorized") },
       { status: 401 }
     );
   }
@@ -33,7 +38,7 @@ export async function POST(
 
   if (!user?.isAdmin) {
     return NextResponse.json(
-      { error: "Forbidden: Admin access required" },
+      { error: t("errors.auth.adminRequired") },
       { status: 403 }
     );
   }
@@ -47,7 +52,7 @@ export async function POST(
 
   if (!isValidContainerName(name)) {
     return NextResponse.json(
-      { error: "Invalid or unrecognized container name" },
+      { error: t("errors.container.invalidName") },
       { status: 400 }
     );
   }
@@ -66,7 +71,12 @@ export async function POST(
 
     if (!config[permissionKey]) {
       return NextResponse.json(
-        { error: `Action '${typedAction}' is not allowed on container '${config.displayName}'` },
+        {
+          error: t("errors.container.actionNotAllowed", {
+            action: typedAction,
+            name: config.displayName,
+          }),
+        },
         { status: 403 }
       );
     }
@@ -75,16 +85,19 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: `Container '${config.displayName}' ${typedAction} completed`,
+      message: t("messages.container.actionCompleted", {
+        name: config.displayName,
+        action: typedAction,
+      }),
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(formatZodError(error), { status: 400 });
     }
     logger.error({ err: error, containerName: name }, "Container action error");
-    const message = error instanceof Error ? error.message : "Unknown error";
+    const message = error instanceof Error ? error.message : t("errors.container.unknown");
     return NextResponse.json(
-      { error: `Failed to perform action: ${message}` },
+      { error: t("errors.container.actionFailed", { message }) },
       { status: 500 }
     );
   }

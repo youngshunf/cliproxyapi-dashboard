@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (typeof username !== "string" || typeof password !== "string") {
-      return Errors.validation("Invalid input types");
+      return Errors.validation("errors.validation.invalidInputTypes");
     }
 
     if (

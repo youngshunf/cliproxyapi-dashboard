@@ -3,12 +3,20 @@ import { validateSyncTokenFromHeader } from "@/lib/auth/sync-token";
 import { generateConfigBundle } from "@/lib/config-sync/generate-bundle";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 export async function GET(request: NextRequest) {
   const authResult = await validateSyncTokenFromHeader(request);
 
   if (!authResult.ok) {
-    const errorMessage = authResult.reason === "expired" ? "Sync token expired" : "Unauthorized";
+    const errorMessage =
+      authResult.reason === "expired"
+        ? t("errors.syncToken.expired")
+        : t("errors.auth.unauthorized");
     return NextResponse.json({ error: errorMessage }, { status: 401 });
   }
 
@@ -33,7 +41,11 @@ export async function GET(request: NextRequest) {
     const isSyncTokenError =
       error instanceof Error && error.message.includes("sync token");
     return NextResponse.json(
-      { error: isSyncTokenError ? error.message : "Internal server error" },
+      {
+        error: isSyncTokenError
+          ? t("errors.syncToken.apiKeyDeleted")
+          : t("errors.internal.serverError"),
+      },
       { status: isSyncTokenError ? 400 : 500 }
     );
   }

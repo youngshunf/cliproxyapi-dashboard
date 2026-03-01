@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { DeployDashboard } from "@/components/deploy-dashboard";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useTranslations } from "next-intl";
 
 interface ProxyUpdateInfo {
   currentVersion: string;
@@ -72,6 +73,7 @@ export default function SettingsPage() {
   const [showConfirmRevokeSessions, setShowConfirmRevokeSessions] = useState(false);
   
   const { showToast } = useToast();
+  const t = useTranslations("settings");
 
   const fetchProxyUpdateInfo = useCallback(async () => {
     setProxyUpdateLoading(true);
@@ -149,12 +151,12 @@ export default function SettingsPage() {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      showToast("New passwords do not match", "error");
+      showToast(t("passwordMismatch"), "error");
       return;
     }
 
     if (newPassword.length < 8) {
-      showToast("Password must be at least 8 characters", "error");
+      showToast(t("passwordTooShort"), "error");
       return;
     }
 
@@ -174,13 +176,13 @@ export default function SettingsPage() {
         return;
       }
 
-      showToast("Password changed successfully", "success");
+      showToast(t("passwordChanged"), "success");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       setLoading(false);
     } catch {
-      showToast("Network error", "error");
+      showToast(t("networkError"), "error");
       setLoading(false);
     }
   };
@@ -201,16 +203,16 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        showToast(`Updated to ${version}. Service is restarting...`, "success");
+        showToast(t("updatedRestarting", { version }), "success");
         setTimeout(() => {
           fetchProxyUpdateInfo();
         }, 10000);
       } else {
         const data = await res.json();
-        showToast(data.error || "Update failed", "error");
+        showToast(data.error || t("updateFailed"), "error");
       }
     } catch {
-      showToast("Network error during update", "error");
+      showToast(t("networkErrorUpdate"), "error");
     } finally {
       setProxyUpdating(false);
     }
@@ -258,14 +260,14 @@ export default function SettingsPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        showToast(data.error || "Failed to generate token", "error");
+        showToast(data.error || t("failedGenerateToken"), "error");
         setGeneratingToken(false);
         return;
       }
 
       const data = await res.json();
       setGeneratedToken(data.token);
-      showToast("Token generated successfully", "success");
+      showToast(t("tokenGenerated"), "success");
       fetchSyncTokens();
       setGeneratingToken(false);
     } catch {
@@ -290,11 +292,11 @@ export default function SettingsPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        showToast(data.error || "Failed to revoke token", "error");
+        showToast(data.error || t("failedRevokeToken"), "error");
         return;
       }
 
-      showToast("Token revoked successfully", "success");
+      showToast(t("tokenRevoked"), "success");
       fetchSyncTokens();
     } catch {
       showToast("Network error", "error");
@@ -310,14 +312,14 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        showToast("API key updated for sync token", "success");
+        showToast(t("apiKeyUpdated"), "success");
         const selectedKey = availableApiKeys.find((k) => k.id === apiKeyId);
         setSyncTokens((prev) =>
           prev.map((t) => (t.id === tokenId ? { ...t, syncApiKeyId: apiKeyId || null, syncApiKeyName: selectedKey?.name || null } : t))
         );
       } else {
         const data = await res.json();
-        showToast(data.error || "Failed to update API key", "error");
+        showToast(data.error || t("failedUpdateApiKey"), "error");
       }
     } catch {
       showToast("Network error", "error");
@@ -327,9 +329,9 @@ export default function SettingsPage() {
   const handleCopyToken = async (token: string) => {
     try {
       await navigator.clipboard.writeText(token);
-      showToast("Token copied to clipboard", "success");
+      showToast(t("tokenCopied"), "success");
     } catch {
-      showToast("Failed to copy token", "error");
+      showToast(t("failedCopyToken"), "error");
     }
   };
 
@@ -346,13 +348,13 @@ export default function SettingsPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        showToast(data.error || "Failed to revoke sessions", "error");
+        showToast(data.error || t("failedRevokeSessions"), "error");
         setRevokingSessions(false);
         return;
       }
 
       const data = await res.json();
-      showToast(data.message || "All sessions revoked", "success");
+      showToast(data.message || t("allSessionsRevoked"), "success");
       setRevokingSessions(false);
     } catch {
       showToast("Network error", "error");
@@ -363,23 +365,23 @@ export default function SettingsPage() {
   return (
     <div className="space-y-4">
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-3">
-        <h1 className="text-xl font-semibold tracking-tight text-slate-100">Settings</h1>
-        <p className="mt-1 text-sm text-slate-400">Manage account, security, config sync, and system operations.</p>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
+        <p className="mt-1 text-sm text-slate-400">{t("description")}</p>
       </section>
 
       {/* Account & Security Section */}
       <section className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-400">Account & Security</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-400">{t("accountSecurity")}</h2>
         </div>
 
         <div className="rounded-md border border-slate-700/70 bg-slate-900/25 p-3">
-          <h3 className="mb-3 text-sm font-semibold text-slate-100">Change Password</h3>
+          <h3 className="mb-3 text-sm font-semibold text-slate-100">{t("changePassword")}</h3>
               <form onSubmit={handlePasswordChange} className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-3">
                   <div>
                     <label htmlFor="currentPassword" className="mb-2 block text-sm font-medium text-slate-300">
-                      Current Password
+                      {t("currentPassword")}
                     </label>
                     <Input
                       type="password"
@@ -393,7 +395,7 @@ export default function SettingsPage() {
 
                   <div>
                     <label htmlFor="newPassword" className="mb-2 block text-sm font-medium text-slate-300">
-                      New Password
+                      {t("newPassword")}
                     </label>
                     <Input
                       type="password"
@@ -402,13 +404,13 @@ export default function SettingsPage() {
                       onChange={setNewPassword}
                       required
                       autoComplete="new-password"
-                      placeholder="Minimum 8 characters"
+                      placeholder={t("minChars")}
                     />
                   </div>
 
                   <div>
                     <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-slate-300">
-                      Confirm New Password
+                      {t("confirmNewPassword")}
                     </label>
                     <Input
                       type="password"
@@ -422,7 +424,7 @@ export default function SettingsPage() {
                 </div>
 
                 <Button type="submit" disabled={loading}>
-                  {loading ? "Changing..." : "Change Password"}
+                  {loading ? t("changing") : t("changePasswordBtn")}
                 </Button>
               </form>
         </div>
@@ -431,25 +433,25 @@ export default function SettingsPage() {
       {/* Config Sync Section */}
       <section className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-400">Config Sync</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-400">{t("configSync")}</h2>
         </div>
 
         <div className="space-y-3 rounded-md border border-slate-700/70 bg-slate-900/25 p-3">
-          <h3 className="text-sm font-semibold text-slate-100">Sync Tokens</h3>
+          <h3 className="text-sm font-semibold text-slate-100">{t("syncTokens")}</h3>
                <div className="space-y-3">
                 <div className="flex items-center justify-between">
                  <p className="text-sm text-slate-400">
-                    Generate tokens to sync OpenCode configurations
+                    {t("generateTokenDesc")}
                   </p>
                  <Button onClick={handleGenerateToken} disabled={generatingToken}>
-                   {generatingToken ? "Generating..." : "Generate Token"}
+                   {generatingToken ? t("generating") : t("generateToken")}
                  </Button>
                </div>
 
                {generatedToken && (
                  <div className="space-y-3 rounded-sm border border-emerald-500/40 bg-emerald-500/10 p-4">
                    <div className="flex items-center justify-between">
-                     <span className="text-sm font-medium text-emerald-300">New Token Generated</span>
+                     <span className="text-sm font-medium text-emerald-300">{t("newTokenGenerated")}</span>
                      <button
                        type="button"
                        onClick={() => setGeneratedToken(null)}
@@ -468,17 +470,17 @@ export default function SettingsPage() {
                    </div>
                     <div className="rounded-sm border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
                       <span className="text-amber-200">
-                        This token will only be shown once. Copy it now.
+                        {t("tokenOnceWarning")}
                       </span>
                     </div>
                   </div>
                 )}
 
                {syncTokensLoading ? (
-                 <div className="p-4 text-center text-slate-400">Loading tokens...</div>
+                 <div className="p-4 text-center text-slate-400">{t("loadingTokens")}</div>
                 ) : syncTokens.length === 0 ? (
                  <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-4 text-sm text-slate-400">
-                   No sync tokens configured. Generate one to get started.
+                   {t("noTokens")}
                  </div>
                 ) : (
                  <div className="overflow-hidden rounded-sm border border-slate-700/70 bg-slate-900/25">
@@ -498,11 +500,11 @@ export default function SettingsPage() {
                               )}
                             </div>
                             <div className="text-xs text-slate-400">
-                              Created: {new Date(token.createdAt).toLocaleDateString()}
+                              {t("created")}: {new Date(token.createdAt).toLocaleDateString()}
                             </div>
                             {token.lastUsedAt && (
                               <div className="text-xs text-slate-500">
-                                Last used: {new Date(token.lastUsedAt).toLocaleDateString()}
+                                {t("lastUsed")}: {new Date(token.lastUsedAt).toLocaleDateString()}
                               </div>
                             )}
                          </div>
@@ -563,18 +565,18 @@ export default function SettingsPage() {
                {showInstructions && (
                   <div className="mt-3 space-y-4 rounded-sm border border-slate-700/70 bg-slate-900/30 p-4 text-sm text-slate-300">
                     <div>
-                      <div className="font-medium text-slate-100">1. Add to opencode.jsonc plugin array:</div>
+                      <div className="font-medium text-slate-100">{t("addToPlugin")}</div>
                       <div className="mt-2 rounded-sm border border-slate-700/70 bg-slate-900/40 p-2 font-mono text-xs">
                        {`"plugin": ["opencode-cliproxyapi-sync@latest", ...]`}
                      </div>
                    </div>
                    
                    <div>
-                     <div className="font-medium text-white mb-3">2. Create config file:</div>
+                     <div className="font-medium text-white mb-3">{t("createConfigFile")}</div>
                      
                      <div className="space-y-4">
                         <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-3">
-                          <div className="mb-2 text-xs font-medium text-slate-200">Standard:</div>
+                          <div className="mb-2 text-xs font-medium text-slate-200">{t("standard")}</div>
                           <div className="mb-2 font-mono text-xs text-slate-400">
                            ~/.config/opencode-cliproxyapi-sync/config.json
                          </div>
@@ -588,7 +590,7 @@ export default function SettingsPage() {
                        </div>
 
                         <div className="rounded-sm border border-emerald-500/30 bg-emerald-500/5 p-3">
-                          <div className="mb-2 text-xs font-medium text-emerald-300">With OCX Profile:</div>
+                          <div className="mb-2 text-xs font-medium text-emerald-300">{t("withOcxProfile")}</div>
                           <div className="mb-2 font-mono text-xs text-emerald-200/70">
                            ~/.config/opencode/profiles/&lt;profilename&gt;/opencode-cliproxyapi-sync/config.json
                          </div>
@@ -615,40 +617,40 @@ export default function SettingsPage() {
       {/* System Section */}
       <section className="space-y-3">
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-400">System</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-400">{t("system")}</h2>
         </div>
 
         <div className="space-y-3 rounded-md border border-slate-700/70 bg-slate-900/25 p-3">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-100">
-                CLIProxyAPI Updates
+                {t("cliProxyUpdates")}
                 {proxyUpdateInfo?.updateAvailable && (
                   <span className="rounded-sm border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-300">
-                    Update Available
+                    {t("updateAvailable")}
                   </span>
                 )}
               </h3>
               <div className="space-y-4">
                 {proxyUpdateLoading ? (
-                  <div className="text-slate-400">Checking for updates...</div>
+                  <div className="text-slate-400">{t("checkingUpdates")}</div>
                 ) : proxyUpdateInfo ? (
                   <>
                      <div className="grid gap-4 sm:grid-cols-2">
                        <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-4">
-                         <div className="text-sm font-medium text-slate-400">Current Version</div>
+                         <div className="text-sm font-medium text-slate-400">{t("currentVersion")}</div>
                          <div className="mt-1 break-all text-lg font-semibold text-slate-100">
                            {proxyUpdateInfo.currentVersion}
                          </div>
                          <div className="mt-1 break-all text-xs text-slate-400">
-                           Digest: <span className="font-mono text-slate-200">{proxyUpdateInfo.currentDigest}</span>
+                           {t("digest")}: <span className="font-mono text-slate-200">{proxyUpdateInfo.currentDigest}</span>
                          </div>
                        </div>
                        <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-4">
-                         <div className="text-sm font-medium text-slate-400">Latest Version</div>
+                         <div className="text-sm font-medium text-slate-400">{t("latestVersion")}</div>
                          <div className="mt-1 break-all text-lg font-semibold text-slate-100">
                            {proxyUpdateInfo.latestVersion}
                          </div>
                          <div className="mt-1 break-all text-xs text-slate-400">
-                           Digest: <span className="font-mono text-slate-200">{proxyUpdateInfo.latestDigest}</span>
+                           {t("digest")}: <span className="font-mono text-slate-200">{proxyUpdateInfo.latestDigest}</span>
                          </div>
                        </div>
                      </div>
@@ -658,7 +660,7 @@ export default function SettingsPage() {
                         onClick={() => confirmProxyUpdate("latest")}
                         disabled={proxyUpdating || !proxyUpdateInfo.updateAvailable}
                       >
-                        {proxyUpdating ? "Updating..." : proxyUpdateInfo.updateAvailable ? "Update to Latest" : "Up to Date"}
+                        {proxyUpdating ? t("updating") : proxyUpdateInfo.updateAvailable ? t("updateToLatest") : t("upToDate")}
                       </Button>
                       <Button variant="secondary" onClick={() => fetchProxyUpdateInfo()} disabled={proxyUpdateLoading}>
                         Refresh
@@ -667,7 +669,7 @@ export default function SettingsPage() {
 
                     {proxyUpdateInfo.availableVersions.length > 0 && (
                       <div className="border-t border-slate-700/70 pt-4">
-                        <div className="mb-2 text-sm font-medium text-slate-400">Available Versions</div>
+                        <div className="mb-2 text-sm font-medium text-slate-400">{t("availableVersions")}</div>
                         <div className="flex flex-wrap gap-2">
                           {proxyUpdateInfo.availableVersions.slice(0, 5).map((v) => (
                             <button
@@ -685,16 +687,16 @@ export default function SettingsPage() {
                     )}
                   </>
                 ) : (
-                  <div className="text-slate-400">Failed to check for updates</div>
+                  <div className="text-slate-400">{t("failedCheckUpdates")}</div>
                 )}
               </div>
 
               <div className="border-t border-slate-700/70 pt-4">
                 <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-100">
-                  Dashboard Updates
+                  {t("dashboardUpdates")}
                   {dashboardUpdateInfo?.updateAvailable && (
                     <span className="rounded-sm border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-300">
-                      Update Available
+                      {t("updateAvailable")}
                     </span>
                   )}
                 </h3>
@@ -733,7 +735,7 @@ export default function SettingsPage() {
                           onClick={() => confirmDashboardUpdate()}
                           disabled={dashboardUpdating || !dashboardUpdateInfo.updateAvailable}
                         >
-                          {dashboardUpdating ? "Updating..." : dashboardUpdateInfo.updateAvailable ? "Update to Latest" : "Up to Date"}
+                          {dashboardUpdating ? t("updating") : dashboardUpdateInfo.updateAvailable ? t("updateToLatest") : t("upToDate")}
                         </Button>
                         <Button variant="secondary" onClick={() => fetchDashboardUpdateInfo()} disabled={dashboardUpdateLoading}>
                           Refresh
@@ -749,20 +751,20 @@ export default function SettingsPage() {
           <DeployDashboard />
 
           <div className="space-y-3 rounded-sm border border-slate-700/70 bg-slate-900/30 p-4">
-              <h3 className="text-sm font-semibold text-slate-100">Session Control</h3>
+              <h3 className="text-sm font-semibold text-slate-100">{t("sessionControl")}</h3>
               <p className="text-sm text-slate-400">
-                Immediately revoke all active user sessions across all devices.
+                {t("sessionControlDesc")}
               </p>
               <Button variant="danger" onClick={confirmRevokeSessions} disabled={revokingSessions}>
-                {revokingSessions ? "Revoking..." : "Force Logout All Users"}
+                {revokingSessions ? t("revoking") : t("forceLogoutAll")}
               </Button>
             </div>
 
              <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-4">
-               <h3 className="mb-3 text-sm font-semibold text-slate-100">System Information</h3>
+               <h3 className="mb-3 text-sm font-semibold text-slate-100">{t("systemInfo")}</h3>
               <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-3">
-                  <div className="font-medium text-slate-400">Environment</div>
+                  <div className="font-medium text-slate-400">{t("environment")}</div>
                   <div className="mt-1 text-slate-100">{process.env.NODE_ENV || "production"}</div>
                 </div>
                 <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-3">
@@ -776,16 +778,16 @@ export default function SettingsPage() {
               </div>
 
              <div className="mt-4 border-t border-slate-700/70 pt-4">
-               <h3 className="mb-3 text-sm font-medium text-slate-400">Version Details</h3>
+               <h3 className="mb-3 text-sm font-medium text-slate-400">{t("versionDetails")}</h3>
                <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between text-slate-300">
-                    <span>Dashboard Version:</span>
+                    <span>{t("dashboardVersion")}</span>
                     <span className="font-mono">{dashboardUpdateInfo?.currentVersion || "dev"}</span>
                   </div>
                   <div className="flex items-center justify-between text-slate-300">
-                    <span>CLIProxyAPI:</span>
+                    <span>{t("cliProxyApi")}</span>
                     <span className="font-mono">
-                     {cliProxyLoading ? "Loading..." : cliProxyVersion || "Unknown"}
+                     {cliProxyLoading ? t("loading") : cliProxyVersion || t("unknown")}
                    </span>
                  </div>
                </div>
@@ -801,10 +803,10 @@ export default function SettingsPage() {
           setPendingProxyVersion("latest");
         }}
         onConfirm={handleProxyUpdate}
-        title="Update CLIProxyAPI"
-        message={`Update CLIProxyAPI to ${pendingProxyVersion}? The service will restart.`}
-        confirmLabel="Update"
-        cancelLabel="Cancel"
+        title={t("confirmUpdateProxy")}
+        message={t("confirmUpdateProxyMsg", { version: pendingProxyVersion })}
+        confirmLabel={t("update")}
+        cancelLabel={t("cancel")}
         variant="warning"
       />
 
@@ -812,8 +814,8 @@ export default function SettingsPage() {
         isOpen={showConfirmDashboardUpdate}
         onClose={() => setShowConfirmDashboardUpdate(false)}
         onConfirm={handleDashboardUpdate}
-        title="Update Dashboard"
-        message="Update Dashboard to latest version? The container will restart."
+        title={t("confirmUpdateDashboard")}
+        message={t("confirmUpdateDashboardMsg")}
         confirmLabel="Update"
         cancelLabel="Cancel"
         variant="warning"
@@ -826,9 +828,9 @@ export default function SettingsPage() {
           setPendingRevokeTokenId(null);
         }}
         onConfirm={handleRevokeToken}
-        title="Revoke Token"
-        message="Are you sure you want to revoke this token?"
-        confirmLabel="Revoke"
+        title={t("confirmRevokeToken")}
+        message={t("confirmRevokeTokenMsg")}
+        confirmLabel={t("revoke")}
         cancelLabel="Cancel"
         variant="danger"
       />
@@ -837,9 +839,9 @@ export default function SettingsPage() {
         isOpen={showConfirmRevokeSessions}
         onClose={() => setShowConfirmRevokeSessions(false)}
         onConfirm={handleRevokeAllSessions}
-        title="Force Logout All Users"
-        message="Force logout all users from all devices? This action cannot be undone."
-        confirmLabel="Force Logout"
+        title={t("confirmForceLogout")}
+        message={t("confirmForceLogoutMsg")}
+        confirmLabel={t("forceLogoutAll")}
         cancelLabel="Cancel"
         variant="danger"
       />

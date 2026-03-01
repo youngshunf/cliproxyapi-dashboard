@@ -7,6 +7,11 @@ import { prisma } from "@/lib/db";
 import { checkRateLimitWithPreset } from "@/lib/auth/rate-limit";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 interface ApiKeyResponse {
   id: string;
@@ -39,7 +44,10 @@ function maskApiKey(key: string): string {
 export async function GET() {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   try {
@@ -67,7 +75,7 @@ export async function GET() {
   } catch (error) {
     logger.error({ err: error }, "Failed to fetch API keys");
     return NextResponse.json(
-      { error: "Failed to fetch API keys" },
+      { error: t("errors.generic.fetchFailed", { resource: t("resources.apiKeys") }) },
       { status: 500 }
     );
   }
@@ -77,7 +85,7 @@ export async function POST(request: NextRequest) {
   const rateLimit = checkRateLimitWithPreset(request, "api-keys", "API_KEYS");
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Too many API key creation requests. Try again later." },
+      { error: t("errors.rateLimit.apiKeyCreate") },
       {
         status: 429,
         headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
@@ -87,7 +95,10 @@ export async function POST(request: NextRequest) {
 
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -101,13 +112,15 @@ export async function POST(request: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Invalid request body" },
+        { error: t("errors.validation.invalidRequestBody") },
         { status: 400 }
       );
     }
 
     const key = generateApiKey();
-    const name = parsed.data.name && parsed.data.name.trim() ? parsed.data.name.trim() : "Default";
+    const name = parsed.data.name && parsed.data.name.trim()
+      ? parsed.data.name.trim()
+      : t("messages.apiKeys.defaultName");
 
     const apiKey = await prisma.userApiKey.create({
       data: {
@@ -131,14 +144,14 @@ export async function POST(request: NextRequest) {
       name: apiKey.name,
       createdAt: apiKey.createdAt.toISOString(),
       syncStatus: "pending",
-      syncMessage: "Key created - backend sync in progress",
+      syncMessage: t("messages.apiKeys.syncPending"),
     };
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
     logger.error({ err: error }, "Failed to create API key");
     return NextResponse.json(
-      { error: "Failed to create API key" },
+      { error: t("errors.generic.createFailed", { resource: t("resources.apiKey") }) },
       { status: 500 }
     );
   }
@@ -147,7 +160,10 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -161,7 +177,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!id || typeof id !== "string") {
       return NextResponse.json(
-        { error: "Missing or invalid id parameter" },
+        { error: t("errors.validation.missingParameter", { param: "id" }) },
         { status: 400 }
       );
     }
@@ -176,7 +192,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!existingKey) {
       return NextResponse.json(
-        { error: "API key not found or access denied" },
+        { error: t("errors.apiKeys.notFoundOrDenied") },
         { status: 404 }
       );
     }
@@ -193,12 +209,12 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({
       success: true,
       syncStatus: syncResult.ok ? "ok" : "failed",
-      syncMessage: syncResult.ok ? undefined : "Backend sync pending - key deleted but may still work temporarily",
+      syncMessage: syncResult.ok ? undefined : t("messages.apiKeys.syncDeletePending"),
     });
   } catch (error) {
     logger.error({ err: error }, "Failed to delete API key");
     return NextResponse.json(
-      { error: "Failed to delete API key" },
+      { error: t("errors.generic.deleteFailed", { resource: t("resources.apiKey") }) },
       { status: 500 }
     );
   }

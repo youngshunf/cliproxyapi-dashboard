@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { useTranslations } from "next-intl";
 
 // Config shape (excluding fields managed elsewhere)
 interface StreamingConfig {
@@ -144,6 +145,7 @@ export default function ConfigPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { showToast } = useToast();
+  const t = useTranslations("config");
 
   const hasUnsavedChanges = config && originalConfig && JSON.stringify(config) !== JSON.stringify(originalConfig);
 
@@ -152,7 +154,7 @@ export default function ConfigPage() {
     try {
       const res = await fetch("/api/management/config");
       if (!res.ok) {
-        showToast("Failed to load configuration", "error");
+        showToast(t("failedLoad"), "error");
         setLoading(false);
         return;
       }
@@ -163,7 +165,7 @@ export default function ConfigPage() {
       setRawJson(JSON.stringify(data, null, 2));
       setLoading(false);
     } catch {
-      showToast("Network error", "error");
+      showToast(t("networkError"), "error");
       setLoading(false);
     }
   }, [showToast]);
@@ -179,29 +181,97 @@ export default function ConfigPage() {
   }, [fetchConfig]);
 
   const handleSave = async () => {
-    if (!config) return;
+    if (!config || !originalConfig) return;
 
     setSaving(true);
 
     try {
-      const res = await fetch("/api/management/config", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config),
-      });
+      // Build list of changed fields to PATCH individually
+      const patches: Array<{ path: string; value: unknown }> = [];
 
-      if (!res.ok) {
-        showToast("Failed to save configuration", "error");
+      // Top-level simple fields
+      const simpleFields: Array<{ key: keyof Config; path: string }> = [
+        { key: "proxy-url", path: "proxy-url" },
+        { key: "force-model-prefix", path: "force-model-prefix" },
+        { key: "debug", path: "debug" },
+        { key: "commercial-mode", path: "commercial-mode" },
+        { key: "logging-to-file", path: "logging-to-file" },
+        { key: "logs-max-total-size-mb", path: "logs-max-total-size-mb" },
+        { key: "error-logs-max-files", path: "error-logs-max-files" },
+        { key: "usage-statistics-enabled", path: "usage-statistics-enabled" },
+        { key: "request-retry", path: "request-retry" },
+        { key: "max-retry-interval", path: "max-retry-interval" },
+        { key: "ws-auth", path: "ws-auth" },
+      ];
+
+      for (const { key, path: fieldPath } of simpleFields) {
+        if (config[key] !== originalConfig[key]) {
+          patches.push({ path: fieldPath, value: config[key] });
+        }
+      }
+
+      // Nested: streaming (patch each sub-field individually)
+      if (config.streaming) {
+        const origStreaming = originalConfig.streaming ?? {} as StreamingConfig;
+        for (const [subKey, subVal] of Object.entries(config.streaming)) {
+          if (subVal !== (origStreaming as unknown as Record<string, unknown>)[subKey]) {
+            patches.push({ path: `streaming/${subKey}`, value: subVal });
+          }
+        }
+      }
+
+      // Nested: quota-exceeded
+      if (config["quota-exceeded"]) {
+        const origQuota = originalConfig["quota-exceeded"] ?? {} as QuotaExceededConfig;
+        for (const [subKey, subVal] of Object.entries(config["quota-exceeded"])) {
+          if (subVal !== (origQuota as unknown as Record<string, unknown>)[subKey]) {
+            patches.push({ path: `quota-exceeded/${subKey}`, value: subVal });
+          }
+        }
+      }
+
+      // Nested: routing
+      if (config.routing) {
+        const origRouting = originalConfig.routing ?? {} as RoutingConfig;
+        for (const [subKey, subVal] of Object.entries(config.routing)) {
+          if (subVal !== (origRouting as unknown as Record<string, unknown>)[subKey]) {
+            patches.push({ path: `routing/${subKey}`, value: subVal });
+          }
+        }
+      }
+
+      if (patches.length === 0) {
+        showToast(t("savedSuccess"), "success");
         setSaving(false);
         return;
       }
 
-      showToast("Configuration saved successfully", "success");
+      // Send each patch
+      let hasError = false;
+      for (const patch of patches) {
+        const res = await fetch(`/api/management/${patch.path}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ value: patch.value }),
+        });
+        if (!res.ok) {
+          hasError = true;
+          break;
+        }
+      }
+
+      if (hasError) {
+        showToast(t("failedSave"), "error");
+        setSaving(false);
+        return;
+      }
+
+      showToast(t("savedSuccess"), "success");
       setOriginalConfig(config);
       setRawJson(JSON.stringify(config, null, 2));
       setSaving(false);
     } catch {
-      showToast("Failed to save configuration", "error");
+      showToast(t("failedSave"), "error");
       setSaving(false);
     }
   };
@@ -210,7 +280,7 @@ export default function ConfigPage() {
     if (originalConfig) {
       setConfig(originalConfig);
       setRawJson(JSON.stringify(originalConfig, null, 2));
-      showToast("Changes discarded", "info");
+      showToast(t("discarded"), "info");
     }
   };
 
@@ -224,9 +294,9 @@ export default function ConfigPage() {
     setConfig({
       ...config,
       streaming: {
-        ...config.streaming,
+        ...(config.streaming ?? {}),
         [key]: value,
-      },
+      } as StreamingConfig,
     });
   };
 
@@ -235,9 +305,9 @@ export default function ConfigPage() {
     setConfig({
       ...config,
       "quota-exceeded": {
-        ...config["quota-exceeded"],
+        ...(config["quota-exceeded"] ?? {}),
         [key]: value,
-      },
+      } as QuotaExceededConfig,
     });
   };
 
@@ -246,9 +316,9 @@ export default function ConfigPage() {
     setConfig({
       ...config,
       routing: {
-        ...config.routing,
+        ...(config.routing ?? {}),
         [key]: value,
-      },
+      } as RoutingConfig,
     });
   };
 
@@ -256,13 +326,13 @@ export default function ConfigPage() {
     return (
       <div className="space-y-4">
         <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-100">Configuration</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
         </section>
         <div className="rounded-md border border-slate-700/70 bg-slate-900/25 p-6">
           <div className="flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <div className="size-8 animate-spin rounded-full border-4 border-white/20 border-t-blue-500"></div>
-              <p className="text-slate-400">Loading configuration...</p>
+              <p className="text-slate-400">{t("loadingConfig")}</p>
             </div>
           </div>
         </div>
@@ -274,10 +344,10 @@ export default function ConfigPage() {
     return (
       <div className="space-y-4">
         <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-100">Configuration</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
         </section>
         <div className="rounded-md border border-slate-700/70 bg-slate-900/25 p-4 text-center">
-          <p className="text-slate-300">Failed to load configuration</p>
+          <p className="text-slate-300">{t("failedLoad")}</p>
           <Button onClick={fetchConfig} className="mt-4 px-2.5 py-1 text-xs">
             Retry
           </Button>
@@ -291,9 +361,9 @@ export default function ConfigPage() {
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-100">Configuration</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
             <p className="mt-1 text-sm text-slate-400">
-              Configure system settings, streaming, retry behavior, and logging.
+              {t("description")}
             </p>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
@@ -309,73 +379,73 @@ export default function ConfigPage() {
             </>
           )}
           <Button onClick={handleSave} disabled={saving || !hasUnsavedChanges} className="px-2.5 py-1 text-xs">
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? t("saving") : t("saveChanges")}
           </Button>
           </div>
         </div>
       </section>
 
       <div className="rounded-sm border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
-        <strong>Warning:</strong>{" "}
+        <strong>{t("warning")}:</strong>{" "}
         <span>
-          Invalid configuration may prevent the service from starting. Review changes carefully before saving.
+          {t("warningInvalid")}
         </span>
       </div>
 
       {/* General Settings */}
       <section className="space-y-3 rounded-md border border-slate-700/70 bg-slate-900/25 p-4">
-        <SectionHeader title="General Settings" />
+        <SectionHeader title={t("generalSettings")} />
            <div className="grid gap-4 sm:grid-cols-2">
               <ConfigField
-                label="Upstream Proxy"
-               description="Optional SOCKS5/HTTP/HTTPS proxy for outbound requests to AI providers. Leave empty for direct connection."
+                label={t("upstreamProxy")}
+               description={t("upstreamProxyDesc")}
              >
                <Input
                  type="text"
                  name="proxy-url"
-                 value={config["proxy-url"]}
+                 value={config["proxy-url"] ?? ""}
                  onChange={(value) => updateConfig("proxy-url", value)}
-                 placeholder="socks5://proxy:1080 or http://proxy:8080"
+                 placeholder={t("proxyPlaceholder")}
                  className="font-mono"
                />
              </ConfigField>
 
              <ConfigField
-               label="Force Model Prefix"
-               description="Require model names to include a provider prefix"
+               label={t("forceModelPrefix")}
+               description={t("forceModelPrefixDesc")}
              >
                <Toggle
-                 enabled={config["force-model-prefix"]}
+                 enabled={config["force-model-prefix"] ?? false}
                  onChange={(value) => updateConfig("force-model-prefix", value)}
                />
              </ConfigField>
 
              <ConfigField
-               label="Debug Mode"
-               description="Enable verbose debug logging"
+               label={t("debugMode")}
+               description={t("debugModeDesc")}
              >
                <Toggle
-                 enabled={config.debug}
+                 enabled={config.debug ?? false}
                  onChange={(value) => updateConfig("debug", value)}
                />
              </ConfigField>
 
             <ConfigField
-              label="Commercial Mode"
-              description="Enable commercial features and licensing"
+              label={t("commercialMode")}
+              description={t("commercialModeDesc")}
             >
               <Toggle
-                enabled={config["commercial-mode"]}
+                enabled={config["commercial-mode"] ?? false}
                 onChange={(value) => updateConfig("commercial-mode", value)}
               />
             </ConfigField>
 
             <ConfigField
-              label="WebSocket Authentication"
-              description="Require authentication for WebSocket connections"
+              label={t("wsAuth")}
+              description={t("wsAuthDesc")}
             >
               <Toggle
-                enabled={config["ws-auth"]}
+                enabled={config["ws-auth"] ?? false}
                 onChange={(value) => updateConfig("ws-auth", value)}
               />
             </ConfigField>
@@ -384,16 +454,16 @@ export default function ConfigPage() {
 
       {/* Streaming Settings */}
       <section className="space-y-3 rounded-md border border-slate-700/70 bg-slate-900/25 p-4">
-        <SectionHeader title="Streaming" />
+        <SectionHeader title={t("streaming")} />
            <div className="grid gap-4 sm:grid-cols-2">
              <ConfigField
-               label="Keepalive Seconds"
-              description="SSE keepalive interval in seconds"
+               label={t("keepaliveSeconds")}
+              description={t("keepaliveSecondsDesc")}
             >
               <Input
                 type="number"
                 name="keepalive-seconds"
-                value={String(config.streaming["keepalive-seconds"])}
+                value={String(config.streaming?.["keepalive-seconds"] ?? 0)}
                 onChange={(value) =>
                   updateStreamingConfig("keepalive-seconds", Number(value))
                 }
@@ -402,13 +472,13 @@ export default function ConfigPage() {
             </ConfigField>
 
              <ConfigField
-               label="Bootstrap Retries"
-               description="Number of bootstrap retry attempts"
+               label={t("bootstrapRetries")}
+               description={t("bootstrapRetriesDesc")}
              >
                <Input
                  type="number"
                  name="bootstrap-retries"
-                 value={String(config.streaming["bootstrap-retries"])}
+                 value={String(config.streaming?.["bootstrap-retries"] ?? 0)}
                  onChange={(value) =>
                    updateStreamingConfig("bootstrap-retries", Number(value))
                  }
@@ -417,13 +487,13 @@ export default function ConfigPage() {
              </ConfigField>
 
              <ConfigField
-               label="Non-Stream Keepalive Interval"
-               description="Emit blank lines every N seconds for non-streaming responses to prevent idle timeouts (0 = disabled)"
+               label={t("nonStreamKeepalive")}
+               description={t("nonStreamKeepaliveDesc")}
              >
                <Input
                  type="number"
                  name="nonstream-keepalive-interval"
-                 value={String(config.streaming["nonstream-keepalive-interval"] ?? 0)}
+                 value={String(config.streaming?.["nonstream-keepalive-interval"] ?? 0)}
                  onChange={(value) =>
                    updateStreamingConfig("nonstream-keepalive-interval", Number(value))
                  }
@@ -435,55 +505,55 @@ export default function ConfigPage() {
 
       {/* Retry & Resilience */}
       <section className="space-y-3 rounded-md border border-slate-700/70 bg-slate-900/25 p-4">
-        <SectionHeader title="Retry & Resilience" />
+        <SectionHeader title={t("retryResilience")} />
            <div className="grid gap-4 sm:grid-cols-2">
              <ConfigField
-               label="Request Retry Attempts"
-              description="Maximum number of retry attempts for failed requests"
+               label={t("requestRetry")}
+              description={t("requestRetryDesc")}
             >
               <Input
                 type="number"
                 name="request-retry"
-                value={String(config["request-retry"])}
+                value={String(config["request-retry"] ?? 0)}
                 onChange={(value) => updateConfig("request-retry", Number(value))}
                 className="font-mono"
               />
             </ConfigField>
 
             <ConfigField
-              label="Max Retry Interval (seconds)"
-              description="Maximum interval between retry attempts"
+              label={t("maxRetryInterval")}
+              description={t("maxRetryIntervalDesc")}
             >
               <Input
                 type="number"
                 name="max-retry-interval"
-                value={String(config["max-retry-interval"])}
+                value={String(config["max-retry-interval"] ?? 0)}
                 onChange={(value) => updateConfig("max-retry-interval", Number(value))}
                 className="font-mono"
               />
             </ConfigField>
 
              <ConfigField
-               label="Routing Strategy"
-               description="Load balancing strategy for multiple providers"
+               label={t("routingStrategy")}
+               description={t("routingStrategyDesc")}
              >
                <Select
-                 value={config.routing.strategy}
+                 value={config.routing?.strategy ?? "round-robin"}
                  onChange={(value) => updateRoutingConfig("strategy", value)}
                  options={[
-                   { value: "round-robin", label: "Round Robin" },
-                   { value: "random", label: "Random" },
-                   { value: "least-loaded", label: "Least Loaded" },
+                   { value: "round-robin", label: t("roundRobin") },
+                   { value: "random", label: t("random") },
+                   { value: "least-loaded", label: t("leastLoaded") },
                  ]}
                />
              </ConfigField>
 
              <ConfigField
-               label="Switch Project on Quota Exceeded"
-               description="Automatically switch to another project when quota is exceeded"
+               label={t("switchProject")}
+               description={t("switchProjectDesc")}
              >
                <Toggle
-                 enabled={config["quota-exceeded"]["switch-project"]}
+                 enabled={config["quota-exceeded"]?.["switch-project"] ?? false}
                  onChange={(value) =>
                    updateQuotaConfig("switch-project", value)
                  }
@@ -491,11 +561,11 @@ export default function ConfigPage() {
              </ConfigField>
 
             <ConfigField
-              label="Switch Preview Model on Quota Exceeded"
-              description="Fall back to preview models when quota is exceeded"
+              label={t("switchPreviewModel")}
+              description={t("switchPreviewModelDesc")}
             >
               <Toggle
-                enabled={config["quota-exceeded"]["switch-preview-model"]}
+                enabled={config["quota-exceeded"]?.["switch-preview-model"] ?? false}
                 onChange={(value) =>
                   updateQuotaConfig("switch-preview-model", value)
                 }
@@ -506,49 +576,49 @@ export default function ConfigPage() {
 
       {/* Logging */}
       <section className="space-y-3 rounded-md border border-slate-700/70 bg-slate-900/25 p-4">
-        <SectionHeader title="Logging" />
+        <SectionHeader title={t("logging")} />
            <div className="grid gap-4 sm:grid-cols-2">
              <ConfigField
-               label="Logging to File"
-              description="Enable persistent file-based logging"
+               label={t("loggingToFile")}
+              description={t("loggingToFileDesc")}
             >
               <Toggle
-                enabled={config["logging-to-file"]}
+                enabled={config["logging-to-file"] ?? false}
                 onChange={(value) => updateConfig("logging-to-file", value)}
               />
             </ConfigField>
 
             <ConfigField
-              label="Usage Statistics"
-              description="Collect anonymous usage statistics"
+              label={t("usageStatistics")}
+              description={t("usageStatisticsDesc")}
             >
               <Toggle
-                enabled={config["usage-statistics-enabled"]}
+                enabled={config["usage-statistics-enabled"] ?? false}
                 onChange={(value) => updateConfig("usage-statistics-enabled", value)}
               />
             </ConfigField>
 
             <ConfigField
-              label="Max Total Log Size (MB)"
-              description="Maximum total size of all log files (0 = unlimited)"
+              label={t("maxLogSize")}
+              description={t("maxLogSizeDesc")}
             >
               <Input
                 type="number"
                 name="logs-max-total-size-mb"
-                value={String(config["logs-max-total-size-mb"])}
+                value={String(config["logs-max-total-size-mb"] ?? 0)}
                 onChange={(value) => updateConfig("logs-max-total-size-mb", Number(value))}
                 className="font-mono"
               />
             </ConfigField>
 
             <ConfigField
-              label="Max Error Log Files"
-              description="Maximum number of error log files to retain"
+              label={t("maxErrorLogFiles")}
+              description={t("maxErrorLogFilesDesc")}
             >
               <Input
                 type="number"
                 name="error-logs-max-files"
-                value={String(config["error-logs-max-files"])}
+                value={String(config["error-logs-max-files"] ?? 0)}
                 onChange={(value) => updateConfig("error-logs-max-files", Number(value))}
                 className="font-mono"
               />
@@ -559,22 +629,21 @@ export default function ConfigPage() {
       {/* Advanced: Raw JSON Editor */}
       <section className="space-y-3 rounded-md border border-rose-500/40 bg-rose-500/5 p-4">
             <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
-              <SectionHeader title="Advanced: Raw JSON Editor" />
+              <SectionHeader title={t("advancedRawJson")} />
               <Button
                 variant="ghost"
                 onClick={() => setShowAdvanced(!showAdvanced)}
                 className="text-xs"
               >
-                {showAdvanced ? "Hide" : "Show"} Raw JSON
+                {showAdvanced ? t("hideRawJson") : t("showRawJson")}
               </Button>
             </div>
         {showAdvanced && (
             <div className="space-y-4">
               <div className="rounded-sm border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-200">
-                <strong>Warning:</strong>{" "}
+                <strong>{t("warning")}:</strong>{" "}
                 <span>
-                  This section shows the complete configuration including fields managed on other pages.
-                  Only edit this if you know what you&apos;re doing. Changes here will NOT be saved from this editor.
+                  {t("rawJsonWarning")}
                 </span>
               </div>
               <textarea
@@ -591,8 +660,7 @@ export default function ConfigPage() {
       </section>
 
       <div className="rounded-sm border border-slate-700/70 bg-slate-900/25 p-4 text-xs text-slate-400">
-        <strong>TIP:</strong> Changes are saved immediately to the management API. The service may need to be
-        restarted for some configuration changes to take effect.
+        <strong>TIP:</strong> {t("tip")}
       </div>
     </div>
   );

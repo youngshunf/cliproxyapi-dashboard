@@ -11,7 +11,7 @@ import {
   USERNAME_MIN_LENGTH,
   isValidUsernameFormat,
 } from "@/lib/auth/validation";
-import { ERROR_CODE, Errors, apiErrorWithHeaders } from "@/lib/errors";
+import { Errors } from "@/lib/errors";
 import { AUDIT_ACTION, logAuditAsync } from "@/lib/audit";
 import { logger } from "@/lib/logger";
 
@@ -31,12 +31,9 @@ export async function POST(request: NextRequest) {
     );
 
     if (!rateLimit.allowed) {
-      return apiErrorWithHeaders(
-        ERROR_CODE.RATE_LIMIT_EXCEEDED,
-        "Too many login attempts. Try again later.",
-        429,
-        undefined,
-        { "Retry-After": String(rateLimit.retryAfterSeconds) }
+      return Errors.rateLimited(
+        rateLimit.retryAfterSeconds ?? 60,
+        "errors.rateLimit.login"
       );
     }
 
@@ -48,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (typeof username !== "string" || typeof password !== "string") {
-      return Errors.validation("Invalid input types");
+      return Errors.validation("errors.validation.invalidInputTypes");
     }
 
     if (

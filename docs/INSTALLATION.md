@@ -14,7 +14,7 @@ Before installing, ensure you have:
 - **Root Access**: Required for Docker and firewall configuration
 - **Domain Name**: A registered domain with DNS control
 - **Server**: VPS or dedicated server with public IP address
-- **Ports Available**: 80, 443, 8085, 1455, 54545, 51121, 11451
+- **Ports Available**: 80, 443, 8085, 1455, 54545, 51121, 8317
 
 ### Preflight Checklist
 
@@ -22,7 +22,7 @@ Complete **before** running the installer:
 
 - [ ] **DNS Records Configured**: Set A records for `dashboard.yourdomain.com` and `api.yourdomain.com` pointing to your server IP
 - [ ] **DNS Propagated**: Verify records with `dig dashboard.yourdomain.com` (allow 5-15 minutes)
-- [ ] **Ports Available**: Confirm no services using ports 80, 443, 8085, 1455, 54545, 51121, 11451
+- [ ] **Ports Available**: Confirm no services using ports 80, 443, 8085, 1455, 54545, 51121, 8317
 - [ ] **Root Access**: SSH access with `sudo` or root privileges
 - [ ] **First Admin Window**: Plan to create your admin account immediately after installation completes
 
@@ -125,7 +125,7 @@ cd cliproxyapi-dashboard
 
 ![Local Setup Windows](code-snippets/local-setup-windows.png)
 
-Dashboard runs on `localhost:3000`, CLIProxyAPIPlus proxy on `localhost:11451`.
+Dashboard runs on `localhost:3000`, CLIProxyAPIPlus proxy on `localhost:8317`.
 
 ## Manual Installation
 
@@ -211,7 +211,7 @@ sudo ufw allow 8085/tcp
 sudo ufw allow 1455/tcp
 sudo ufw allow 54545/tcp
 sudo ufw allow 51121/tcp
-sudo ufw allow 11451/tcp
+sudo ufw allow 8317/tcp
 
 # Enable firewall
 sudo ufw enable

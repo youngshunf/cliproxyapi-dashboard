@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (typeof currentPassword !== "string" || typeof newPassword !== "string") {
-      return Errors.validation("Invalid input types");
+      return Errors.validation("errors.validation.invalidInputTypes");
     }
 
     if (
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (currentPassword === newPassword) {
-      return Errors.validation("New password must be different from current password");
+      return Errors.validation("errors.validation.passwordDifferent");
     }
 
     const passwordHash = await hashPassword(newPassword);

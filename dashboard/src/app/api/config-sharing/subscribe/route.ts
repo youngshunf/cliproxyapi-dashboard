@@ -4,6 +4,11 @@ import { validateOrigin } from "@/lib/auth/origin";
 import { normalizeShareCode } from "@/lib/share-code";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 interface SubscriptionResponse {
   templateName: string;
@@ -45,7 +50,10 @@ function isUpdateSubscriptionRequest(body: unknown): body is UpdateSubscriptionR
 export async function GET() {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   try {
@@ -82,7 +90,7 @@ export async function GET() {
   } catch (error) {
     logger.error({ err: error }, "Failed to fetch subscription");
     return NextResponse.json(
-      { error: "Failed to fetch subscription" },
+      { error: t("errors.configSharing.fetchSubscriptionFailed") },
       { status: 500 }
     );
   }
@@ -91,7 +99,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -104,14 +115,14 @@ export async function POST(request: NextRequest) {
     
     if (!isSubscribeRequest(body)) {
       return NextResponse.json(
-        { error: "Invalid request body: shareCode is required" },
+        { error: t("errors.configSharing.invalidSubscribeBody") },
         { status: 400 }
       );
     }
 
     if (!body.shareCode) {
       return NextResponse.json(
-        { error: "shareCode is required" },
+        { error: t("errors.configSharing.shareCodeRequired") },
         { status: 400 }
       );
     }
@@ -132,21 +143,21 @@ export async function POST(request: NextRequest) {
 
     if (!template) {
       return NextResponse.json(
-        { error: "Template not found with provided share code" },
+        { error: t("errors.configSharing.templateNotFoundByShareCode") },
         { status: 404 }
       );
     }
 
     if (!template.isActive) {
       return NextResponse.json(
-        { error: "Template is not active" },
+        { error: t("errors.configSharing.templateInactive") },
         { status: 400 }
       );
     }
 
     if (template.userId === session.userId) {
       return NextResponse.json(
-        { error: "Cannot subscribe to your own template" },
+        { error: t("errors.configSharing.cannotSubscribeSelf") },
         { status: 403 }
       );
     }
@@ -159,7 +170,7 @@ export async function POST(request: NextRequest) {
 
     if (userApiKeys.length === 0) {
       return NextResponse.json(
-        { error: "Cannot subscribe without at least one API key. Please add an API key first." },
+        { error: t("errors.configSharing.apiKeyRequired") },
         { status: 400 }
       );
     }
@@ -220,7 +231,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     logger.error({ err: error }, "Failed to create subscription");
     return NextResponse.json(
-      { error: "Failed to create subscription" },
+      { error: t("errors.configSharing.createSubscriptionFailed") },
       { status: 500 }
     );
   }
@@ -229,7 +240,10 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -242,7 +256,7 @@ export async function PATCH(request: NextRequest) {
     
     if (!isUpdateSubscriptionRequest(body)) {
       return NextResponse.json(
-        { error: "Invalid request body: isActive is required" },
+        { error: t("errors.configSharing.invalidUpdateBody") },
         { status: 400 }
       );
     }
@@ -253,7 +267,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!existingSubscription) {
       return NextResponse.json(
-        { error: "Subscription not found" },
+        { error: t("errors.configSharing.subscriptionNotFound") },
         { status: 404 }
       );
     }
@@ -290,7 +304,7 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     logger.error({ err: error }, "Failed to update subscription");
     return NextResponse.json(
-      { error: "Failed to update subscription" },
+      { error: t("errors.configSharing.updateSubscriptionFailed") },
       { status: 500 }
     );
   }
@@ -299,7 +313,10 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -314,7 +331,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!existingSubscription) {
       return NextResponse.json(
-        { error: "Subscription not found" },
+        { error: t("errors.configSharing.subscriptionNotFound") },
         { status: 404 }
       );
     }
@@ -327,7 +344,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     logger.error({ err: error }, "Failed to delete subscription");
     return NextResponse.json(
-      { error: "Failed to delete subscription" },
+      { error: t("errors.configSharing.deleteSubscriptionFailed") },
       { status: 500 }
     );
   }

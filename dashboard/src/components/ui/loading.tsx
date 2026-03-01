@@ -1,9 +1,15 @@
-export function LoadingSpinner({ message = "Loading..." }: { message?: string }) {
+"use client";
+
+import { useTranslations } from "next-intl";
+
+export function LoadingSpinner({ message }: { message?: string }) {
+  const t = useTranslations("common");
+  const resolvedMessage = message ?? t("loading");
   return (
     <div className="p-8 text-center">
       <div className="inline-flex items-center gap-3">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white" />
-        <span className="text-white/80">{message}</span>
+        <span className="text-white/80">{resolvedMessage}</span>
       </div>
     </div>
   );

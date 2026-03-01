@@ -15,6 +15,11 @@ import { validateFullConfig } from "@/lib/config-generators/oh-my-opencode-types
 import { z } from "zod";
 import { AgentConfigSchema, formatZodError } from "@/lib/validation/schemas";
 import { logger } from "@/lib/logger";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 async function fetchManagementJson(path: string) {
   try {
@@ -82,7 +87,10 @@ export async function GET() {
   try {
     const session = await verifySession();
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: t("errors.auth.unauthorized") },
+        { status: 401 }
+      );
     }
 
     const [agentOverride, managementConfig, authFilesData, modelPreference] =
@@ -121,7 +129,10 @@ export async function GET() {
     });
   } catch (error) {
     logger.error({ err: error }, "Get agent config error");
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: t("errors.internal.serverError") },
+      { status: 500 }
+    );
   }
 }
 
@@ -129,7 +140,10 @@ export async function PUT(request: NextRequest) {
   try {
     const session = await verifySession();
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: t("errors.auth.unauthorized") },
+        { status: 401 }
+      );
     }
 
     const originError = validateOrigin(request);
@@ -162,6 +176,9 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json(formatZodError(error), { status: 400 });
     }
     logger.error({ err: error }, "Update agent config error");
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: t("errors.internal.serverError") },
+      { status: 500 }
+    );
   }
 }

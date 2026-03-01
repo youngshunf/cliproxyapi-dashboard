@@ -5,6 +5,7 @@ import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { useTranslations } from "next-intl";
 
 interface ModelMapping {
   upstreamName: string;
@@ -51,6 +52,8 @@ function generateProviderId(name: string): string {
 
 export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: CustomProviderModalProps) {
   const { showToast } = useToast();
+  const t = useTranslations("providers.customModal");
+  const common = useTranslations("common");
   const isEdit = !!provider;
 
   const [name, setName] = useState("");
@@ -135,11 +138,11 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
 
   const validate = () => {
     const newErrors = {
-      name: name.length === 0 ? "Name is required" : name.length > 100 ? "Max 100 characters" : "",
-      providerId: !/^[a-z0-9-]+$/.test(providerId) ? "Only lowercase letters, numbers, and hyphens" : "",
-      baseUrl: !baseUrl.startsWith("https://") ? "Must start with https://" : "",
-      apiKey: !isEdit && apiKey.length === 0 ? "API key is required" : "",
-      models: models.filter(m => m.upstreamName && m.alias).length === 0 ? "At least one model mapping required" : ""
+      name: name.length === 0 ? t("errors.nameRequired") : name.length > 100 ? t("errors.nameTooLong") : "",
+      providerId: !/^[a-z0-9-]+$/.test(providerId) ? t("errors.providerIdInvalid") : "",
+      baseUrl: !baseUrl.startsWith("https://") ? t("errors.baseUrlHttps") : "",
+      apiKey: !isEdit && apiKey.length === 0 ? t("errors.apiKeyRequired") : "",
+      models: models.filter(m => m.upstreamName && m.alias).length === 0 ? t("errors.modelsRequired") : ""
     };
 
     setErrors(newErrors);
@@ -181,16 +184,16 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
       });
 
       if (response.ok) {
-        showToast(`Custom provider ${isEdit ? 'updated' : 'created'}`, "success");
+        showToast(isEdit ? t("toast.updated") : t("toast.created"), "success");
         onSuccess();
         onClose();
         resetForm();
       } else {
         const error = await response.json();
-        showToast(error.error || "Failed to save provider", "error");
+        showToast(error.error || t("toast.saveFailed"), "error");
       }
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
     } finally {
       setSaving(false);
     }
@@ -240,7 +243,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
 
   const fetchModels = async () => {
     if (!baseUrl.startsWith("https://") || apiKey.length === 0) {
-      showToast("Please enter a valid Base URL (https) and API Key first", "error");
+      showToast(t("toast.baseUrlApiKey"), "error");
       return;
     }
 
@@ -266,13 +269,13 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
 
         setFetchedModels(fetchedList);
         setShowFetchedModels(true);
-        showToast(`Found ${fetchedList.length} models`, "success");
+        showToast(t("toast.modelsFound", { count: fetchedList.length }), "success");
       } else {
         const error = await response.json();
-        showToast(error.error || "Failed to fetch models", "error");
+        showToast(error.error || t("toast.fetchFailed"), "error");
       }
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
     } finally {
       setFetchingModels(false);
     }
@@ -308,7 +311,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
         const existing = prev.filter(m => m.upstreamName || m.alias);
         return [...existing, ...newModels];
       });
-      showToast(`Added ${newModels.length} model${newModels.length !== 1 ? 's' : ''}`, "success");
+      showToast(t("toast.modelsAdded", { count: newModels.length }), "success");
     }
 
     setShowFetchedModels(false);
@@ -318,7 +321,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-3xl">
       <ModalHeader>
-        <ModalTitle>{isEdit ? 'Edit' : 'Add'} Custom Provider</ModalTitle>
+        <ModalTitle>{isEdit ? t("title.edit") : t("title.create")}</ModalTitle>
       </ModalHeader>
 
       <ModalContent>
@@ -326,14 +329,14 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
           {/* Name */}
           <div>
             <label htmlFor="name" className="mb-2 block text-sm font-semibold text-white">
-              Name <span className="text-red-400">*</span>
+              {t("fields.name.label")} <span className="text-red-400">*</span>
             </label>
             <Input
               type="text"
               name="name"
               value={name}
               onChange={handleNameChange}
-              placeholder="My Custom Provider"
+              placeholder={t("fields.name.placeholder")}
               required
               disabled={saving}
             />
@@ -343,7 +346,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
           {/* Provider ID */}
           <div>
             <label htmlFor="providerId" className="mb-2 block text-sm font-semibold text-white">
-              Provider ID <span className="text-red-400">*</span>
+              {t("fields.providerId.label")} <span className="text-red-400">*</span>
             </label>
             <Input
               type="text"
@@ -356,20 +359,26 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
               className={isEdit ? "opacity-60 cursor-not-allowed" : ""}
             />
             {errors.providerId && <p className="mt-1.5 text-xs text-red-400">{errors.providerId}</p>}
-            {!errors.providerId && <p className="mt-1.5 text-xs text-white/50">Lowercase alphanumeric with hyphens. {isEdit ? "Cannot be changed." : "Auto-generated from name."}</p>}
+            {!errors.providerId && (
+              <p className="mt-1.5 text-xs text-white/50">
+                {t("helpers.providerId")}
+                {" "}
+                {isEdit ? t("helpers.cannotChange") : t("helpers.autoGenerated")}
+              </p>
+            )}
           </div>
 
           {/* Base URL */}
           <div>
             <label htmlFor="baseUrl" className="mb-2 block text-sm font-semibold text-white">
-              Base URL <span className="text-red-400">*</span>
+              {t("fields.baseUrl.label")} <span className="text-red-400">*</span>
             </label>
             <Input
               type="text"
               name="baseUrl"
               value={baseUrl}
               onChange={setBaseUrl}
-              placeholder="https://api.example.com/v1"
+              placeholder={t("fields.baseUrl.placeholder")}
               required
               disabled={saving}
             />
@@ -379,35 +388,35 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
           {/* API Key */}
           <div>
             <label htmlFor="apiKey" className="mb-2 block text-sm font-semibold text-white">
-              API Key {!isEdit && <span className="text-red-400">*</span>}
+              {t("fields.apiKey.label")} {!isEdit && <span className="text-red-400">*</span>}
             </label>
             <Input
               type="password"
               name="apiKey"
               value={apiKey}
               onChange={setApiKey}
-              placeholder={isEdit ? "Leave empty to keep existing key" : "sk-..."}
+              placeholder={isEdit ? t("fields.apiKey.placeholderEditable") : t("fields.apiKey.placeholder")}
               required={!isEdit}
               disabled={saving}
             />
             {errors.apiKey && <p className="mt-1.5 text-xs text-red-400">{errors.apiKey}</p>}
-            {!errors.apiKey && isEdit && <p className="mt-1.5 text-xs text-white/50">Leave empty to keep existing API key</p>}
+            {!errors.apiKey && isEdit && <p className="mt-1.5 text-xs text-white/50">{t("helpers.keepExistingKey")}</p>}
           </div>
 
           {/* Prefix */}
           <div>
             <label htmlFor="prefix" className="mb-2 block text-sm font-semibold text-white">
-              Prefix (Optional)
+              {t("fields.prefix.label")}
             </label>
             <Input
               type="text"
               name="prefix"
               value={prefix}
               onChange={setPrefix}
-              placeholder="custom/"
+              placeholder={t("fields.prefix.placeholder")}
               disabled={saving}
             />
-            <p className="mt-1.5 text-xs text-white/50">Model name prefix for routing</p>
+            <p className="mt-1.5 text-xs text-white/50">{t("helpers.prefix")}</p>
           </div>
 
           {/* Proxy URL */}
@@ -428,9 +437,9 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
           {/* Headers */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label htmlFor="headers" className="text-sm font-semibold text-white">Headers (Optional)</label>
+              <label htmlFor="headers" className="text-sm font-semibold text-white">{t("fields.headers.label")}</label>
               <Button variant="ghost" onClick={addHeader} className="px-3 py-1.5 text-xs" disabled={saving}>
-                + Add Header
+                {t("actions.addHeader")}
               </Button>
             </div>
             {headers.length > 0 && (
@@ -442,7 +451,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
                       name={`header-key-${idx}`}
                       value={header.key}
                       onChange={(val) => updateHeader(idx, 'key', val)}
-                      placeholder="Header-Name"
+                      placeholder={t("fields.headers.placeholderKey")}
                       disabled={saving}
                       className="flex-1"
                     />
@@ -451,7 +460,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
                       name={`header-value-${idx}`}
                       value={header.value}
                       onChange={(val) => updateHeader(idx, 'value', val)}
-                      placeholder="Header-Value"
+                      placeholder={t("fields.headers.placeholderValue")}
                       disabled={saving}
                       className="flex-1"
                     />
@@ -467,7 +476,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
           {/* Fetch Models */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-semibold text-white">Auto-Discover Models</span>
+              <span className="text-sm font-semibold text-white">{t("fetch.title")}</span>
               <Button 
                 variant="secondary" 
                 onClick={fetchModels} 
@@ -480,18 +489,22 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    Fetching...
+                    {t("fetch.loading")}
                   </span>
-                ) : "Fetch Models"}
+                ) : (
+                  t("actions.fetchModels")
+                )}
               </Button>
             </div>
             {showFetchedModels && fetchedModels.length > 0 && (
               <div className="bg-white/5 border border-white/10 rounded-lg p-3 mb-3">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-white">Available Models ({fetchedModels.length})</span>
+                    <span className="text-sm font-semibold text-white">
+                      {t("fetch.available", { count: fetchedModels.length })}
+                    </span>
                     <span className="text-xs text-white/70 bg-white/10 px-2 py-0.5 rounded">
-                      {fetchedModels.filter(m => m.selected).length} selected
+                      {t("fetch.selected", { count: fetchedModels.filter(m => m.selected).length })}
                     </span>
                   </div>
                   <button
@@ -499,7 +512,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
                     onClick={toggleAllFetchedModels}
                     className="text-xs text-white/70 hover:text-white transition-colors"
                   >
-                    {fetchedModels.every(m => m.selected) ? "Deselect All" : "Select All"}
+                    {fetchedModels.every(m => m.selected) ? t("fetch.deselectAll") : t("fetch.selectAll")}
                   </button>
                 </div>
                 <div className="max-h-48 overflow-y-auto space-y-1.5 mb-3">
@@ -520,21 +533,21 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
                   disabled={fetchedModels.filter(m => m.selected).length === 0}
                   className="w-full"
                 >
-                  Add Selected ({fetchedModels.filter(m => m.selected).length})
+                  {t("actions.addSelected", { count: fetchedModels.filter(m => m.selected).length })}
                 </Button>
               </div>
             )}
-            <p className="text-xs text-white/50 mb-2">Or manually add model mappings below</p>
+            <p className="text-xs text-white/50 mb-2">{t("helpers.manualMapping")}</p>
           </div>
 
           {/* Model Mappings */}
           <div>
             <div className="mb-2 flex items-center justify-between">
               <label htmlFor="models" className="text-sm font-semibold text-white">
-                Model Mappings <span className="text-red-400">*</span>
+                {t("fields.models.label")} <span className="text-red-400">*</span>
               </label>
               <Button variant="ghost" onClick={addModelMapping} className="px-3 py-1.5 text-xs" disabled={saving}>
-                + Add Model
+                {t("actions.addModel")}
               </Button>
             </div>
             <div className="space-y-2">
@@ -567,15 +580,15 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
               ))}
             </div>
             {errors.models && <p className="mt-1.5 text-xs text-red-400">{errors.models}</p>}
-            {!errors.models && <p className="mt-1.5 text-xs text-white/50">Map upstream model names to aliases</p>}
+            {!errors.models && <p className="mt-1.5 text-xs text-white/50">{t("helpers.manualMapping")}</p>}
           </div>
 
           {/* Excluded Models */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label htmlFor="excludedModels" className="text-sm font-semibold text-white">Excluded Models (Optional)</label>
+              <label htmlFor="excludedModels" className="text-sm font-semibold text-white">{t("fields.excluded.label")}</label>
               <Button variant="ghost" onClick={addExcludedModel} className="px-3 py-1.5 text-xs" disabled={saving}>
-                + Add Exclusion
+                {t("actions.addExclusion")}
               </Button>
             </div>
             {excludedModels.length > 0 && (
@@ -599,14 +612,14 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
               </div>
             )}
             {excludedModels.length === 0 && (
-              <p className="text-xs text-white/50">Supports wildcards: gpt-4, claude-*, *-mini</p>
+              <p className="text-xs text-white/50">{t("helpers.excluded")}</p>
             )}
           </div>
 
           {/* Group Assignment */}
           <div>
             <label className="mb-2 block text-sm font-semibold text-white">
-              Group (Optional)
+              {t("fields.group.label")}
             </label>
             <select
               value={groupId ?? ""}
@@ -614,22 +627,28 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
               disabled={saving}
               className="w-full px-3 py-2 text-sm rounded-md glass-input text-white focus:outline-none focus:border-blue-400/50 focus:ring-1 focus:ring-blue-400/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 bg-slate-900 border border-slate-700/70"
             >
-              <option value="" className="bg-slate-900 text-white">No group</option>
+              <option value="" className="bg-slate-900 text-white">{t("fields.group.none")}</option>
               {groups.map(g => (
                 <option key={g.id} value={g.id} className="bg-slate-900 text-white">{g.name}</option>
               ))}
             </select>
-            <p className="mt-1.5 text-xs text-white/50">Assign this provider to a group for organization</p>
+            <p className="mt-1.5 text-xs text-white/50">{t("helpers.group")}</p>
           </div>
         </div>
       </ModalContent>
 
       <ModalFooter>
         <Button variant="ghost" onClick={onClose} disabled={saving}>
-          Cancel
+          {common("cancel")}
         </Button>
         <Button onClick={handleSubmit} disabled={saving}>
-          {saving ? (isEdit ? "Updating..." : "Creating...") : (isEdit ? "Update Provider" : "Create Provider")}
+          {saving
+            ? isEdit
+              ? t("actions.updating")
+              : t("actions.creating")
+            : isEdit
+              ? t("actions.updateProvider")
+              : t("actions.createProvider")}
         </Button>
       </ModalFooter>
     </Modal>

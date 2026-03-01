@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { type ReactNode, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 interface ModalProps {
   isOpen: boolean;
@@ -11,6 +12,8 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, children, className }: ModalProps) {
+  const t = useTranslations("common");
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -46,7 +49,7 @@ export function Modal({ isOpen, onClose, children, className }: ModalProps) {
           type="button"
           onClick={onClose}
           className="absolute right-3 top-3 text-lg font-bold text-white/80 hover:text-white transition-colors"
-          aria-label="Close"
+          aria-label={t("close")}
         >
           ×
         </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { CustomProviderModal } from "@/components/custom-provider-modal";
 import { useToast } from "@/components/ui/toast";
@@ -45,6 +46,8 @@ export interface ProviderGroup {
 }
 
 export function CustomProviderSection({ showToast, onProviderCountChange }: CustomProviderSectionProps) {
+  const t = useTranslations("providers.customSection");
+  const common = useTranslations("common");
   const [groups, setGroups] = useState<ProviderGroup[]>([]);
   const [ungroupedProviders, setUngroupedProviders] = useState<CustomProvider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,7 +71,7 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
     try {
       const res = await fetch("/api/provider-groups");
       if (!res.ok) {
-        showToast("Failed to load custom providers", "error");
+        showToast(t("errors.loadFailed"), "error");
         setLoading(false);
         return;
       }
@@ -90,9 +93,9 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
       setLoading(false);
     } catch {
       setLoading(false);
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
     }
-  }, [onProviderCountChange, showToast]);
+  }, [common, onProviderCountChange, showToast, t]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -118,13 +121,13 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
       });
       if (!res.ok) {
         const data = await res.json();
-        showToast(data.error || "Failed to delete custom provider", "error");
+        showToast(data.error || t("errors.deleteProviderFailed"), "error");
         return;
       }
-      showToast("Custom provider deleted", "success");
+      showToast(t("success.providerDeleted"), "success");
       void loadProviderData();
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
     }
   };
 
@@ -175,13 +178,13 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
       
       if (!res.ok) {
         const data = await res.json();
-        showToast(data.error || "Failed to update group", "error");
+        showToast(data.error || t("errors.updateGroupFailed"), "error");
         return;
       }
       
       void loadProviderData();
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
     }
   };
   
@@ -200,15 +203,15 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
       
       if (!res.ok) {
         const data = await res.json();
-        showToast(data.error || "Failed to delete group", "error");
+        showToast(data.error || t("errors.deleteGroupFailed"), "error");
         return;
       }
       
-      showToast("Group deleted", "success");
+      showToast(t("success.groupDeleted"), "success");
       setDeleteGroupDialog({ isOpen: false, groupId: null });
       void loadProviderData();
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
     }
   };
 
@@ -230,11 +233,11 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
       });
       
       if (!res.ok) {
-        showToast("Failed to reorder groups", "error");
+        showToast(t("errors.reorderGroupsFailed"), "error");
         void loadProviderData(); // Revert
       }
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
       void loadProviderData(); // Revert
     }
   };
@@ -255,11 +258,11 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
       });
       
       if (!res.ok) {
-        showToast("Failed to reorder groups", "error");
+        showToast(t("errors.reorderGroupsFailed"), "error");
         void loadProviderData(); // Revert
       }
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
       void loadProviderData(); // Revert
     }
   };
@@ -310,11 +313,11 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
       });
       
       if (!res.ok) {
-        showToast("Failed to reorder providers", "error");
+        showToast(t("errors.reorderProvidersFailed"), "error");
         void loadProviderData(); // Revert
       }
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
       void loadProviderData(); // Revert
     }
   };
@@ -360,11 +363,11 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
       });
       
       if (!res.ok) {
-        showToast("Failed to reorder providers", "error");
+        showToast(t("errors.reorderProvidersFailed"), "error");
         void loadProviderData(); // Revert
       }
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
       void loadProviderData(); // Revert
     }
   };
@@ -384,7 +387,7 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
           onClick={() => handleMoveProviderUp(provider.id, provider.groupId, index)}
           disabled={isFirst}
           className="flex size-6 items-center justify-center rounded-sm border border-slate-700/70 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-30 disabled:hover:bg-slate-800 disabled:hover:text-slate-300 transition-colors"
-          title="Move Up"
+          title={t("actions.moveUp")}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
         </button>
@@ -392,7 +395,7 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
           onClick={() => handleMoveProviderDown(provider.id, provider.groupId, index)}
           disabled={isLast}
           className="flex size-6 items-center justify-center rounded-sm border border-slate-700/70 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white disabled:opacity-30 disabled:hover:bg-slate-800 disabled:hover:text-slate-300 transition-colors"
-          title="Move Down"
+          title={t("actions.moveDown")}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
@@ -404,14 +407,14 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
           className="px-2.5 py-1 text-xs"
           onClick={() => handleCustomProviderEdit(provider)}
         >
-          Edit
+          {t("actions.edit")}
         </Button>
         <Button
           variant="danger"
           className="px-2.5 py-1 text-xs"
           onClick={() => handleCustomProviderDelete(provider.id)}
         >
-          Delete
+          {t("actions.delete")}
         </Button>
       </div>
     </div>
@@ -422,15 +425,15 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
       <section id="provider-custom" className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-slate-100">Custom Providers</h2>
-            <p className="text-xs text-slate-400">OpenAI-compatible endpoints and mappings</p>
+            <h2 className="text-sm font-semibold text-slate-100">{t("title")}</h2>
+            <p className="text-xs text-slate-400">{t("subtitle")}</p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="secondary" onClick={() => setShowGroupModal(true)} className="px-2.5 py-1 text-xs">
-              Manage Groups
+              {t("actions.manageGroups")}
             </Button>
             <Button onClick={() => setShowCustomProviderModal(true)} className="px-2.5 py-1 text-xs">
-              Add Custom Provider
+              {t("actions.addProvider")}
             </Button>
           </div>
         </div>
@@ -441,7 +444,7 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
               <div className="flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
                   <div className="size-8 animate-spin rounded-full border-4 border-white/20 border-t-blue-500"></div>
-                  <p className="text-sm text-white/70">Loading custom providers...</p>
+                  <p className="text-sm text-white/70">{t("loading")}</p>
                 </div>
               </div>
             </div>
@@ -456,11 +459,11 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
                   </svg>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-slate-100">No custom providers configured</h3>
-                  <p className="text-xs text-slate-400">Add an OpenAI-compatible provider to extend your AI capabilities</p>
+                  <h3 className="text-sm font-semibold text-slate-100">{t("empty.title")}</h3>
+                  <p className="text-xs text-slate-400">{t("empty.description")}</p>
                 </div>
                 <Button onClick={() => setShowCustomProviderModal(true)} className="px-3 py-1.5 text-xs">
-                  Add Custom Provider
+                  {t("empty.action")}
                 </Button>
               </div>
             </div>
@@ -498,7 +501,7 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
                           onClick={() => handleToggleGroupActive(group.id, group.isActive)}
                           className={`text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-sm transition-colors ${group.isActive ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' : 'bg-slate-700 text-slate-400 hover:bg-slate-600'}`}
                         >
-                          {group.isActive ? "Active" : "Disabled"}
+                          {group.isActive ? t("status.active") : t("status.disabled")}
                         </button>
                         
                         {/* Group Reorder */}
@@ -507,7 +510,7 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
                             onClick={() => handleMoveGroupUp(group.id, groupIndex)}
                             disabled={groupIndex === 0}
                             className="text-slate-400 hover:text-white disabled:opacity-30 p-1"
-                            title="Move Group Up"
+                            title={t("actions.moveGroupUp")}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
                           </button>
@@ -515,7 +518,7 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
                             onClick={() => handleMoveGroupDown(group.id, groupIndex)}
                             disabled={groupIndex === groups.length - 1}
                             className="text-slate-400 hover:text-white disabled:opacity-30 p-1"
-                            title="Move Group Down"
+                            title={t("actions.moveGroupDown")}
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                           </button>
@@ -523,10 +526,10 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
                         
                         <div className="flex items-center gap-1 border-l border-slate-700/70 pl-3">
                           <Button variant="ghost" onClick={() => handleGroupEdit(group)} className="px-2 py-1 text-[10px] h-auto">
-                            Edit
+                            {t("actions.edit")}
                           </Button>
                           <Button variant="ghost" onClick={() => confirmDeleteGroup(group.id)} className="px-2 py-1 text-[10px] h-auto text-red-400 hover:text-red-300 hover:bg-red-400/10">
-                            Delete
+                            {t("actions.delete")}
                           </Button>
                           <button 
                             onClick={() => toggleCollapse(group.id)}
@@ -545,16 +548,16 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
                         <div className="min-w-[600px]">
                           {group.providers.length === 0 ? (
                             <div className="px-3 py-6 text-center text-xs text-slate-500 italic">
-                              No providers in this group
+                              {t("groupEmpty")}
                             </div>
                           ) : (
                             <>
                               <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_80px_80px_120px] border-b border-slate-800 bg-slate-900/40 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">
-                                <span>Name</span>
-                                <span>Endpoint</span>
-                                <span>Models</span>
-                                <span>Order</span>
-                                <span className="text-right">Actions</span>
+                                <span>{t("table.name")}</span>
+                                <span>{t("table.endpoint")}</span>
+                                <span>{t("table.models")}</span>
+                                <span>{t("table.order")}</span>
+                                <span className="text-right">{t("table.actions")}</span>
                               </div>
                               {group.providers.map((provider, idx) => (
                                 <ProviderRow 
@@ -579,7 +582,7 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
                 <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 overflow-hidden">
                   <div className="flex items-center gap-2 border-b border-slate-700/70 bg-slate-900/60 px-3 py-2">
                     <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">
-                      Ungrouped
+                      {t("ungrouped")}
                     </span>
                     <span className="text-xs text-slate-500 bg-slate-800/50 px-1.5 py-0.5 rounded-md">
                       {ungroupedProviders.length}
@@ -589,11 +592,11 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
                   <div className="overflow-x-auto">
                     <div className="min-w-[600px]">
                       <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_80px_80px_120px] border-b border-slate-800 bg-slate-900/40 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">
-                        <span>Name</span>
-                        <span>Endpoint</span>
-                        <span>Models</span>
-                        <span>Order</span>
-                        <span className="text-right">Actions</span>
+                        <span>{t("table.name")}</span>
+                        <span>{t("table.endpoint")}</span>
+                        <span>{t("table.models")}</span>
+                        <span>{t("table.order")}</span>
+                        <span className="text-right">{t("table.actions")}</span>
                       </div>
                       {ungroupedProviders.map((provider, idx) => (
                         <ProviderRow 
@@ -631,9 +634,9 @@ export function CustomProviderSection({ showToast, onProviderCountChange }: Cust
         isOpen={deleteGroupDialog.isOpen}
         onClose={() => setDeleteGroupDialog({ isOpen: false, groupId: null })}
         onConfirm={handleDeleteGroup}
-        title="Delete Provider Group"
-        message="Are you sure you want to delete this group? The providers inside will not be deleted, they will just become ungrouped. This action cannot be undone."
-        confirmLabel="Delete"
+        title={t("confirm.title")}
+        message={t("confirm.message")}
+        confirmLabel={t("confirm.confirmLabel")}
         variant="danger"
       />
     </>

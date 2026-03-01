@@ -6,6 +6,11 @@ import { prisma } from "@/lib/db";
 import { PROVIDER, type Provider } from "@/lib/providers/constants";
 import { AUDIT_ACTION, extractIpAddress, logAuditAsync } from "@/lib/audit";
 import { logger } from "@/lib/logger";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 function isValidProvider(provider: string): provider is Provider {
   return Object.values(PROVIDER).includes(provider as Provider);
@@ -17,7 +22,10 @@ export async function DELETE(
 ) {
   const session = await verifySession();
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: t("errors.auth.unauthorized") },
+      { status: 401 }
+    );
   }
 
   const originError = validateOrigin(request);
@@ -32,7 +40,7 @@ export async function DELETE(
 
     if (!keyHash || typeof keyHash !== "string") {
       return NextResponse.json(
-        { error: "Invalid or missing keyHash parameter" },
+        { error: t("errors.validation.invalidParameter", { param: "keyHash" }) },
         { status: 400 }
       );
     }
@@ -58,12 +66,21 @@ export async function DELETE(
 
     if (!result.ok) {
       if (result.error?.includes("Access denied")) {
-        return NextResponse.json({ error: result.error }, { status: 403 });
+        return NextResponse.json(
+          { error: t("errors.auth.forbidden") },
+          { status: 403 }
+        );
       }
       if (result.error?.includes("not found")) {
-        return NextResponse.json({ error: result.error }, { status: 404 });
+        return NextResponse.json(
+          { error: t("errors.resource.notFound", { resource: t("resources.apiKey") }) },
+          { status: 404 }
+        );
       }
-      return NextResponse.json({ error: result.error }, { status: 500 });
+      return NextResponse.json(
+        { error: t("errors.generic.removeFailed", { resource: t("resources.apiKey") }) },
+        { status: 500 }
+      );
     }
 
     logAuditAsync({
@@ -81,7 +98,7 @@ export async function DELETE(
   } catch (error) {
     logger.error({ err: error }, "DELETE /api/providers/keys/[keyHash] error");
     return NextResponse.json(
-      { error: "Failed to remove provider key" },
+      { error: t("errors.generic.removeFailed", { resource: t("resources.apiKey") }) },
       { status: 500 }
     );
   }

@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      return Errors.conflict("Provider group name already exists");
+      return Errors.conflict("errors.conflict.providerGroupNameExists");
     }
 
     const aggregate = await prisma.providerGroup.aggregate({
