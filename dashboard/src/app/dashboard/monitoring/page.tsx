@@ -187,7 +187,7 @@ export default function MonitoringPage() {
       try {
         const url = lastTimestampRef.current > 0
           ? `${API_ENDPOINTS.MANAGEMENT.LOGS}?after=${lastTimestampRef.current}`
-          : API_ENDPOINTS.MANAGEMENT.LOGS;
+          : `${API_ENDPOINTS.MANAGEMENT.LOGS}?limit=200`;
 
         const res = await fetch(url);
         if (res.ok) {
