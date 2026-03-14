@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { useTranslations } from "next-intl";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { API_ENDPOINTS } from "@/lib/api-endpoints";
@@ -82,6 +83,7 @@ export default function AdminLogsPage() {
 
   const { showToast } = useToast();
   const router = useRouter();
+  const t = useTranslations("adminLogs");
 
   const fetchLogs = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -99,13 +101,13 @@ export default function AdminLogsPage() {
       }
 
       if (res.status === 403) {
-        showToast("Admin access required", "error");
+        showToast(t("adminRequired"), "error");
         router.push("/dashboard");
         return;
       }
 
       if (!res.ok) {
-        showToast("Failed to load logs", "error");
+        showToast(t("failedLoad"), "error");
         setLoading(false);
         return;
       }
@@ -119,7 +121,7 @@ export default function AdminLogsPage() {
       setLoading(false);
     } catch {
       if (signal?.aborted) return;
-      showToast("Network error", "error");
+      showToast(t("networkError"), "error");
       setLoading(false);
     }
   }, [levelFilter, router, showToast]);
@@ -179,18 +181,18 @@ export default function AdminLogsPage() {
       const res = await fetch(API_ENDPOINTS.ADMIN.LOGS, { method: "DELETE" });
 
       if (!res.ok) {
-        showToast("Failed to clear logs", "error");
+        showToast(t("failedClear"), "error");
         setClearing(false);
         return;
       }
 
-      showToast("Logs cleared", "success");
+      showToast(t("logsCleared"), "success");
       setLogs([]);
       setTotal(0);
       setStats(null);
       setClearing(false);
     } catch {
-      showToast("Network error", "error");
+      showToast(t("networkError"), "error");
       setClearing(false);
     }
   };
@@ -221,13 +223,13 @@ export default function AdminLogsPage() {
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-100">Application Logs</h1>
-            <p className="mt-1 text-xs text-slate-400">Dashboard application event log.</p>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
+            <p className="mt-1 text-xs text-slate-400">{t("description")}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-2">
               <label htmlFor="level-filter" className="text-xs text-slate-400">
-                Level:
+                {t("level")}
               </label>
               <select
                 id="level-filter"
@@ -250,15 +252,15 @@ export default function AdminLogsPage() {
                 onChange={(e) => setAutoRefresh(e.target.checked)}
                 className="size-4 rounded border-slate-600/70 bg-slate-900/40 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0"
               />
-              <span className="text-xs text-slate-400">Auto-refresh (5s)</span>
+              <span className="text-xs text-slate-400">{t("autoRefresh")}</span>
             </label>
 
             <Button onClick={() => void fetchLogs()} variant="secondary" className="px-2.5 py-1 text-xs">
-              Refresh
+              {t("refresh")}
             </Button>
 
             <Button onClick={confirmClear} variant="danger" disabled={clearing} className="px-2.5 py-1 text-xs">
-              {clearing ? "Clearing..." : "Clear Logs"}
+              {clearing ? t("clearing") : t("clearLogs")}
             </Button>
           </div>
         </div>
@@ -268,30 +270,30 @@ export default function AdminLogsPage() {
         <div className="flex flex-wrap gap-4 text-xs text-slate-400">
           <span className="flex items-center gap-1.5">
             <span className={`size-2 rounded-full ${stats.persistent ? "bg-green-500" : "bg-yellow-500"}`} />
-            Persistent storage {stats.persistent ? "enabled" : "disabled"}
+            {stats.persistent ? t("persistentEnabled") : t("persistentDisabled")}
           </span>
-          <span>Memory: {stats.memoryCount} logs</span>
-          <span>File: {stats.fileCount} logs ({stats.fileSizeKB} KB)</span>
-          {stats.rotatedFiles > 0 && <span>Rotated files: {stats.rotatedFiles}</span>}
+          <span>{t("memoryLogs", { count: stats.memoryCount })}</span>
+          <span>{t("fileLogs", { count: stats.fileCount, size: stats.fileSizeKB })}</span>
+          {stats.rotatedFiles > 0 && <span>{t("rotatedFiles", { count: stats.rotatedFiles })}</span>}
         </div>
       )}
 
       <section className="overflow-hidden rounded-lg border border-slate-700/70 bg-slate-900/40">
         <div className="flex items-center justify-between border-b border-slate-700/70 bg-slate-900/50 px-3 py-2">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Log Entries</span>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("logEntries")}</span>
           <span className="text-xs text-slate-400">
             {logs.length > 0
-              ? `Showing ${(currentPage - 1) * LOGS_PER_PAGE + 1}–${Math.min(currentPage * LOGS_PER_PAGE, logs.length)} of ${logs.length} logs`
+              ? t("showing", { shown: Math.min(currentPage * LOGS_PER_PAGE, logs.length), total: logs.length })
               : `${total} logs`}
           </span>
         </div>
 
         {loading ? (
-          <div className="p-6 text-center text-sm text-slate-400">Loading...</div>
+          <div className="p-6 text-center text-sm text-slate-400">{t("loading")}</div>
         ) : logs.length === 0 ? (
           <div className="p-4">
             <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-4 text-sm text-slate-400">
-              No logs found. Logs will appear here when application events occur.
+              {t("noLogs")}
             </div>
           </div>
         ) : (
@@ -300,16 +302,16 @@ export default function AdminLogsPage() {
               <thead>
                 <tr className="sticky top-0 z-10 border-b border-slate-700/70 bg-slate-900/95 backdrop-blur-sm">
                   <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400 w-36">
-                    Time
+                    {t("time")}
                   </th>
                   <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400 w-20">
-                    Level
+                    {t("level")}
                   </th>
                   <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">
-                    Message
+                    {t("message")}
                   </th>
                   <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400 w-20">
-                    Details
+                    {t("details")}
                   </th>
                 </tr>
               </thead>
@@ -347,7 +349,7 @@ export default function AdminLogsPage() {
                           type="button"
                           className="text-blue-400 hover:text-blue-300 text-xs underline"
                         >
-                          {expandedRow === globalIndex ? "Hide" : "Show"}
+                          {expandedRow === globalIndex ? t("hide") : t("show")}
                         </button>
                       </td>
                     </tr>
@@ -391,8 +393,7 @@ export default function AdminLogsPage() {
               className="px-2.5 py-1 text-xs"
             >
               Next
-            </Button>
-          </div>
+            </Button>          </div>
         )}
       </section>
 
@@ -400,10 +401,10 @@ export default function AdminLogsPage() {
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
         onConfirm={handleClearLogs}
-        title="Clear All Logs"
-        message="Are you sure you want to clear all logs?"
-        confirmLabel="Clear"
-        cancelLabel="Cancel"
+        title={t("confirmClearTitle")}
+        message={t("confirmClearMsg")}
+        confirmLabel={t("clear")}
+        cancelLabel={t("cancel")}
         variant="danger"
       />
     </div>

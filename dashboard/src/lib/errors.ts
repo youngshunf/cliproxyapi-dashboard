@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import type { ZodIssue } from "zod";
 import { logger } from "@/lib/logger";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 /**
  * Standard Error Codes
@@ -236,33 +241,46 @@ export function apiSuccess<T extends Record<string, unknown>>(
 export const Errors = {
   /** 401 - No valid session */
   unauthorized: () =>
-    apiError(ERROR_CODE.AUTH_UNAUTHORIZED, "Unauthorized", 401),
+    apiError(ERROR_CODE.AUTH_UNAUTHORIZED, t("errors.auth.unauthorized"), 401),
 
   /** 401 - Invalid credentials */
   invalidCredentials: () =>
-    apiError(ERROR_CODE.AUTH_FAILED, "Invalid credentials", 401),
+    apiError(ERROR_CODE.AUTH_FAILED, t("errors.auth.invalidCredentials"), 401),
 
   /** 403 - Lacks permissions */
   forbidden: () =>
     apiError(
       ERROR_CODE.AUTH_INSUFFICIENT_PERMISSIONS,
-      "Insufficient permissions",
+      t("errors.auth.forbidden"),
       403
     ),
 
   /** 404 - Resource not found */
-  notFound: (resource = "Resource") =>
-    apiError(ERROR_CODE.RESOURCE_NOT_FOUND, `${resource} not found`, 404),
+  notFound: (messageKey: string, values?: Record<string, unknown>) =>
+    apiError(
+      ERROR_CODE.RESOURCE_NOT_FOUND,
+      t(messageKey, values),
+      404
+    ),
 
   /** 400 - Validation error */
-  validation: (message: string, details?: unknown) =>
-    apiError(ERROR_CODE.VALIDATION_ERROR, message, 400, details),
+  validation: (
+    messageKey: string,
+    details?: unknown,
+    values?: Record<string, unknown>
+  ) =>
+    apiError(
+      ERROR_CODE.VALIDATION_ERROR,
+      t(messageKey, values),
+      400,
+      details
+    ),
 
   /** 400 - Missing required fields */
   missingFields: (fields: string[]) =>
     apiError(
       ERROR_CODE.VALIDATION_MISSING_FIELDS,
-      `Missing required fields: ${fields.join(", ")}`,
+      t("errors.validation.missingFields", { fields: fields.join(", ") }),
       400,
       { fields }
     ),
@@ -271,20 +289,28 @@ export const Errors = {
   zodValidation: (issues: ZodIssue[]) =>
     apiError(
       ERROR_CODE.VALIDATION_SCHEMA_ERROR,
-      "Validation failed",
+      t("errors.validation.failed"),
       400,
       transformZodErrors(issues)
     ),
 
   /** 409 - Resource already exists */
-  conflict: (message: string) =>
-    apiError(ERROR_CODE.RESOURCE_ALREADY_EXISTS, message, 409),
+  conflict: (messageKey: string, values?: Record<string, unknown>) =>
+    apiError(
+      ERROR_CODE.RESOURCE_ALREADY_EXISTS,
+      t(messageKey, values),
+      409
+    ),
 
   /** 429 - Rate limit exceeded */
-  rateLimited: (retryAfterSeconds: number) =>
+  rateLimited: (
+    retryAfterSeconds: number,
+    messageKey = "errors.rateLimit.tooMany",
+    values?: Record<string, unknown>
+  ) =>
     apiErrorWithHeaders(
       ERROR_CODE.RATE_LIMIT_EXCEEDED,
-      "Too many requests. Try again later.",
+      t(messageKey, values),
       429,
       undefined,
       { "Retry-After": String(retryAfterSeconds) }
@@ -321,7 +347,7 @@ export const Errors = {
     }
     return apiError(
       ERROR_CODE.INTERNAL_SERVER_ERROR,
-      "Internal server error",
+      t("errors.internal.serverError"),
       500
     );
   },
@@ -331,6 +357,10 @@ export const Errors = {
     if (error) {
       logger.error({ err: error, context }, `Database error in ${context}`);
     }
-    return apiError(ERROR_CODE.DATABASE_ERROR, "Database operation failed", 500);
+    return apiError(
+      ERROR_CODE.DATABASE_ERROR,
+      t("errors.internal.databaseError"),
+      500
+    );
   },
 } as const;

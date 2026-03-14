@@ -44,11 +44,25 @@ const ALLOWED_MANAGEMENT_PATHS = new Set<string>([
   "auth-files",
   "openai-compatibility",
   "oauth-callback",
+  // Config fields (individual PATCH)
+  "proxy-url",
+  "force-model-prefix",
+  "debug",
+  "commercial-mode",
+  "ws-auth",
+  "usage-statistics-enabled",
+  "request-retry",
+  "max-retry-interval",
+  "logs-max-total-size-mb",
+  "error-logs-max-files",
   ...NON_ADMIN_OAUTH_PATHS,
 ]);
 
 const ALLOWED_MANAGEMENT_PATH_PATTERNS = [
   /^[a-z0-9-]+-api-key$/,
+  /^streaming\/[a-z0-9-]+$/,
+  /^quota-exceeded\/[a-z0-9-]+$/,
+  /^routing\/[a-z0-9-]+$/,
 ];
 
 function isAllowedManagementPath(path: string): boolean {

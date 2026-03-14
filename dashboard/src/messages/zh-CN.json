@@ -1,0 +1,1106 @@
+{
+  "app": {
+    "title": "CLIProxyAPI Dashboard",
+    "description": "CLIProxyAPI 管理控制台"
+  },
+  "nav": {
+    "general": "通用",
+    "access": "访问",
+    "admin": "管理",
+    "quickStart": "快速开始",
+    "providers": "提供商",
+    "usage": "用量",
+    "quota": "配额",
+    "apiKeys": "API Keys",
+    "settings": "设置",
+    "monitoring": "监控",
+    "containers": "容器",
+    "config": "配置",
+    "users": "用户",
+    "logs": "日志",
+    "logout": "退出登录",
+    "collapse": "收起侧边栏",
+    "expand": "展开侧边栏",
+    "brandTitle": "CLIProxy",
+    "brandSubtitle": "管理控制台"
+  },
+  "common": {
+    "networkError": "网络错误，请稍后重试。",
+    "loading": "加载中...",
+    "confirm": "确认",
+    "cancel": "取消",
+    "close": "关闭"
+  },
+  "login": {
+    "brand": "CLIProxyAPI",
+    "subtitle": "登录到管理控制台",
+    "username": "用户名",
+    "password": "密码",
+    "submit": "登录",
+    "submitting": "正在登录...",
+    "errorFallback": "登录失败",
+    "footer": "CLIProxyAPI 管理控制台"
+  },
+  "apiKeys": {
+    "title": "API Keys",
+    "description": "管理用于客户端与集成的仪表盘访问密钥。",
+    "createKey": "创建 Key",
+    "createApiKey": "创建 API Key",
+    "emptyTitle": "还没有创建 API Key",
+    "emptyDescription": "创建你的第一个 API Key，用于程序化访问仪表盘",
+    "table": {
+      "name": "名称",
+      "created": "创建时间",
+      "lastUsed": "最近使用",
+      "actions": "操作"
+    },
+    "never": "从未",
+    "delete": "删除",
+    "defaultName": "默认",
+    "modal": {
+      "createTitle": "创建 API Key",
+      "keyName": "Key 名称",
+      "placeholder": "例如：Development、Production、CLI",
+      "helper": "为 Key 设置易于识别的名称",
+      "creating": "创建中...",
+      "create": "创建 Key",
+      "newTitle": "新的 API Key",
+      "copyNow": "请立即复制该 Key",
+      "copyAction": "复制 API Key",
+      "oneTimeNotice": "该 Key 只会展示一次，请妥善保存。",
+      "saved": "我已保存"
+    },
+    "confirm": {
+      "title": "删除 API Key",
+      "message": "确定要删除这个 API Key 吗？"
+    },
+    "toast": {
+      "loadFailed": "加载 API Key 失败",
+      "createFailed": "创建 API Key 失败",
+      "createSuccess": "API Key 创建成功",
+      "deleteFailed": "删除 API Key 失败",
+      "deleteSuccess": "API Key 删除成功",
+      "copied": "API Key 已复制"
+    }
+  },
+  "providers": {
+    "title": "AI 提供商配置",
+    "description": "统一管理 API Keys、OAuth 账号与自定义提供商。",
+    "stats": {
+      "apiKeys": "API Keys",
+      "apiKeysValue": "{total} 已配置{hasUser, select, yes { · {own} 个属于你} other {}}",
+      "activeProviders": "已启用提供商",
+      "activeProvidersValue": "{active}/{total}",
+      "oauthAccounts": "OAuth 账号",
+      "oauthAccountsValue": "{count} 已连接",
+      "customProviders": "自定义提供商",
+      "customProvidersValue": "{count} 已配置"
+    },
+    "loading": "正在加载提供商...",
+    "apiKeySection": {
+      "title": "API Key 提供商",
+      "subtitle": "直连提供商访问 Key",
+      "totalKeys": "共 {count} 个 Key",
+      "table": {
+        "provider": "提供商",
+        "status": "状态",
+        "keys": "Key 数",
+        "actions": "操作"
+      },
+      "status": {
+        "active": "已启用",
+        "inactive": "未启用"
+      },
+      "keysCount": "{count} 个 Key",
+      "actions": {
+        "addKey": "添加 Key",
+        "remove": "移除"
+      },
+      "empty": "暂无 API Key。",
+      "owner": {
+        "you": "你",
+        "team": "团队"
+      },
+      "modal": {
+        "title": "{provider} - 添加 API Key",
+        "label": "API Key",
+        "helper": "你的 API Key 会安全存储并关联你的账号",
+        "usage": "使用情况：你已贡献 {count} / {max} 个 Key",
+        "add": "添加 API Key",
+        "adding": "正在添加..."
+      },
+      "confirm": {
+        "title": "移除 API Key",
+        "message": "确定要移除此 Key 吗？",
+        "confirmLabel": "移除"
+      },
+      "errors": {
+        "apiKeyRequired": "必须填写 API Key",
+        "addFailed": "添加提供商 Key 失败",
+        "duplicateKey": "该 API Key 已被贡献",
+        "deleteFailed": "删除提供商 Key 失败"
+      },
+      "success": {
+        "added": "提供商 Key 添加成功",
+        "deleted": "提供商 Key 已删除"
+      },
+      "providers": {
+        "claude": {
+          "name": "Claude (Anthropic)",
+          "description": "官方 Anthropic API"
+        },
+        "gemini": {
+          "name": "Gemini (Google)",
+          "description": "Google Gemini API"
+        },
+        "codex": {
+          "name": "OpenAI / Codex",
+          "description": "OpenAI API（含 GPT 模型）"
+        },
+        "openai": {
+          "name": "OpenAI 兼容",
+          "description": "自定义提供商，如 OpenRouter"
+        }
+      }
+    },
+    "oauthSection": {
+      "title": "OAuth 账号",
+      "subtitle": "订阅制提供商连接",
+      "connectedCount": "{count} 已连接",
+      "connectedTitle": "已连接账号",
+      "connectedSubtitle": "已连接的 OAuth 提供商账号",
+      "loading": "正在加载账号...",
+      "empty": "暂无 OAuth 账号，请在下方连接。",
+      "note": {
+        "label": "注意：",
+        "body": "OAuth 流程会在弹窗中进行，请确保浏览器允许弹窗。"
+      },
+      "connectTitle": "连接新账号",
+      "actions": {
+        "connect": "连接",
+        "disconnect": "断开连接",
+        "submitting": "正在提交...",
+        "waiting": "等待中...",
+        "submitUrl": "提交 URL",
+        "done": "完成",
+        "close": "关闭"
+      },
+      "modal": {
+        "title": "连接 {provider}",
+        "titleFallback": "连接",
+        "loading": "正在获取授权链接...",
+        "stepTitle": "操作步骤",
+        "steps": {
+          "step1": "在弹窗中登录并授权。",
+          "step2": "授权后页面会加载失败（这是正常现象）。",
+          "step3": "由于服务器远程运行，OAuth 重定向无法直接到达。请从地址栏复制完整 URL。",
+          "step4": "将 URL 粘贴到下方并提交。"
+        },
+        "callbackLabel": "粘贴回调 URL",
+        "callbackPlaceholder": "https://localhost/callback?code=...&state=...",
+        "deviceTitle": "设备授权",
+        "deviceSteps": {
+          "step1": "浏览器已打开授权页面。",
+          "step2": "登录并批准访问请求。",
+          "step3": "批准后此对话框将自动更新。"
+        },
+        "deviceCodeLabel": "你的授权码：",
+        "deviceCodeHint": "在以下地址输入该授权码：",
+        "pollingWithCallback": "回调已提交，正在等待 CLIProxyAPI 完成令牌交换...",
+        "pollingWithoutCallback": "正在等待 CLIProxyAPI 完成 OAuth 授权..."
+      },
+      "callbackMessages": {
+        "pasteFull": "请粘贴完整的 URL。",
+        "invalidUrl": "这不是有效的 URL。",
+        "missingParams": "URL 必须包含 code 与 state 参数。",
+        "ready": "回调 URL 已就绪，可以提交。",
+        "deviceWaiting": "正在等待设备授权信息...",
+        "noCallback": "无需回调 URL，请在弹窗中完成登录。"
+      },
+      "errors": {
+        "loadAccounts": "加载 OAuth 账号失败",
+        "loadAccountsNetwork": "加载账号时网络错误。",
+        "timeout": "等待授权超时。",
+        "statusCheckFailed": "检查授权状态失败。",
+        "authorizationFailed": "OAuth 授权失败。",
+        "pollNetwork": "轮询授权时网络错误。",
+        "ownershipClaimFailed": "完成 OAuth 归属确认失败。",
+        "startFailed": "启动 OAuth 流程失败。",
+        "missingState": "OAuth 响应缺少 state。",
+        "missingUrl": "OAuth 响应缺少 URL。",
+        "popupBlocked": "弹窗被拦截，请允许弹窗后重试。",
+        "startNetwork": "启动 OAuth 流程时网络错误。",
+        "missingProviderState": "缺少 provider 或 state，请重新开始。",
+        "callbackRelayFailed": "回传 OAuth 回调 URL 失败。",
+        "callbackNetwork": "提交回调 URL 时网络错误。",
+        "removeFailed": "移除 OAuth 账号失败",
+        "updateAccount": "更新账号失败"
+      },
+      "success": {
+        "connected": "OAuth 账号已连接",
+        "removed": "OAuth 账号已移除",
+        "message": "OAuth 账号连接成功。",
+        "disabled": "OAuth 账号已禁用",
+        "enabled": "OAuth 账号已启用"
+      },
+      "toast": {
+        "deviceInit": "正在初始化设备授权流程...",
+        "windowOpenedWithCallback": "OAuth 窗口已打开，请按下方步骤完成。",
+        "windowOpened": "OAuth 窗口已打开，请在弹窗完成登录。"
+      },
+      "confirm": {
+        "title": "移除 OAuth 账号",
+        "message": "确定要移除 OAuth 账号 {name} 吗？",
+        "confirmLabel": "移除",
+        "cancelLabel": "取消"
+      },
+      "providers": {
+        "claude": {
+          "name": "Claude Code",
+          "description": "Anthropic Claude（Pro/Max 订阅）"
+        },
+        "geminiCli": {
+          "name": "Gemini CLI",
+          "description": "Google Gemini（Google OAuth）"
+        },
+        "codex": {
+          "name": "Codex",
+          "description": "OpenAI Codex（Plus/Pro 订阅）"
+        },
+        "antigravity": {
+          "name": "Antigravity",
+          "description": "Google Antigravity（Google OAuth）"
+        },
+        "iflow": {
+          "name": "iFlow",
+          "description": "科大讯飞 iFlow（OAuth）"
+        },
+        "kimi": {
+          "name": "Kimi",
+          "description": "Moonshot AI Kimi（设备 OAuth）"
+        },
+        "qwen": {
+          "name": "Qwen Code",
+          "description": "阿里巴巴 Qwen Code（设备 OAuth）"
+        },
+        "copilot": {
+          "name": "GitHub Copilot",
+          "description": "GitHub Copilot（设备 OAuth）"
+        },
+        "kiro": {
+          "name": "Kiro",
+          "description": "AWS CodeWhisperer / Kiro（设备 OAuth）"
+        }
+      },
+      "import": {
+        "notJson": "请选择 JSON 文件。",
+        "tooLarge": "文件过大（最大 1MB）。",
+        "readFailed": "读取文件失败。",
+        "mustBeObject": "文件必须包含 JSON 对象，而非数组。",
+        "invalidJson": "JSON 内容无效。",
+        "uploadFailed": "导入凭据失败。",
+        "success": "OAuth 凭据导入成功",
+        "networkError": "导入凭据时网络错误。"
+      }
+    },
+    "customSection": {
+      "title": "自定义提供商",
+      "subtitle": "OpenAI 兼容端点与模型映射",
+      "loading": "正在加载自定义提供商...",
+      "empty": {
+        "title": "暂无自定义提供商",
+        "description": "添加 OpenAI 兼容提供商以扩展你的 AI 能力",
+        "action": "添加自定义提供商"
+      },
+      "actions": {
+        "manageGroups": "管理分组",
+        "addProvider": "添加自定义提供商",
+        "edit": "编辑",
+        "delete": "删除",
+        "moveUp": "上移",
+        "moveDown": "下移",
+        "moveGroupUp": "分组上移",
+        "moveGroupDown": "分组下移"
+      },
+      "status": {
+        "active": "启用",
+        "disabled": "停用"
+      },
+      "groupEmpty": "该分组暂无提供商",
+      "table": {
+        "name": "名称",
+        "endpoint": "Endpoint",
+        "models": "模型",
+        "order": "顺序",
+        "actions": "操作"
+      },
+      "ungrouped": "未分组",
+      "confirm": {
+        "title": "删除提供商分组",
+        "message": "确定要删除该分组？分组内提供商不会被删除，只会变为未分组。此操作无法撤销。",
+        "confirmLabel": "删除"
+      },
+      "errors": {
+        "loadFailed": "加载自定义提供商失败",
+        "deleteProviderFailed": "删除自定义提供商失败",
+        "updateGroupFailed": "更新分组失败",
+        "deleteGroupFailed": "删除分组失败",
+        "reorderGroupsFailed": "分组排序失败",
+        "reorderProvidersFailed": "提供商排序失败"
+      },
+      "success": {
+        "providerDeleted": "自定义提供商已删除",
+        "groupDeleted": "分组已删除"
+      }
+    },
+    "groupModal": {
+      "title": {
+        "create": "创建提供商分组",
+        "edit": "编辑提供商分组"
+      },
+      "fields": {
+        "name": {
+          "label": "分组名称",
+          "placeholder": "例如：生产环境模型"
+        },
+        "color": {
+          "label": "颜色（可选）",
+          "selectLabel": "选择颜色 {color}",
+          "clearLabel": "不设置颜色"
+        }
+      },
+      "actions": {
+        "create": "创建分组",
+        "save": "保存修改",
+        "saving": "保存中...",
+        "cancel": "取消"
+      },
+      "success": {
+        "created": "分组创建成功",
+        "updated": "分组更新成功"
+      },
+      "errors": {
+        "createFailed": "创建分组失败",
+        "updateFailed": "更新分组失败",
+        "generic": "发生错误"
+      }
+    },
+    "customModal": {
+      "title": {
+        "create": "添加自定义提供商",
+        "edit": "编辑自定义提供商"
+      },
+      "fields": {
+        "name": {
+          "label": "名称",
+          "placeholder": "我的自定义提供商"
+        },
+        "providerId": {
+          "label": "提供商 ID"
+        },
+        "baseUrl": {
+          "label": "Base URL",
+          "placeholder": "https://api.example.com/v1"
+        },
+        "apiKey": {
+          "label": "API Key",
+          "placeholder": "sk-...",
+          "placeholderEditable": "留空则保留当前 Key"
+        },
+        "prefix": {
+          "label": "前缀（可选）",
+          "placeholder": "custom/"
+        },
+        "headers": {
+          "label": "请求头（可选）",
+          "placeholderKey": "Header 名称",
+          "placeholderValue": "Header 值"
+        },
+        "models": {
+          "label": "模型映射"
+        },
+        "excluded": {
+          "label": "排除模型（可选）"
+        },
+        "group": {
+          "label": "分组（可选）",
+          "none": "无分组"
+        }
+      },
+      "helpers": {
+        "providerId": "小写字母、数字和连字符",
+        "cannotChange": "不可修改",
+        "autoGenerated": "将从名称自动生成",
+        "keepExistingKey": "留空则保留现有 API Key",
+        "prefix": "用于路由的模型名前缀",
+        "manualMapping": "手动映射上游模型名称到别名",
+        "excluded": "支持通配符：gpt-4、claude-*、*-mini",
+        "group": "将此提供商分组以便组织"
+      },
+      "actions": {
+        "addHeader": "+ 添加请求头",
+        "fetchModels": "自动发现模型",
+        "addModel": "+ 添加模型",
+        "addSelected": "添加所选 ({count})",
+        "selectAll": "全选",
+        "deselectAll": "取消全选",
+        "addExclusion": "+ 添加排除",
+        "updating": "正在更新...",
+        "creating": "正在创建...",
+        "updateProvider": "更新提供商",
+        "createProvider": "创建提供商",
+        "cancel": "取消"
+      },
+      "fetch": {
+        "title": "自动发现模型",
+        "loading": "正在拉取...",
+        "available": "可用模型（{count}）",
+        "selected": "{count} 已选",
+        "selectAll": "全选",
+        "deselectAll": "取消全选"
+      },
+      "errors": {
+        "nameRequired": "名称为必填项",
+        "nameTooLong": "名称最多 100 个字符",
+        "providerIdInvalid": "提供商 ID 仅支持小写字母、数字、连字符",
+        "baseUrlHttps": "Base URL 必须以 https:// 开头",
+        "apiKeyRequired": "API Key 为必填项",
+        "modelsRequired": "请至少添加一个模型映射"
+      },
+      "toast": {
+        "created": "自定义提供商创建成功",
+        "updated": "自定义提供商更新成功",
+        "saveFailed": "保存提供商失败",
+        "baseUrlApiKey": "请先填写有效的 Base URL（https）和 API Key",
+        "fetchFailed": "获取模型失败",
+        "modelsFound": "找到 {count} 个模型",
+        "modelsAdded": "添加了 {count} 个模型"
+      }
+    },
+    "admin": {
+      "title": "管理员设置",
+      "subtitle": "提供商限制与策略",
+      "keyLimitsTitle": "Key 贡献限制",
+      "keyLimitsDescription": "控制每个用户最多可贡献的提供商 Key 数量",
+      "maxKeysLabel": "每用户最大 Key 数",
+      "maxKeysHelper": "单个用户可贡献的提供商 Key 上限（当前：{count}）",
+      "updateSuccess": "设置更新成功",
+      "updateFailed": "设置更新失败",
+      "save": "保存"
+    }
+  },
+  "setup": {
+    "title": "初始化设置",
+    "brand": "CLIProxyAPI",
+    "subtitle": "首次初始化",
+    "notice": "创建管理员账号并妥善保管凭据。",
+    "username": "用户名",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "usernamePlaceholder": "admin",
+    "passwordPlaceholder": "至少 8 个字符",
+    "passwordMismatch": "两次输入的密码不一致",
+    "passwordTooShort": "密码至少需要 8 个字符",
+    "submit": "创建账号",
+    "submitting": "正在创建账号...",
+    "errorFallback": "初始化失败",
+    "footer": "CLIProxyAPI 管理控制台"
+  },
+  "quickStart": {
+    "title": "快速开始",
+    "subtitle": "在一个页面中配置提供商、生成客户端配置并验证访问。",
+    "actions": {
+      "providers": "提供商",
+      "apiKeys": "API Keys",
+      "settings": "设置"
+    },
+    "statusCards": {
+      "service": {
+        "label": "服务状态",
+        "value": {
+          "online": "在线",
+          "offline": "离线"
+        }
+      },
+      "providers": {
+        "label": "提供商",
+        "value": "{count} 已配置"
+      },
+      "apiKeys": {
+        "label": "API Keys",
+        "value": "{count} 活跃"
+      },
+      "proxyUrl": {
+        "label": "代理 URL"
+      }
+    },
+    "setup": {
+      "checklistTitle": "设置清单",
+      "progress": "{completed}/{total} 步完成",
+      "items": {
+        "providerConnected": "已连接提供商",
+        "apiKeyCreated": "已创建 API Key",
+        "modelCatalogAvailable": "模型目录已准备就绪"
+      },
+      "links": {
+        "providers": "提供商",
+        "apiKeys": "API Keys",
+        "verifyProviders": "验证提供商"
+      }
+    },
+    "publisher": {
+      "title": "发布 / 订阅",
+      "description": "共享你的配置模板或订阅其他用户。"
+    },
+    "integrations": {
+      "title": "集成",
+      "description": "查看外部客户端的配置示例。",
+      "claudeTitle": "在 Claude Code 中使用",
+      "claudeDescription": {
+        "sentence1": "作为替代方案，可以在启动 Claude Code 前设置环境变量来使用 CLIProxyAPI。",
+        "sentence2": {
+          "part1": "将 ",
+          "part2": " 替换为来自 ",
+          "postLink": " 页面。",
+          "linkText": "API Keys"
+        }
+      }
+    }
+  },
+  "errors": {
+    "auth": {
+      "unauthorized": "未授权",
+      "invalidCredentials": "账号或密码错误",
+      "forbidden": "权限不足",
+      "adminRequired": "需要管理员权限"
+    },
+    "validation": {
+      "missingFields": "缺少必填字段：{fields}",
+      "invalidInputTypes": "输入类型无效",
+      "invalidRequestBody": "请求体无效",
+      "invalidCookieData": "Cookie 数据无效：{error}",
+      "providerGroupsNotOwned": "存在不属于当前用户的提供商分组",
+      "providersNotOwned": "存在不属于当前用户的提供商",
+      "duplicateProviderIds": "providerIds 不能包含重复值",
+      "passwordDifferent": "新密码必须与当前密码不同",
+      "invalidUrl": "URL 无效",
+      "invalidParameter": "参数无效：{param}",
+      "missingParameter": "缺少必要参数：{param}",
+      "invalidDateFormat": "日期格式无效，请使用 YYYY-MM-DD。",
+      "invalidDateRange": "起始日期必须早于结束日期",
+      "confirmationRequired": "需要确认",
+      "invalidVersionFormat": "版本格式无效",
+      "invalidJson": "JSON 无效",
+      "invalidLines": "参数 lines 必须为正整数",
+      "failed": "校验失败"
+    },
+    "rateLimit": {
+      "tooMany": "请求过于频繁，请稍后再试。",
+      "login": "登录尝试过多，请稍后再试。",
+      "apiKeyCreate": "API Key 创建请求过多，请稍后再试。",
+      "customProviderCreate": "自定义提供商创建请求过多，请稍后再试。"
+    },
+    "syncToken": {
+      "expired": "同步令牌已过期",
+      "apiKeyDeleted": "该同步令牌对应的 API Key 已被删除，请更新同步令牌。"
+    },
+    "providerModels": {
+      "httpFailed": "获取模型失败（HTTP {status}）",
+      "invalidResponse": "提供商返回的响应格式无效",
+      "noneFound": "该提供商未返回任何模型",
+      "timeout": "请求超时，提供商可能不可达。",
+      "networkError": "网络错误：{message}",
+      "fetchFailed": "获取提供商模型失败",
+      "rateLimit": "获取模型请求过多，请稍后再试。",
+      "unauthorized": "未授权",
+      "invalidUrl": "URL 无效",
+      "privateAddress": "无法连接到私有或本地地址",
+      "authFailed": "认证失败，请检查 API Key。",
+      "endpointNotFound": "模型接口不存在，可能不是 OpenAI 兼容 API。"
+    },
+    "sync": {
+      "unavailable": "后端同步不可用：管理 API 密钥未配置",
+      "failed": "后端同步失败：提供商已{action}但可能暂时无法使用",
+      "apiKeyMissing": "后端同步失败：无法获取用于更新的 API Key"
+    },
+    "resource": {
+      "notFound": "{resource}未找到",
+      "providerGroupNotFound": "提供商分组未找到",
+      "perplexityCookieNotFound": "Perplexity Cookie 未找到"
+    },
+    "conflict": {
+      "providerGroupNameExists": "提供商分组名称已存在"
+    },
+    "internal": {
+      "serverError": "服务器内部错误",
+      "databaseError": "数据库操作失败"
+    },
+    "container": {
+      "invalidName": "容器名称无效或不受支持",
+      "actionNotAllowed": "操作“{action}”不允许用于容器“{name}”",
+      "actionFailed": "执行操作失败：{message}",
+      "unknown": "未知错误"
+    },
+    "configSharing": {
+      "templateNotFound": "配置模板未找到",
+      "fetchTemplateFailed": "获取配置模板失败",
+      "invalidRequestBody": "请求体无效",
+      "alreadyPublished": "已存在已发布的配置模板",
+      "createTemplateFailed": "创建配置模板失败",
+      "updateTemplateFailed": "更新配置模板失败",
+      "deleteTemplateFailed": "删除配置模板失败",
+      "shareCodeRequired": "shareCode 为必填项",
+      "templateNotFoundByShareCode": "未找到对应分享码的模板",
+      "templateInactive": "模板未启用",
+      "cannotSubscribeSelf": "不能订阅自己的模板",
+      "apiKeyRequired": "订阅前至少需要一个 API Key，请先添加。",
+      "subscriptionNotFound": "订阅未找到",
+      "fetchSubscriptionFailed": "获取订阅失败",
+      "createSubscriptionFailed": "创建订阅失败",
+      "updateSubscriptionFailed": "更新订阅失败",
+      "deleteSubscriptionFailed": "删除订阅失败",
+      "invalidSubscribeBody": "请求体无效：需要 shareCode",
+      "invalidUpdateBody": "请求体无效：需要 isActive"
+    },
+    "update": {
+      "failed": "更新失败，容器可能需要手动重启。"
+    },
+    "apiKeys": {
+      "notFoundOrDenied": "API Key 未找到或无访问权限"
+    },
+    "customProviders": {
+      "nameExists": "提供商名称已存在",
+      "idTaken": "提供商 ID 已被占用"
+    },
+    "generic": {
+      "fetchFailed": "获取{resource}失败",
+      "createFailed": "创建{resource}失败",
+      "updateFailed": "更新{resource}失败",
+      "deleteFailed": "删除{resource}失败",
+      "listFailed": "获取{resource}列表失败",
+      "removeFailed": "移除{resource}失败",
+      "checkFailed": "检查{resource}失败",
+      "triggerFailed": "触发{action}失败",
+      "serverConfigError": "服务器配置错误",
+      "invalidRequestPath": "请求路径无效",
+      "payloadTooLarge": "请求体过大",
+      "requestTimeout": "请求超时",
+      "responseTooLarge": "响应体过大"
+    }
+  },
+  "resources": {
+    "template": "模板",
+    "subscription": "订阅",
+    "token": "令牌",
+    "apiKey": "API Key",
+    "apiKeys": "API Keys",
+    "user": "用户",
+    "provider": "提供商",
+    "providerGroup": "提供商分组",
+    "config": "配置",
+    "oauthAccount": "OAuth 账号",
+    "container": "容器",
+    "syncToken": "同步令牌",
+    "update": "更新"
+  },
+  "messages": {
+    "container": {
+      "actionCompleted": "容器“{name}”{action}完成"
+    },
+    "apiKeys": {
+      "defaultName": "默认",
+      "syncPending": "Key 已创建，后台同步中",
+      "syncDeletePending": "后端同步待处理，Key 已删除但可能暂时仍可用"
+    },
+    "configSharing": {
+      "defaultName": "我的配置"
+    },
+    "sync": {
+      "actionCreated": "创建",
+      "actionUpdated": "更新",
+      "actionDeleted": "删除"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "description": "管理账户、安全、配置同步和系统操作。",
+    "accountSecurity": "账户与安全",
+    "changePassword": "修改密码",
+    "currentPassword": "当前密码",
+    "newPassword": "新密码",
+    "confirmNewPassword": "确认新密码",
+    "minChars": "最少8个字符",
+    "changing": "修改中...",
+    "changePasswordBtn": "修改密码",
+    "passwordMismatch": "两次输入的新密码不一致",
+    "passwordTooShort": "密码至少需要8个字符",
+    "passwordChanged": "密码修改成功",
+    "failedChangePassword": "修改密码失败",
+    "configSync": "配置同步",
+    "syncTokens": "同步令牌",
+    "generateTokenDesc": "生成令牌以同步 OpenCode 配置",
+    "generating": "生成中...",
+    "generateToken": "生成令牌",
+    "newTokenGenerated": "新令牌已生成",
+    "copyToClipboard": "复制到剪贴板",
+    "tokenOnceWarning": "此令牌仅显示一次，请立即复制。",
+    "loadingTokens": "加载令牌中...",
+    "noTokens": "暂无同步令牌。生成一个开始使用。",
+    "revoked": "已撤销",
+    "created": "创建时间",
+    "lastUsed": "上次使用",
+    "revoke": "撤销",
+    "syncApiKey": "同步 API Key",
+    "autoFirstAvailable": "自动（使用第一个可用的）",
+    "noApiKeysCreate": "暂无 API Key — 请先创建",
+    "setupInstructions": "配置说明",
+    "addToPlugin": "1. 添加到 opencode.jsonc 插件数组：",
+    "createConfigFile": "2. 创建配置文件：",
+    "standard": "标准方式：",
+    "withOcxProfile": "使用 OCX Profile：",
+    "pluginAutoInstall": "opencode 启动时将自动从 npm 安装该插件。",
+    "tokenGenerated": "令牌生成成功",
+    "failedGenerateToken": "生成令牌失败",
+    "tokenRevoked": "令牌已撤销",
+    "failedRevokeToken": "撤销令牌失败",
+    "apiKeyUpdated": "同步令牌的 API Key 已更新",
+    "failedUpdateApiKey": "更新 API Key 失败",
+    "tokenCopied": "令牌已复制到剪贴板",
+    "failedCopyToken": "复制令牌失败",
+    "system": "系统",
+    "cliProxyUpdates": "CLIProxyAPI 更新",
+    "updateAvailable": "有可用更新",
+    "checkingUpdates": "检查更新中...",
+    "currentVersion": "当前版本",
+    "latestVersion": "最新版本",
+    "digest": "摘要",
+    "updating": "更新中...",
+    "updateToLatest": "更新到最新版",
+    "upToDate": "已是最新",
+    "refresh": "刷新",
+    "availableVersions": "可用版本",
+    "failedCheckUpdates": "检查更新失败",
+    "updatedRestarting": "已更新到 {version}，服务正在重启...",
+    "updateFailed": "更新失败",
+    "networkErrorUpdate": "更新时发生网络错误",
+    "dashboardUpdates": "Dashboard 更新",
+    "viewReleaseNotes": "查看发布说明",
+    "dashboardUpdatedRestarting": "Dashboard 已更新，正在重启...",
+    "sessionControl": "会话控制",
+    "sessionControlDesc": "立即撤销所有设备上的所有活跃用户会话。",
+    "revoking": "撤销中...",
+    "forceLogoutAll": "强制登出所有用户",
+    "allSessionsRevoked": "所有会话已撤销",
+    "failedRevokeSessions": "撤销会话失败",
+    "systemInfo": "系统信息",
+    "environment": "运行环境",
+    "versionDetails": "版本详情",
+    "dashboardVersion": "Dashboard 版本：",
+    "cliProxyApi": "CLIProxyAPI：",
+    "loading": "加载中...",
+    "unknown": "未知",
+    "networkError": "网络错误",
+    "confirmUpdateProxy": "更新 CLIProxyAPI",
+    "confirmUpdateProxyMsg": "确定要将 CLIProxyAPI 更新到 {version} 吗？服务将会重启。",
+    "confirmUpdateDashboard": "更新 Dashboard",
+    "confirmUpdateDashboardMsg": "确定要将 Dashboard 更新到最新版本吗？容器将会重启。",
+    "confirmRevokeToken": "撤销令牌",
+    "confirmRevokeTokenMsg": "确定要撤销此令牌吗？",
+    "confirmForceLogout": "强制登出所有用户",
+    "confirmForceLogoutMsg": "强制登出所有设备上的所有用户？此操作不可撤销。",
+    "update": "更新",
+    "cancel": "取消"
+  },
+  "config": {
+    "title": "配置",
+    "description": "配置系统设置、流式传输、重试行为和日志。",
+    "loadingConfig": "加载配置中...",
+    "failedLoad": "加载配置失败",
+    "retry": "重试",
+    "unsavedChanges": "有未保存的更改",
+    "discardChanges": "放弃更改",
+    "saving": "保存中...",
+    "saveChanges": "保存更改",
+    "savedSuccess": "配置保存成功",
+    "failedSave": "保存配置失败",
+    "discarded": "更改已放弃",
+    "warningInvalid": "无效的配置可能导致服务无法启动。保存前请仔细检查更改。",
+    "generalSettings": "常规设置",
+    "upstreamProxy": "上游代理",
+    "upstreamProxyDesc": "可选的 SOCKS5/HTTP/HTTPS 代理，用于向 AI 提供商发送请求。留空则直连。",
+    "proxyPlaceholder": "socks5://proxy:1080 或 http://proxy:8080",
+    "forceModelPrefix": "强制模型前缀",
+    "forceModelPrefixDesc": "要求模型名称包含提供商前缀",
+    "debugMode": "调试模式",
+    "debugModeDesc": "启用详细调试日志",
+    "commercialMode": "商业模式",
+    "commercialModeDesc": "启用商业功能和许可",
+    "wsAuth": "WebSocket 认证",
+    "wsAuthDesc": "要求 WebSocket 连接进行身份验证",
+    "streaming": "流式传输",
+    "keepaliveSeconds": "保活间隔（秒）",
+    "keepaliveSecondsDesc": "SSE 保活间隔时间（秒）",
+    "bootstrapRetries": "引导重试次数",
+    "bootstrapRetriesDesc": "引导重试的尝试次数",
+    "nonStreamKeepalive": "非流式保活间隔",
+    "nonStreamKeepaliveDesc": "对非流式响应每 N 秒发送空行以防止超时（0 = 禁用）",
+    "retryResilience": "重试与容错",
+    "requestRetry": "请求重试次数",
+    "requestRetryDesc": "失败请求的最大重试次数",
+    "maxRetryInterval": "最大重试间隔（秒）",
+    "maxRetryIntervalDesc": "重试之间的最大间隔时间",
+    "routingStrategy": "路由策略",
+    "routingStrategyDesc": "多个提供商之间的负载均衡策略",
+    "roundRobin": "轮询",
+    "random": "随机",
+    "leastLoaded": "最少负载",
+    "switchProject": "配额耗尽时切换项目",
+    "switchProjectDesc": "配额耗尽时自动切换到其他项目",
+    "switchPreviewModel": "配额耗尽时切换预览模型",
+    "switchPreviewModelDesc": "配额耗尽时回退到预览模型",
+    "logging": "日志",
+    "loggingToFile": "文件日志",
+    "loggingToFileDesc": "启用持久化文件日志",
+    "usageStatistics": "使用统计",
+    "usageStatisticsDesc": "收集匿名使用统计数据",
+    "maxLogSize": "最大日志总大小（MB）",
+    "maxLogSizeDesc": "所有日志文件的最大总大小（0 = 无限制）",
+    "maxErrorLogFiles": "最大错误日志文件数",
+    "maxErrorLogFilesDesc": "保留的最大错误日志文件数量",
+    "advancedRawJson": "高级：原始 JSON 编辑器",
+    "showRawJson": "显示原始 JSON",
+    "hideRawJson": "隐藏原始 JSON",
+    "rawJsonWarning": "此区域显示完整配置，包括在其他页面管理的字段。除非你清楚自己在做什么，否则不要编辑。此处的更改不会被保存。",
+    "readOnlyView": "这是完整配置的只读视图。请使用上方的结构化表单进行更改。",
+    "tip": "更改会立即保存到管理 API。部分配置更改可能需要重启服务才能生效。",
+    "networkError": "网络错误",
+    "warning": "警告"
+  },
+  "logs": {
+    "title": "日志",
+    "refresh": "刷新",
+    "clearLogs": "清空日志",
+    "confirmClearTitle": "清空所有日志",
+    "confirmClearMsg": "确定要清空所有日志吗？此操作不可撤销。",
+    "clear": "清空",
+    "cancel": "取消",
+    "recentLogs": "最近日志",
+    "loadingLogs": "加载日志中...",
+    "noLogs": "暂无日志。CLIProxyAPI 配置中可能已禁用文件日志。",
+    "checkConfigPre": "请检查配置中的 ",
+    "checkConfigCode": "logging-to-file",
+    "checkConfigPost": "。",
+    "previous": "← 上一页",
+    "next": "下一页 →",
+    "pageOf": "第 {current} 页，共 {total} 页",
+    "tip": "日志来自 CLIProxyAPI 服务，此处显示最近条目。完整日志请查看 Docker 容器日志。",
+    "failedLoad": "加载日志失败",
+    "failedClear": "清空日志失败",
+    "logsCleared": "日志已清空",
+    "networkError": "网络错误"
+  },
+  "usage": {
+    "title": "使用统计",
+    "lastSynced": "上次同步：{time}",
+    "refresh": "刷新",
+    "timePeriod": "时间范围",
+    "today": "今天",
+    "days7": "7 天",
+    "days30": "30 天",
+    "allTime": "全部",
+    "from": "起始日期",
+    "to": "结束日期",
+    "apply": "应用",
+    "loadingStats": "加载统计数据中...",
+    "unableToLoad": "无法加载使用统计",
+    "totalRequests": "总请求数",
+    "successful": "成功",
+    "failed": "失败",
+    "totalTokens": "总 Token 数",
+    "inputTokens": "输入 Token",
+    "outputTokens": "输出 Token",
+    "noUsageData": "暂无使用数据",
+    "usageByApiKey": "按 API Key 统计",
+    "keyName": "Key 名称",
+    "username": "用户名",
+    "total": "总计",
+    "success": "成功",
+    "tokens": "Token 数",
+    "model": "模型",
+    "requests": "请求数",
+    "input": "输入",
+    "output": "输出",
+    "failedLoad": "加载使用数据失败",
+    "networkError": "网络错误"
+  },
+  "quota": {
+    "title": "配额",
+    "description": "监控 OAuth 账户配额和使用窗口。",
+    "loading": "加载中...",
+    "refresh": "刷新",
+    "loadingQuota": "加载配额数据中...",
+    "activeAccounts": "活跃账户",
+    "overallCapacity": "总体容量",
+    "lowCapacity": "低容量",
+    "providers": "提供商",
+    "providerCapacity": "提供商容量",
+    "provider": "提供商",
+    "longTerm": "长期",
+    "shortTerm": "短期",
+    "healthy": "健康",
+    "issues": "异常",
+    "accounts": "账户",
+    "account": "账户",
+    "status": "状态",
+    "active": "活跃",
+    "error": "错误",
+    "unsupported": "不支持",
+    "quotaNotAvailable": "此提供商暂不支持配额监控。",
+    "noAccountsFound": "所选筛选条件下未找到账户。",
+    "unknown": "未知",
+    "resetting": "重置中...",
+    "resetsIn": "{time} 后重置",
+    "noData": "无数据",
+    "all": "全部"
+  },
+  "containers": {
+    "title": "容器管理",
+    "description": "监控和管理 Docker 容器。",
+    "refresh": "刷新",
+    "loading": "加载容器中...",
+    "failedLoad": "加载容器失败",
+    "noContainers": "未找到容器。",
+    "name": "名称",
+    "image": "镜像",
+    "status": "状态",
+    "ports": "端口",
+    "created": "创建时间",
+    "actions": "操作",
+    "running": "运行中",
+    "stopped": "已停止",
+    "restarting": "重启中",
+    "start": "启动",
+    "stop": "停止",
+    "restart": "重启",
+    "viewLogs": "查看日志",
+    "starting": "启动中...",
+    "stopping": "停止中...",
+    "containerStarted": "容器已启动",
+    "containerStopped": "容器已停止",
+    "containerRestarted": "容器已重启",
+    "failedStart": "启动容器失败",
+    "failedStop": "停止容器失败",
+    "failedRestart": "重启容器失败",
+    "networkError": "网络错误",
+    "confirmStop": "停止容器",
+    "confirmStopMsg": "确定要停止容器 {name} 吗？依赖此容器的服务将会中断。",
+    "confirmRestart": "重启容器",
+    "confirmRestartMsg": "确定要重启容器 {name} 吗？服务可能会短暂中断。",
+    "cancel": "取消",
+    "containerLogs": "容器日志",
+    "close": "关闭",
+    "noLogs": "暂无日志",
+    "tip": "管理运行在此主机上的 Docker 容器。请谨慎操作 — 停止关键容器可能影响服务可用性。",
+    "uptime": "运行时间",
+    "resources": "资源",
+    "failedAction": "操作失败"
+  },
+  "monitoring": {
+    "title": "监控",
+    "serviceStatus": "服务状态",
+    "running": "运行中",
+    "stopped": "已停止",
+    "uptime": "运行时间",
+    "restarting": "重启中...",
+    "restartService": "重启服务",
+    "confirmRestartTitle": "重启服务",
+    "confirmRestartMsg": "确定要重启 CLIProxyAPI 服务吗？",
+    "restart": "重启",
+    "cancel": "取消",
+    "usageStats": "使用统计",
+    "totalRequests": "总请求数",
+    "success": "成功",
+    "failed": "失败",
+    "totalTokens": "总 Token 数",
+    "requestsByModel": "按模型统计",
+    "tokens": "tokens",
+    "requestsByHour": "按小时统计",
+    "loadingUsage": "加载使用统计中...",
+    "liveLogs": "实时日志",
+    "clear": "清空",
+    "checkingLogging": "检查日志状态中...",
+    "fileLoggingDisabled": "文件日志已禁用",
+    "enableLoggingDesc": "启用 CLIProxyAPI 的文件日志以在此查看实时日志。",
+    "enabling": "启用中...",
+    "enableFileLogging": "启用文件日志",
+    "logsUnavailable": "日志不可用",
+    "retry": "重试",
+    "waitingForLogs": "等待日志...",
+    "scrollToBottom": "滚动到底部以启用自动滚动"
+  },
+  "adminLogs": {
+    "title": "应用日志",
+    "description": "Dashboard 应用事件日志。",
+    "level": "级别：",
+    "autoRefresh": "自动刷新（5秒）",
+    "refresh": "刷新",
+    "clearing": "清空中...",
+    "clearLogs": "清空日志",
+    "persistentEnabled": "持久化存储已启用",
+    "persistentDisabled": "持久化存储已禁用",
+    "memoryLogs": "内存：{count} 条",
+    "fileLogs": "文件：{count} 条（{size} KB）",
+    "rotatedFiles": "轮转文件：{count}",
+    "logEntries": "日志条目",
+    "showing": "显示 {shown} / {total} 条",
+    "loading": "加载中...",
+    "noLogs": "暂无日志。应用事件发生时日志将显示在此处。",
+    "time": "时间",
+    "message": "消息",
+    "details": "详情",
+    "hide": "收起",
+    "show": "展开",
+    "noAdditionalDetails": "无其他详情",
+    "confirmClearTitle": "清空所有日志",
+    "confirmClearMsg": "确定要清空所有日志吗？",
+    "clear": "清空",
+    "cancel": "取消",
+    "logsCleared": "日志已清空",
+    "failedLoad": "加载日志失败",
+    "failedClear": "清空日志失败",
+    "adminRequired": "需要管理员权限",
+    "networkError": "网络错误"
+  },
+  "adminUsers": {
+    "title": "用户管理",
+    "description": "管理 Dashboard 用户和角色。",
+    "createUser": "创建用户",
+    "loading": "加载中...",
+    "failedLoad": "加载用户失败。",
+    "retry": "重试",
+    "noUsers": "未找到用户。创建一个开始使用。",
+    "username": "用户名",
+    "role": "角色",
+    "created": "创建时间",
+    "apiKeys": "API Keys",
+    "admin": "管理员",
+    "user": "用户",
+    "createNewUser": "创建新用户",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "usernamePlaceholder": "输入用户名",
+    "minChars": "最少8个字符",
+    "reenterPassword": "再次输入密码",
+    "grantAdmin": "授予管理员权限",
+    "adminDesc": "管理员可以管理用户并访问所有系统功能",
+    "cancel": "取消",
+    "creating": "创建中...",
+    "userCreated": "用户创建成功",
+    "failedCreate": "创建用户失败",
+    "passwordMismatch": "两次输入的密码不一致",
+    "passwordTooShort": "密码至少需要8个字符",
+    "usernameRequired": "用户名不能为空",
+    "adminRequired": "需要管理员权限",
+    "networkError": "网络错误"
+  }
+}

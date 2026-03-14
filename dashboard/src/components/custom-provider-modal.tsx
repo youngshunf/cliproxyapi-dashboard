@@ -11,6 +11,7 @@ import { ModelDiscovery } from "@/components/custom-providers/model-discovery";
 import { ModelMappings } from "@/components/custom-providers/model-mappings";
 import { ExcludedModels } from "@/components/custom-providers/excluded-models";
 import { GroupSelect } from "@/components/custom-providers/group-select";
+import { useTranslations } from "next-intl";
 
 interface ModelMapping {
   _id: number;
@@ -68,6 +69,7 @@ function nextId() { return ++_nextId; }
 export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: CustomProviderModalProps) {
   const { showToast } = useToast();
   const isEdit = !!provider;
+  const t = useTranslations("providers.customModal");
 
   const [name, setName] = useState("");
   const [providerId, setProviderId] = useState("");
@@ -153,11 +155,11 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
 
   const validate = () => {
     const newErrors = {
-      name: name.length === 0 ? "Name is required" : name.length > 100 ? "Max 100 characters" : "",
-      providerId: !/^[a-z0-9-]+$/.test(providerId) ? "Only lowercase letters, numbers, and hyphens" : "",
-      baseUrl: !baseUrl.startsWith("https://") ? "Must start with https://" : "",
-      apiKey: !isEdit && apiKey.length === 0 ? "API key is required" : "",
-      models: models.filter(m => m.upstreamName && m.alias).length === 0 ? "At least one model mapping required" : ""
+      name: name.length === 0 ? t("errors.nameRequired") : name.length > 100 ? t("errors.nameTooLong") : "",
+      providerId: !/^[a-z0-9-]+$/.test(providerId) ? t("errors.providerIdInvalid") : "",
+      baseUrl: !baseUrl.startsWith("https://") ? t("errors.baseUrlHttps") : "",
+      apiKey: !isEdit && apiKey.length === 0 ? t("errors.apiKeyRequired") : "",
+      models: models.filter(m => m.upstreamName && m.alias).length === 0 ? t("errors.modelsRequired") : ""
     };
 
     setErrors(newErrors);
@@ -199,13 +201,13 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
       });
 
       if (response.ok) {
-        showToast(`Custom provider ${isEdit ? 'updated' : 'created'}`, "success");
+        showToast(isEdit ? t("toast.updated") : t("toast.created"), "success");
         onSuccess();
         onClose();
         resetForm();
       } else {
         const error = await response.json();
-        showToast(error.error || "Failed to save provider", "error");
+        showToast(error.error || t("toast.saveFailed"), "error");
       }
     } catch {
       showToast("Network error", "error");
@@ -260,7 +262,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
 
   const fetchModelsHandler = async () => {
     if (!baseUrl.startsWith("https://") || apiKey.length === 0) {
-      showToast("Please enter a valid Base URL (https) and API Key first", "error");
+      showToast(t("toast.baseUrlApiKey"), "error");
       return;
     }
 
@@ -286,10 +288,10 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
 
         setFetchedModels(fetchedList);
         setShowFetchedModels(true);
-        showToast(`Found ${fetchedList.length} models`, "success");
+        showToast(t("toast.modelsFound", { count: fetchedList.length }), "success");
       } else {
         const error = await response.json();
-        showToast(error.error || "Failed to fetch models", "error");
+        showToast(error.error || t("toast.fetchFailed"), "error");
       }
     } catch {
       showToast("Network error", "error");
@@ -328,7 +330,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
         const existing = prev.filter(m => m.upstreamName || m.alias);
         return [...existing, ...newModels];
       });
-      showToast(`Added ${newModels.length} model${newModels.length !== 1 ? 's' : ''}`, "success");
+      showToast(t("toast.modelsAdded", { count: newModels.length }), "success");
     }
 
     setShowFetchedModels(false);
@@ -338,7 +340,7 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-3xl">
       <ModalHeader>
-        <ModalTitle>{isEdit ? 'Edit' : 'Add'} Custom Provider</ModalTitle>
+        <ModalTitle>{isEdit ? t("title.edit") : t("title.create")}</ModalTitle>
       </ModalHeader>
 
       <ModalContent>
@@ -411,10 +413,10 @@ export function CustomProviderModal({ isOpen, onClose, provider, onSuccess }: Cu
 
       <ModalFooter>
         <Button variant="ghost" onClick={onClose} disabled={saving}>
-          Cancel
+          {t("actions.cancel") ?? "Cancel"}
         </Button>
         <Button onClick={handleSubmit} disabled={saving}>
-          {saving ? (isEdit ? "Updating..." : "Creating...") : (isEdit ? "Update Provider" : "Create Provider")}
+          {saving ? (isEdit ? t("actions.updating") : t("actions.creating")) : (isEdit ? t("actions.updateProvider") : t("actions.createProvider"))}
         </Button>
       </ModalFooter>
     </Modal>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { CopyBlock } from "@/components/copy-block";
 import { QuickStartConfigSection } from "@/components/quick-start-config-section";
 import { ConfigPublisher } from "@/components/config-publisher";
@@ -91,6 +92,7 @@ function buildSourceMap(proxyModels: { id: string; owned_by: string }[]): Map<st
 }
 
 export default async function QuickStartPage() {
+  const t = await getTranslations("quickStart");
   const [config, isHealthy, oauthData, session] = await Promise.all([
     fetchManagementJson({ path: "config" }),
     getServiceHealth(),
@@ -183,22 +185,22 @@ export default async function QuickStartPage() {
   const allProxyModels = { ...oauthAliasModels, ...buildAvailableModelsFromProxy(proxyModels) };
   const setupItems = [
     {
-      label: "Provider connected",
+      label: t("setup.items.providerConnected"),
       done: providerCount > 0,
       link: "/dashboard/providers",
-      linkLabel: "Providers",
+      linkLabel: t("setup.links.providers"),
     },
     {
-      label: "API key created",
+      label: t("setup.items.apiKeyCreated"),
       done: apiKeys.length > 0,
       link: "/dashboard/api-keys",
-      linkLabel: "API Keys",
+      linkLabel: t("setup.links.apiKeys"),
     },
     {
-      label: "Model catalog available",
+      label: t("setup.items.modelCatalogAvailable"),
       done: availableModelIds.length > 0,
       link: "/dashboard/providers",
-      linkLabel: "Verify providers",
+      linkLabel: t("setup.links.verifyProviders"),
     },
   ];
   const completedSetupItems = setupItems.filter((item) => item.done).length;
@@ -210,28 +212,28 @@ export default async function QuickStartPage() {
   }
   const statusCards = [
     {
-      label: "Service",
-      value: isHealthy ? "Online" : "Offline",
+      label: t("statusCards.service.label"),
+      value: isHealthy ? t("statusCards.service.value.online") : t("statusCards.service.value.offline"),
       tone: isHealthy ? "text-emerald-400" : "text-rose-400",
       icon: "●",
       iconTone: isHealthy ? "text-emerald-300" : "text-rose-300",
     },
     {
-      label: "Providers",
-      value: `${providerCount} configured`,
+      label: t("statusCards.providers.label"),
+      value: t("statusCards.providers.value", { count: providerCount }),
       tone: "text-slate-100",
       icon: "◆",
       iconTone: "text-blue-300",
     },
     {
-      label: "API Keys",
-      value: `${apiKeys.length} active`,
+      label: t("statusCards.apiKeys.label"),
+      value: t("statusCards.apiKeys.value", { count: apiKeys.length }),
       tone: "text-slate-100",
       icon: "♟",
       iconTone: "text-amber-300",
     },
     {
-      label: "Proxy URL",
+      label: t("statusCards.proxyUrl.label"),
       value: getProxyUrl(),
       tone: "text-slate-100",
       icon: "◈",
@@ -245,9 +247,9 @@ export default async function QuickStartPage() {
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-100">Quick Start</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
             <p className="mt-1 text-sm text-slate-400">
-              Configure providers, generate client config, and validate access from one place.
+              {t("subtitle")}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -255,19 +257,19 @@ export default async function QuickStartPage() {
               href="/dashboard/providers"
               className="rounded-md border border-slate-600/80 bg-slate-800/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-slate-200 transition-colors hover:bg-slate-700/80"
             >
-              Providers
+              {t("actions.providers")}
             </Link>
             <Link
               href="/dashboard/api-keys"
               className="rounded-md border border-slate-600/80 bg-slate-800/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-slate-200 transition-colors hover:bg-slate-700/80"
             >
-              API Keys
+              {t("actions.apiKeys")}
             </Link>
             <Link
               href="/dashboard/settings"
               className="rounded-md border border-slate-600/80 bg-slate-800/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-slate-200 transition-colors hover:bg-slate-700/80"
             >
-              Settings
+              {t("actions.settings")}
             </Link>
           </div>
         </div>
@@ -309,8 +311,8 @@ export default async function QuickStartPage() {
         <details className="group rounded-lg border border-slate-700/70 bg-slate-900/40">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
             <div>
-              <p className="text-sm font-semibold text-slate-100">Publisher / Subscriber</p>
-              <p className="text-xs text-slate-400">Share your config template or subscribe to another user.</p>
+              <p className="text-sm font-semibold text-slate-100">{t("publisher.title")}</p>
+              <p className="text-xs text-slate-400">{t("publisher.description")}</p>
             </div>
             <svg className="h-4 w-4 text-slate-400 transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
           </summary>
@@ -325,8 +327,8 @@ export default async function QuickStartPage() {
         <details className="group rounded-lg border border-slate-700/70 bg-slate-900/40">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
             <div>
-              <p className="text-sm font-semibold text-slate-100">Integrations</p>
-              <p className="text-xs text-slate-400">Reference setup snippets for external clients.</p>
+              <p className="text-sm font-semibold text-slate-100">{t("integrations.title")}</p>
+              <p className="text-xs text-slate-400">{t("integrations.description")}</p>
             </div>
             <svg className="h-4 w-4 text-slate-400 transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
           </summary>
@@ -335,17 +337,20 @@ export default async function QuickStartPage() {
               <h3 className="mb-3 text-sm font-semibold text-slate-100">
                 <span className="flex items-center gap-3">
                   <span className="flex h-6 w-6 items-center justify-center rounded-md border border-blue-400/30 bg-blue-500/15 text-sm text-blue-300" aria-hidden="true">&#9654;</span>
-                  Using with Claude Code
+                  {t("integrations.claudeTitle")}
                 </span>
               </h3>
               <p className="mb-4 text-sm text-slate-300">
-                As an alternative, you can use CLIProxyAPI with Claude Code by setting environment variables before launching it.
-                Replace <code className="break-all rounded bg-slate-800/80 px-1.5 py-0.5 font-mono text-xs text-blue-200">your-api-key</code> with
-                your key from the{" "}
+                {t("integrations.claudeDescription.sentence1")}
+              </p>
+              <p className="mb-4 text-sm text-slate-300">
+                {t("integrations.claudeDescription.sentence2.part1")}
+                <code className="break-all rounded bg-slate-800/80 px-1.5 py-0.5 font-mono text-xs text-blue-200">your-api-key</code>
+                {t("integrations.claudeDescription.sentence2.part2")}
                 <Link href="/dashboard/api-keys" className="font-medium text-blue-300 underline decoration-blue-400/30 underline-offset-2 hover:text-blue-200">
-                  API Keys
-                </Link>{" "}
-                page.
+                  {t("integrations.claudeDescription.sentence2.linkText")}
+                </Link>
+                {t("integrations.claudeDescription.sentence2.postLink")}
               </p>
               <CopyBlock code={getClaudeCodeEnv()} />
             </div>

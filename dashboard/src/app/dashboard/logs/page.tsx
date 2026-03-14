@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -28,6 +29,7 @@ interface FetchLogsParams {
   setLatestTimestamp: (timestamp: number | null) => void;
   setLoading: (loading: boolean) => void;
   showToast: (message: string, type: "success" | "error" | "info") => void;
+  t: (key: string) => string;
   after?: number | null;
   append?: boolean;
   currentLogs?: string[];
@@ -39,6 +41,7 @@ async function fetchLogs({
   setLatestTimestamp,
   setLoading,
   showToast,
+  t,
   after,
   append,
   currentLogs,
@@ -60,7 +63,7 @@ async function fetchLogs({
         setLoading(false);
         return;
       }
-      showToast("Failed to load logs", "error");
+      showToast(t("failedLoad"), "error");
       setLoading(false);
       return;
     }
@@ -73,7 +76,7 @@ async function fetchLogs({
     setLoading(false);
   } catch {
     if (signal?.aborted) return;
-    showToast("Network error", "error");
+    showToast(t("networkError"), "error");
     setLoading(false);
   }
 }
@@ -101,6 +104,7 @@ function getLevelColor(level: LogLevel) {
 }
 
 export default function LogsPage() {
+  const t = useTranslations("logs");
   const [logs, setLogs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [latestTimestamp, setLatestTimestamp] = useState<number | null>(null);
@@ -119,9 +123,9 @@ export default function LogsPage() {
 
   useEffect(() => {
     const controller = new AbortController();
-    void fetchLogs({ setLogs, setLatestTimestamp, setLoading, showToast, signal: controller.signal });
+    void fetchLogs({ setLogs, setLatestTimestamp, setLoading, showToast, t, signal: controller.signal });
     return () => controller.abort();
-  }, [showToast]);
+  }, [showToast, t]);
 
   useEffect(() => {
     logsRef.current = logs;
@@ -144,6 +148,7 @@ export default function LogsPage() {
         setLatestTimestamp,
         setLoading,
         showToast,
+        t,
         after: latestTimestampRef.current,
         append: true,
         currentLogs: logsRef.current,
@@ -155,7 +160,7 @@ export default function LogsPage() {
       controller.abort();
       window.clearInterval(interval);
     };
-  }, [showToast]);
+  }, [showToast, t]);
 
   const handleRefresh = () => {
     setCurrentPage(1);
@@ -164,6 +169,7 @@ export default function LogsPage() {
       setLatestTimestamp,
       setLoading,
       showToast,
+      t,
       after: latestTimestamp,
       append: true,
       currentLogs: logs,
@@ -179,7 +185,7 @@ export default function LogsPage() {
     try {
       const res = await fetch(API_ENDPOINTS.MANAGEMENT.LOGS, { method: "DELETE" });
       if (!res.ok) {
-        showToast("Failed to clear logs", "error");
+        showToast(t("failedClear"), "error");
         setLoading(false);
         return;
       }
@@ -187,9 +193,9 @@ export default function LogsPage() {
       setLatestTimestamp(null);
       setCurrentPage(1);
       setLoading(false);
-      showToast("Logs cleared", "success");
+      showToast(t("logsCleared"), "success");
     } catch {
-      showToast("Network error", "error");
+      showToast(t("networkError"), "error");
       setLoading(false);
     }
   };
@@ -198,13 +204,13 @@ export default function LogsPage() {
     <div className="space-y-4">
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-xl font-semibold tracking-tight text-slate-100">Logs</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <Button onClick={handleRefresh} disabled={loading} className="px-2.5 py-1 text-xs">
-            Refresh
+            {t("refresh")}
           </Button>
           <Button onClick={confirmClear} disabled={loading} className="px-2.5 py-1 text-xs">
-            Clear Logs
+            {t("clearLogs")}
           </Button>
         </div>
       </div>
@@ -214,21 +220,21 @@ export default function LogsPage() {
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
         onConfirm={handleClearLogs}
-        title="Clear All Logs"
-        message="Clear all logs? This cannot be undone."
-        confirmLabel="Clear"
-        cancelLabel="Cancel"
+        title={t("confirmClearTitle")}
+        message={t("confirmClearMsg")}
+        confirmLabel={t("clear")}
+        cancelLabel={t("cancel")}
         variant="danger"
       />
 
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
-        <h2 className="mb-3 text-sm font-semibold text-slate-100">Recent Logs</h2>
+        <h2 className="mb-3 text-sm font-semibold text-slate-100">{t("recentLogs")}</h2>
           {loading ? (
-            <div className="p-4 text-center text-slate-400">Loading logs...</div>
+            <div className="p-4 text-center text-slate-400">{t("loadingLogs")}</div>
           ) : logs.length === 0 ? (
               <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-4 text-sm text-slate-400">
-                No logs available. File logging may be disabled in the CLIProxyAPI configuration.
-                Check <code className="rounded bg-slate-800/80 px-1">logging-to-file</code> in config.
+                {t("noLogs")}{" "}
+                {t("checkConfigPre")}<code className="rounded bg-slate-800/80 px-1">{t("checkConfigCode")}</code>{t("checkConfigPost")}
               </div>
           ) : (
             <div
@@ -254,10 +260,10 @@ export default function LogsPage() {
                 disabled={currentPage === 1}
                 className="px-2.5 py-1 text-xs"
               >
-                ← Previous
+                {t("previous")}
               </Button>
               <span className="text-xs text-slate-400">
-                Page {currentPage} of {totalPages}
+                {t("pageOf", { current: currentPage, total: totalPages })}
               </span>
               <Button
                 variant="ghost"
@@ -265,15 +271,14 @@ export default function LogsPage() {
                 disabled={currentPage === totalPages}
                 className="px-2.5 py-1 text-xs"
               >
-                Next →
+                {t("next")}
               </Button>
             </div>
           )}
       </section>
 
       <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4 text-xs text-slate-400">
-        <strong>TIP:</strong> Logs are fetched from the CLIProxyAPI service. Recent entries are shown here.
-        For complete logs, check the Docker container logs.
+        <strong>TIP:</strong> {t("tip")}
       </div>
     </div>
   );

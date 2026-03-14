@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toast";
 import { DeployDashboard } from "@/components/deploy-dashboard";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -44,6 +45,7 @@ interface AvailableApiKey {
 }
 
 export default function SettingsPage() {
+  const t = useTranslations("settings");
   const [cliProxyVersion, setCliProxyVersion] = useState<string | null>(null);
   const [cliProxyLoading, setCliProxyLoading] = useState(true);
 
@@ -168,16 +170,16 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        showToast(`Updated to ${version}. Service is restarting...`, "success");
+        showToast(t("updatedRestarting", { version }), "success");
         setTimeout(() => {
           fetchProxyUpdateInfo();
         }, 10000);
       } else {
         const data = await res.json();
-        showToast(extractApiError(data, "Update failed"), "error");
+        showToast(extractApiError(data, t("updateFailed")), "error");
       }
     } catch {
-      showToast("Network error during update", "error");
+      showToast(t("networkErrorUpdate"), "error");
     } finally {
       setProxyUpdating(false);
     }
@@ -199,7 +201,7 @@ export default function SettingsPage() {
       const data = await res.json().catch(() => null);
 
       if (res.ok) {
-        const msg = typeof data?.message === "string" ? data.message : "Dashboard updated. Restarting...";
+        const msg = typeof data?.message === "string" ? data.message : t("dashboardUpdatedRestarting");
         showToast(msg, "success");
         setTimeout(() => {
           fetchDashboardUpdateInfo();
@@ -232,7 +234,7 @@ export default function SettingsPage() {
 
       const data = await res.json();
       setGeneratedToken(data.token);
-      showToast("Token generated successfully", "success");
+      showToast(t("tokenGenerated"), "success");
       fetchSyncTokens();
       setGeneratingToken(false);
     } catch {
@@ -261,7 +263,7 @@ export default function SettingsPage() {
         return;
       }
 
-      showToast("Token revoked successfully", "success");
+      showToast(t("tokenRevoked"), "success");
       fetchSyncTokens();
     } catch {
       showToast("Network error", "error");
@@ -277,7 +279,7 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        showToast("API key updated for sync token", "success");
+        showToast(t("apiKeyUpdated"), "success");
         const selectedKey = availableApiKeys.find((k) => k.id === apiKeyId);
         setSyncTokens((prev) =>
           prev.map((t) => (t.id === tokenId ? { ...t, syncApiKeyId: apiKeyId || null, syncApiKeyName: selectedKey?.name || null } : t))
@@ -294,9 +296,9 @@ export default function SettingsPage() {
   const handleCopyToken = async (token: string) => {
     try {
       await navigator.clipboard.writeText(token);
-      showToast("Token copied to clipboard", "success");
+      showToast(t("tokenCopied"), "success");
     } catch {
-      showToast("Failed to copy token", "error");
+      showToast(t("failedCopyToken"), "error");
     }
   };
 
@@ -319,7 +321,7 @@ export default function SettingsPage() {
       }
 
       const data = await res.json();
-      showToast(data.message || "All sessions revoked", "success");
+      showToast(data.message || t("allSessionsRevoked"), "success");
       setRevokingSessions(false);
     } catch {
       showToast("Network error", "error");
@@ -330,8 +332,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-4">
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-3">
-        <h1 className="text-xl font-semibold tracking-tight text-slate-100">Settings</h1>
-        <p className="mt-1 text-sm text-slate-400">Manage account, security, config sync, and system operations.</p>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
+        <p className="mt-1 text-sm text-slate-400">{t("description")}</p>
       </section>
 
       <TelegramSettings
@@ -379,10 +381,10 @@ export default function SettingsPage() {
           setPendingProxyVersion("latest");
         }}
         onConfirm={handleProxyUpdate}
-        title="Update CLIProxyAPI"
-        message={`Update CLIProxyAPI to ${pendingProxyVersion}? The service will restart.`}
-        confirmLabel="Update"
-        cancelLabel="Cancel"
+        title={t("confirmUpdateProxy")}
+        message={t("confirmUpdateProxyMsg", { version: pendingProxyVersion })}
+        confirmLabel={t("update")}
+        cancelLabel={t("cancel")}
         variant="warning"
       />
 
@@ -390,10 +392,10 @@ export default function SettingsPage() {
         isOpen={showConfirmDashboardUpdate}
         onClose={() => setShowConfirmDashboardUpdate(false)}
         onConfirm={handleDashboardUpdate}
-        title="Update Dashboard"
-        message="Update Dashboard to latest version? The container will restart."
-        confirmLabel="Update"
-        cancelLabel="Cancel"
+        title={t("confirmUpdateDashboard")}
+        message={t("confirmUpdateDashboardMsg")}
+        confirmLabel={t("update")}
+        cancelLabel={t("cancel")}
         variant="warning"
       />
 
@@ -404,10 +406,10 @@ export default function SettingsPage() {
           setPendingRevokeTokenId(null);
         }}
         onConfirm={handleRevokeToken}
-        title="Revoke Token"
-        message="Are you sure you want to revoke this token?"
-        confirmLabel="Revoke"
-        cancelLabel="Cancel"
+        title={t("confirmRevokeToken")}
+        message={t("confirmRevokeTokenMsg")}
+        confirmLabel={t("revoke")}
+        cancelLabel={t("cancel")}
         variant="danger"
       />
 
@@ -415,10 +417,10 @@ export default function SettingsPage() {
         isOpen={showConfirmRevokeSessions}
         onClose={() => setShowConfirmRevokeSessions(false)}
         onConfirm={handleRevokeAllSessions}
-        title="Force Logout All Users"
-        message="Force logout all users from all devices? This action cannot be undone."
-        confirmLabel="Force Logout"
-        cancelLabel="Cancel"
+        title={t("confirmForceLogout")}
+        message={t("confirmForceLogoutMsg")}
+        confirmLabel={t("forceLogoutAll")}
+        cancelLabel={t("cancel")}
         variant="danger"
       />
     </div>

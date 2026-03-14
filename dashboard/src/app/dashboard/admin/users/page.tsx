@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal, ModalHeader, ModalTitle, ModalContent, ModalFooter } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
+import { useTranslations } from "next-intl";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { extractApiError } from "@/lib/utils";
 import { API_ENDPOINTS } from "@/lib/api-endpoints";
@@ -34,6 +35,7 @@ export default function AdminUsersPage() {
   
   const { showToast } = useToast();
   const router = useRouter();
+  const t = useTranslations("adminUsers");
 
   const fetchUsers = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
@@ -47,7 +49,7 @@ export default function AdminUsersPage() {
       }
 
       if (res.status === 403) {
-        showToast("Admin access required", "error");
+        showToast(t("adminRequired"), "error");
         router.push("/dashboard");
         return;
       }
@@ -83,17 +85,17 @@ export default function AdminUsersPage() {
 
   const handleCreateUser = async () => {
     if (password !== confirmPassword) {
-      showToast("Passwords do not match", "error");
+      showToast(t("passwordMismatch"), "error");
       return;
     }
 
     if (password.length < 8) {
-      showToast("Password must be at least 8 characters", "error");
+      showToast(t("passwordTooShort"), "error");
       return;
     }
 
     if (!username.trim()) {
-      showToast("Username is required", "error");
+      showToast(t("usernameRequired"), "error");
       return;
     }
 
@@ -108,12 +110,12 @@ export default function AdminUsersPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        showToast(extractApiError(data, "Failed to create user"), "error");
+        showToast(extractApiError(data, t("failedCreate")), "error");
         setCreating(false);
         return;
       }
 
-      showToast("User created successfully", "success");
+      showToast(t("userCreated"), "success");
       setIsModalOpen(false);
       setUsername("");
       setPassword("");
@@ -122,7 +124,7 @@ export default function AdminUsersPage() {
       setCreating(false);
       fetchUsers();
     } catch {
-      showToast("Network error", "error");
+      showToast(t("networkError"), "error");
       setCreating(false);
     }
   };
@@ -153,35 +155,35 @@ export default function AdminUsersPage() {
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-100">User Management</h1>
-            <p className="mt-1 text-xs text-slate-400">Manage dashboard users and roles.</p>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
+            <p className="mt-1 text-xs text-slate-400">{t("description")}</p>
           </div>
-          <Button onClick={() => setIsModalOpen(true)} className="px-2.5 py-1 text-xs">Create User</Button>
+          <Button onClick={() => setIsModalOpen(true)} className="px-2.5 py-1 text-xs">{t("createUser")}</Button>
         </div>
       </section>
 
       {loading ? (
-        <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-6 text-center text-sm text-slate-400">Loading...</div>
+        <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-6 text-center text-sm text-slate-400">{t("loading")}</div>
       ) : fetchError ? (
         <div className="rounded-md border border-rose-500/40 bg-rose-500/10 p-4 text-center text-sm text-rose-200">
-          Failed to load users.
+          {t("failedLoad")}
           <button type="button" onClick={() => void fetchUsers()} className="ml-2 font-medium text-rose-100 underline underline-offset-2 hover:text-white">
-            Retry
+            {t("retry")}
           </button>
         </div>
       ) : users.length === 0 ? (
         <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4 text-sm text-slate-400">
-          No users found. Create one to get started.
+          {t("noUsers")}
         </div>
       ) : (
         <section className="overflow-x-auto rounded-lg border border-slate-700/70 bg-slate-900/40">
           <table className="min-w-[600px] w-full text-sm">
             <thead>
               <tr className="sticky top-0 z-10 border-b border-slate-700/70 bg-slate-900/95 backdrop-blur-sm">
-                <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Username</th>
-                <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Role</th>
-                <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Created</th>
-                <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">API Keys</th>
+                <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("username")}</th>
+                <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("role")}</th>
+                <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("created")}</th>
+                <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{t("apiKeys")}</th>
               </tr>
             </thead>
             <tbody>
@@ -190,7 +192,7 @@ export default function AdminUsersPage() {
                   <td className="px-3 py-2 text-xs font-medium text-slate-100">{user.username}</td>
                   <td className="px-3 py-2">
                     <span className={`inline-flex items-center rounded-sm border px-2 py-0.5 text-xs font-medium ${user.isAdmin ? "border-blue-500/40 bg-blue-500/10 text-blue-200" : "border-slate-600/70 bg-slate-700/40 text-slate-300"}`}>
-                      {user.isAdmin ? "Admin" : "User"}
+                      {user.isAdmin ? t("admin") : t("user")}
                     </span>
                   </td>
                   <td className="px-3 py-2 text-xs text-slate-400">{formatDate(user.createdAt)}</td>
@@ -204,13 +206,13 @@ export default function AdminUsersPage() {
 
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <ModalHeader>
-          <ModalTitle>Create New User</ModalTitle>
+          <ModalTitle>{t("createNewUser")}</ModalTitle>
         </ModalHeader>
         <ModalContent>
           <div className="space-y-4">
             <div>
               <label htmlFor="username" className="mb-2 block text-sm font-medium text-slate-300">
-                Username
+                {t("username")}
               </label>
               <Input
                 type="text"
@@ -219,13 +221,13 @@ export default function AdminUsersPage() {
                 onChange={setUsername}
                 required
                 autoComplete="username"
-                placeholder="Enter username"
+                placeholder={t("usernamePlaceholder")}
               />
             </div>
 
             <div>
               <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-300">
-                Password
+                {t("password")}
               </label>
               <Input
                 type="password"
@@ -234,13 +236,13 @@ export default function AdminUsersPage() {
                 onChange={setPassword}
                 required
                 autoComplete="new-password"
-                placeholder="Minimum 8 characters"
+                placeholder={t("minChars")}
               />
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-slate-300">
-                Confirm Password
+                {t("confirmPassword")}
               </label>
               <Input
                 type="password"
@@ -249,7 +251,7 @@ export default function AdminUsersPage() {
                 onChange={setConfirmPassword}
                 required
                 autoComplete="new-password"
-                placeholder="Re-enter password"
+                placeholder={t("reenterPassword")}
               />
             </div>
 
@@ -262,21 +264,21 @@ export default function AdminUsersPage() {
                   className="size-4 shrink-0 cursor-pointer rounded border-slate-600/70 bg-slate-900/40 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0"
                 />
                 <span className="text-sm font-medium text-slate-200 group-hover:text-slate-100 transition-colors">
-                  Grant admin privileges
+                  {t("grantAdmin")}
                 </span>
               </label>
               <p className="mt-1 ml-7 text-xs text-slate-500">
-                Admins can manage users and access all system features
+                {t("adminDesc")}
               </p>
             </div>
           </div>
         </ModalContent>
         <ModalFooter>
           <Button variant="secondary" onClick={handleCloseModal} disabled={creating}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button onClick={handleCreateUser} disabled={creating}>
-            {creating ? "Creating..." : "Create User"}
+            {creating ? t("creating") : t("createUser")}
           </Button>
         </ModalFooter>
       </Modal>

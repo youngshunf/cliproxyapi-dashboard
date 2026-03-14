@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle } from "@/components/ui/modal";
@@ -46,23 +47,23 @@ export interface ProviderState {
 export const PROVIDERS = [
   {
     id: PROVIDER_IDS.CLAUDE,
-    name: "Claude (Anthropic)",
-    description: "Official Anthropic API",
+    nameKey: "providers.claude.name",
+    descriptionKey: "providers.claude.description",
   },
   {
     id: PROVIDER_IDS.GEMINI,
-    name: "Gemini (Google)",
-    description: "Google Gemini API",
+    nameKey: "providers.gemini.name",
+    descriptionKey: "providers.gemini.description",
   },
   {
     id: PROVIDER_IDS.CODEX,
-    name: "OpenAI / Codex",
-    description: "OpenAI API including GPT models",
+    nameKey: "providers.codex.name",
+    descriptionKey: "providers.codex.description",
   },
   {
     id: PROVIDER_IDS.OPENAI,
-    name: "OpenAI Compatible",
-    description: "Custom providers like OpenRouter",
+    nameKey: "providers.openai.name",
+    descriptionKey: "providers.openai.description",
   },
 ] as const;
 
@@ -71,10 +72,12 @@ export const API_KEY_PROVIDERS = PROVIDERS.filter(
 );
 
 export function OwnerBadge({ ownerUsername, isOwn }: OwnerBadgeProps) {
+  const t = useTranslations("providers.apiKeySection");
+
   if (isOwn) {
     return (
       <span className="inline-flex items-center rounded-sm border border-blue-400/50 bg-blue-500/10 px-2 py-0.5 text-[11px] font-medium text-blue-200">
-        You
+        {t("owner.you")}
       </span>
     );
   }
@@ -89,7 +92,7 @@ export function OwnerBadge({ ownerUsername, isOwn }: OwnerBadgeProps) {
 
   return (
     <span className="inline-flex items-center rounded-sm border border-slate-700/70 bg-slate-800/40 px-2 py-0.5 text-[11px] font-medium text-slate-400">
-      Team
+      {t("owner.team")}
     </span>
   );
 }
@@ -109,11 +112,16 @@ export function ApiKeySection({
   maxKeysPerUser,
   refreshProviders,
 }: ApiKeySectionProps) {
+  const t = useTranslations("providers.apiKeySection");
+  const common = useTranslations("common");
   const [modalProvider, setModalProvider] = useState<ProviderId | null>(null);
   const [apiKey, setApiKey] = useState("");
   const [saving, setSaving] = useState(false);
   const [showConfirmKeyDelete, setShowConfirmKeyDelete] = useState(false);
   const [pendingKeyDelete, setPendingKeyDelete] = useState<{ keyHash: string; provider: string } | null>(null);
+  const modalProviderName = modalProvider
+    ? t(PROVIDERS.find((p) => p.id === modalProvider)!.nameKey)
+    : "";
 
   const resetForm = () => {
     setApiKey("");
@@ -132,7 +140,7 @@ export function ApiKeySection({
   const handleAddKey = async () => {
     if (!modalProvider) return;
     if (!apiKey.trim()) {
-      showToast("API key is required", "error");
+      showToast(t("errors.apiKeyRequired"), "error");
       return;
     }
 
@@ -151,9 +159,9 @@ export function ApiKeySection({
       const data = await res.json();
 
       if (!res.ok) {
-        const errorMessage = data.error?.message ?? data.error ?? "Failed to add provider key";
+        const errorMessage = data.error?.message ?? data.error ?? t("errors.addFailed");
         if (res.status === 409) {
-          showToast("This API key has already been contributed", "error");
+          showToast(t("errors.duplicateKey"), "error");
         } else if (res.status === 403) {
           showToast(errorMessage, "error");
         } else {
@@ -163,11 +171,11 @@ export function ApiKeySection({
         return;
       }
 
-      showToast("Provider key added successfully", "success");
+      showToast(t("success.added"), "success");
       closeModal();
       await refreshProviders();
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
     } finally {
       setSaving(false);
     }
@@ -188,13 +196,13 @@ export function ApiKeySection({
       });
       if (!res.ok) {
         const data = await res.json();
-        showToast(data.error?.message ?? data.error ?? "Failed to delete provider key", "error");
+        showToast(data.error?.message ?? data.error ?? t("errors.deleteFailed"), "error");
         return;
       }
-      showToast("Provider key deleted", "success");
+      showToast(t("success.deleted"), "success");
       await refreshProviders();
     } catch {
-      showToast("Network error", "error");
+      showToast(common("networkError"), "error");
     }
   };
 
@@ -209,19 +217,19 @@ export function ApiKeySection({
       <section id="provider-api-keys" className="space-y-3 rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-slate-100">API Key Providers</h2>
-            <p className="text-xs text-slate-400">Direct provider access keys</p>
+            <h2 className="text-sm font-semibold text-slate-100">{t("title")}</h2>
+            <p className="text-xs text-slate-400">{t("subtitle")}</p>
           </div>
-          <span className="text-xs font-medium text-slate-400">{totalApiKeys} keys total</span>
+          <span className="text-xs font-medium text-slate-400">{t("totalKeys", { count: totalApiKeys })}</span>
         </div>
 
         <div className="overflow-x-auto">
           <div className="min-w-[600px] overflow-hidden rounded-md border border-slate-700/70 bg-slate-900/20">
             <div className="grid grid-cols-[minmax(0,1.6fr)_96px_120px_128px] items-center border-b border-slate-700/70 bg-slate-900/60 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">
-              <span>Provider</span>
-              <span>Status</span>
-              <span>Keys</span>
-              <span>Actions</span>
+              <span>{t("table.provider")}</span>
+              <span>{t("table.status")}</span>
+              <span>{t("table.keys")}</span>
+              <span>{t("table.actions")}</span>
             </div>
             {API_KEY_PROVIDERS.map((provider) => {
               const config = configs[provider.id];
@@ -233,14 +241,14 @@ export function ApiKeySection({
                 <div key={provider.id} className="border-b border-slate-700/70 last:border-b-0">
                   <div className="grid grid-cols-[minmax(0,1.6fr)_96px_120px_128px] items-center gap-3 px-4 py-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-slate-100">{provider.name}</p>
-                      <p className="truncate text-xs text-slate-400">{provider.description}</p>
+                      <p className="truncate text-sm font-medium text-slate-100">{t(provider.nameKey)}</p>
+                      <p className="truncate text-xs text-slate-400">{t(provider.descriptionKey)}</p>
                     </div>
                     <span className={`text-xs font-medium ${isConfigured ? "text-emerald-300" : "text-slate-400"}`}>
-                      {isConfigured ? "Active" : "Inactive"}
+                      {isConfigured ? t("status.active") : t("status.inactive")}
                     </span>
                     <span className="text-xs text-slate-300">
-                      {configuredCount} {configuredCount === 1 ? "key" : "keys"}
+                      {t("keysCount", { count: configuredCount })}
                     </span>
                     <div className="flex justify-end">
                       <Button
@@ -248,14 +256,14 @@ export function ApiKeySection({
                         className="px-2.5 py-1 text-xs"
                         disabled={!currentUser}
                       >
-                        Add Key
+                        {t("actions.addKey")}
                       </Button>
                     </div>
                   </div>
 
                   <div className="px-4 pb-3">
                     {configuredCount === 0 ? (
-                      <p className="text-xs text-slate-500">No API keys configured.</p>
+                      <p className="text-xs text-slate-500">{t("empty")}</p>
                     ) : (
                       <div className="overflow-hidden rounded-sm border border-slate-700/60">
                         {config.keys.map((keyInfo) => (
@@ -279,7 +287,7 @@ export function ApiKeySection({
                                   className="px-2 py-1 text-[11px]"
                                   onClick={() => confirmDeleteKey(keyInfo.keyHash, provider.id)}
                                 >
-                                  Remove
+                                  {t("actions.remove")}
                                 </Button>
                               )}
                             </div>
@@ -298,14 +306,14 @@ export function ApiKeySection({
       <Modal isOpen={modalProvider !== null} onClose={closeModal}>
         <ModalHeader>
           <ModalTitle>
-            {modalProvider && PROVIDERS.find((p) => p.id === modalProvider)?.name} - Add API Key
+            {modalProvider ? t("modal.title", { provider: modalProviderName }) : ""}
           </ModalTitle>
         </ModalHeader>
         <ModalContent>
           <div className="space-y-4">
             <div>
               <label htmlFor="api-key" className="mb-2 block text-sm font-semibold text-white">
-                API Key <span className="text-red-400">*</span>
+                {t("modal.label")} <span className="text-red-400">*</span>
               </label>
               <Input
                 type="password"
@@ -316,12 +324,20 @@ export function ApiKeySection({
                 required
                 disabled={saving}
               />
-              <p className="mt-1.5 text-xs text-white/50">Your API key will be stored securely and associated with your account</p>
+              <p className="mt-1.5 text-xs text-white/50">{t("modal.helper")}</p>
             </div>
             {currentUser && (
               <div className="rounded-sm border-l-4 border-blue-400/60 bg-blue-500/10 p-3 text-sm">
                 <p className="text-white/90">
-                  <strong>Usage:</strong> You have contributed {currentUser ? configs[PROVIDER_IDS.CLAUDE].keys.filter((k) => k.isOwn).length + configs[PROVIDER_IDS.GEMINI].keys.filter((k) => k.isOwn).length + configs[PROVIDER_IDS.CODEX].keys.filter((k) => k.isOwn).length + configs[PROVIDER_IDS.OPENAI].keys.filter((k) => k.isOwn).length : 0} / {maxKeysPerUser} keys total
+                  {t("modal.usage", {
+                    count: currentUser
+                      ? configs[PROVIDER_IDS.CLAUDE].keys.filter((k) => k.isOwn).length +
+                        configs[PROVIDER_IDS.GEMINI].keys.filter((k) => k.isOwn).length +
+                        configs[PROVIDER_IDS.CODEX].keys.filter((k) => k.isOwn).length +
+                        configs[PROVIDER_IDS.OPENAI].keys.filter((k) => k.isOwn).length
+                      : 0,
+                    max: maxKeysPerUser,
+                  })}
                 </p>
               </div>
             )}
@@ -329,10 +345,10 @@ export function ApiKeySection({
         </ModalContent>
         <ModalFooter>
           <Button variant="ghost" onClick={closeModal}>
-            Cancel
+            {common("cancel")}
           </Button>
           <Button onClick={handleAddKey} disabled={saving}>
-            {saving ? "Adding..." : "Add API Key"}
+            {saving ? t("modal.adding") : t("modal.add")}
           </Button>
         </ModalFooter>
       </Modal>
@@ -344,10 +360,10 @@ export function ApiKeySection({
           setPendingKeyDelete(null);
         }}
         onConfirm={handleDeleteKey}
-        title="Remove API Key"
-        message="Are you sure you want to remove this key?"
-        confirmLabel="Remove"
-        cancelLabel="Cancel"
+        title={t("confirm.title")}
+        message={t("confirm.message")}
+        confirmLabel={t("confirm.confirmLabel")}
+        cancelLabel={common("cancel")}
         variant="danger"
       />
     </>

@@ -5,6 +5,11 @@ import { execFile } from "child_process";
 import { promisify } from "util";
 import { logger } from "@/lib/logger";
 import { updateCheckCache, CACHE_TTL } from "@/lib/cache";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 const execFileAsync = promisify(execFile);
 
@@ -111,7 +116,7 @@ export async function GET() {
 
   if (!session) {
     return NextResponse.json(
-      { error: "Unauthorized" },
+      { error: t("errors.auth.unauthorized") },
       { status: 401 }
     );
   }
@@ -123,7 +128,7 @@ export async function GET() {
 
   if (!user?.isAdmin) {
     return NextResponse.json(
-      { error: "Forbidden: Admin access required" },
+      { error: t("errors.auth.adminRequired") },
       { status: 403 }
     );
   }
@@ -185,7 +190,7 @@ export async function GET() {
   } catch (error) {
     logger.error({ err: error }, "Update check error");
     return NextResponse.json(
-      { error: "Failed to check for updates" },
+      { error: t("errors.generic.checkFailed", { resource: t("resources.update") }) },
       { status: 500 }
     );
   }

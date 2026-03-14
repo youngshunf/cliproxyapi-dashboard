@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { useTranslations } from "next-intl";
 import { TimeFilter } from "@/components/usage/time-filter";
 import { UsageCharts } from "@/components/usage/usage-charts";
 import { UsageTable } from "@/components/usage/usage-table";
@@ -123,6 +124,7 @@ export default function UsagePage() {
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
   const { showToast } = useToast();
+  const t = useTranslations("usage");
   const isFirstLoadRef = useRef(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -139,7 +141,7 @@ export default function UsagePage() {
         const res = await fetch(`/api/usage/history?from=${from}&to=${to}`, { signal: abortController.signal });
 
         if (!res.ok) {
-          showToast("Failed to load usage data", "error");
+          showToast(t("failedLoad"), "error");
           setLoading(false);
           return;
         }
@@ -152,7 +154,7 @@ export default function UsagePage() {
         setLoading(false);
       } catch {
         if (abortController.signal.aborted) return;
-        showToast("Network error", "error");
+        showToast(t("networkError"), "error");
         setLoading(false);
       }
     }
@@ -202,7 +204,7 @@ export default function UsagePage() {
       const res = await fetch(`/api/usage/history?from=${from}&to=${to}`);
 
       if (!res.ok) {
-        showToast("Failed to load usage data", "error");
+        showToast(t("failedLoad"), "error");
         setLoading(false);
         return;
       }
@@ -212,7 +214,7 @@ export default function UsagePage() {
       setIsAdmin(json.isAdmin);
       setLoading(false);
     } catch {
-      showToast("Network error", "error");
+      showToast(t("networkError"), "error");
       setLoading(false);
     }
   };
@@ -226,14 +228,14 @@ export default function UsagePage() {
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-100">Usage Statistics</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
             <div className="mt-1 flex items-center gap-2">
               <div className={`h-2 w-2 rounded-full ${collectorStatusColor}`}></div>
-              <p className="text-xs text-slate-400">Last synced: {collectorTimeAgo}</p>
+              <p className="text-xs text-slate-400">{t("lastSynced", { time: collectorTimeAgo })}</p>
             </div>
           </div>
           <Button onClick={handleRefresh} disabled={loading}>
-            Refresh
+            {t("refresh")}
           </Button>
         </div>
       </section>
@@ -250,29 +252,29 @@ export default function UsagePage() {
 
       {loading ? (
         <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-6 text-center text-sm text-slate-400">
-          Loading statistics...
+          {t("loadingStats")}
         </div>
       ) : !usageData ? (
         <div className="rounded-md border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
-          Unable to load usage statistics
+          {t("unableToLoad")}
         </div>
       ) : (
         <>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2">
             <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Total Requests</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("totalRequests")}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-100">{usageData.totals.totalRequests.toLocaleString()}</p>
             </div>
             <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Successful</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("successful")}</p>
               <p className="mt-0.5 text-xs font-semibold text-emerald-300">{usageData.totals.successCount.toLocaleString()}</p>
             </div>
             <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Failed</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("failed")}</p>
               <p className="mt-0.5 text-xs font-semibold text-rose-300">{usageData.totals.failureCount.toLocaleString()}</p>
             </div>
             <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Total Tokens</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("totalTokens")}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-100">{usageData.totals.totalTokens.toLocaleString()}</p>
             </div>
           </div>
@@ -280,15 +282,15 @@ export default function UsagePage() {
           {hasInputOutputBreakdown && (
             <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2">
               <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-2.5 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Input Tokens</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("inputTokens")}</p>
                 <p className="mt-0.5 text-xs font-semibold text-slate-100">{usageData.totals.inputTokens.toLocaleString()}</p>
               </div>
               <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-2.5 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Output Tokens</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("outputTokens")}</p>
                 <p className="mt-0.5 text-xs font-semibold text-slate-100">{usageData.totals.outputTokens.toLocaleString()}</p>
               </div>
               <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-2.5 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Total Tokens</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("totalTokens")}</p>
                 <p className="mt-0.5 text-xs font-semibold text-slate-100">{usageData.totals.totalTokens.toLocaleString()}</p>
               </div>
             </div>

@@ -48,7 +48,7 @@ export async function PUT(request: NextRequest) {
     const uniqueProviderIds = new Set(validated.providerIds);
 
     if (uniqueProviderIds.size !== validated.providerIds.length) {
-      return Errors.validation("providerIds must not contain duplicates");
+      return Errors.validation("errors.validation.duplicateProviderIds");
     }
 
     const providers = await prisma.customProvider.findMany({
@@ -63,7 +63,7 @@ export async function PUT(request: NextRequest) {
     });
 
     if (providers.length !== validated.providerIds.length) {
-      return Errors.validation("One or more providers do not belong to the current user");
+      return Errors.validation("errors.validation.providersNotOwned");
     }
 
     await prisma.$transaction(

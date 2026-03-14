@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { API_ENDPOINTS } from "@/lib/api-endpoints";
@@ -131,6 +132,7 @@ function stripOAuthIds(cfg: Config): Config {
 }
 
 export default function ConfigPage() {
+  const t = useTranslations("config");
   const [config, setConfig] = useState<Config | null>(null);
   const [originalConfig, setOriginalConfig] = useState<Config | null>(null);
   const [rawJson, setRawJson] = useState("");
@@ -146,7 +148,7 @@ export default function ConfigPage() {
     try {
       const res = await fetch(API_ENDPOINTS.MANAGEMENT.CONFIG);
       if (!res.ok) {
-        showToast("Failed to load configuration", "error");
+        showToast(t("failedLoad"), "error");
         setLoading(false);
         return;
       }
@@ -161,7 +163,7 @@ export default function ConfigPage() {
       setRawJson(JSON.stringify(data, null, 2));
       setLoading(false);
     } catch {
-      showToast("Network error", "error");
+      showToast(t("networkError"), "error");
       setLoading(false);
     }
   }, [showToast]);
@@ -190,17 +192,17 @@ export default function ConfigPage() {
       });
 
       if (!res.ok) {
-        showToast("Failed to save configuration", "error");
+        showToast(t("failedSave"), "error");
         setSaving(false);
         return;
       }
 
-      showToast("Configuration saved successfully", "success");
+      showToast(t("savedSuccess"), "success");
       setOriginalConfig(config);
       setRawJson(JSON.stringify(stripOAuthIds(config), null, 2));
       setSaving(false);
     } catch {
-      showToast("Failed to save configuration", "error");
+      showToast(t("failedSave"), "error");
       setSaving(false);
     }
   };
@@ -209,7 +211,7 @@ export default function ConfigPage() {
     if (originalConfig) {
       setConfig(originalConfig);
       setRawJson(JSON.stringify(stripOAuthIds(originalConfig), null, 2));
-      showToast("Changes discarded", "info");
+      showToast(t("discarded"), "info");
     }
   };
 
@@ -320,13 +322,13 @@ export default function ConfigPage() {
     return (
       <div className="space-y-4">
         <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-100">Configuration</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
         </section>
         <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-6">
           <div className="flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <div className="size-8 animate-spin rounded-full border-4 border-white/20 border-t-blue-500"></div>
-              <p className="text-slate-400">Loading configuration...</p>
+              <p className="text-slate-400">{t("loadingConfig")}</p>
             </div>
           </div>
         </div>
@@ -338,12 +340,12 @@ export default function ConfigPage() {
     return (
       <div className="space-y-4">
         <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-100">Configuration</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
         </section>
         <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4 text-center">
-          <p className="text-slate-300">Failed to load configuration</p>
+          <p className="text-slate-300">{t("failedLoad")}</p>
           <Button onClick={fetchConfig} className="mt-4 px-2.5 py-1 text-xs">
-            Retry
+            {t("retry")}
           </Button>
         </div>
       </div>
@@ -355,9 +357,9 @@ export default function ConfigPage() {
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-100">Configuration</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
             <p className="mt-1 text-sm text-slate-400">
-              Configure system settings, streaming, retry behavior, and logging.
+              {t("description")}
             </p>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
@@ -365,24 +367,24 @@ export default function ConfigPage() {
             <>
               <span className="flex items-center gap-2 rounded-sm border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-300">
                 <span className="size-1.5 rounded-full bg-amber-400"></span>
-                Unsaved changes
+                {t("unsavedChanges")}
               </span>
               <Button variant="ghost" onClick={handleDiscard} disabled={saving} className="px-2.5 py-1 text-xs">
-                Discard Changes
+                {t("discardChanges")}
               </Button>
             </>
           )}
           <Button onClick={handleSave} disabled={saving || !hasUnsavedChanges} className="px-2.5 py-1 text-xs">
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? t("saving") : t("saveChanges")}
           </Button>
           </div>
         </div>
       </section>
 
       <div className="rounded-sm border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-200">
-        <strong>Warning:</strong>{" "}
+        <strong>{t("warning")}:</strong>{" "}
         <span>
-          Invalid configuration may prevent the service from starting. Review changes carefully before saving.
+          {t("warningInvalid")}
         </span>
       </div>
 
@@ -407,8 +409,7 @@ export default function ConfigPage() {
       <ConfigPreview rawJson={rawJson} />
 
       <div className="rounded-sm border border-slate-700/70 bg-slate-900/25 p-4 text-xs text-slate-400">
-        <strong>TIP:</strong> Changes are saved immediately to the management API. The service may need to be
-        restarted for some configuration changes to take effect.
+        <strong>TIP:</strong> {t("tip")}
       </div>
     </div>
   );

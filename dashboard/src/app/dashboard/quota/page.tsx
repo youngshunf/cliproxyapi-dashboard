@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { HelpTooltip } from "@/components/ui/tooltip";
 import { API_ENDPOINTS } from "@/lib/api-endpoints";
 import { QuotaChart } from "@/components/quota/quota-chart";
@@ -203,6 +204,7 @@ function calcOverallCapacity(summaries: ProviderSummary[]): { value: number; lab
 }
 
 export default function QuotaPage() {
+  const t = useTranslations("quota");
   const [quotaData, setQuotaData] = useState<QuotaResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedProvider, setSelectedProvider] = useState<ProviderType>(PROVIDERS.ALL);
@@ -278,8 +280,8 @@ export default function QuotaPage() {
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-100">Quota</h1>
-            <p className="mt-1 text-sm text-slate-400">Monitor OAuth account quotas and usage windows.</p>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
+            <p className="mt-1 text-sm text-slate-400">{t("description")}</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <div className="flex flex-wrap gap-1">
@@ -302,7 +304,7 @@ export default function QuotaPage() {
               ))}
             </div>
             <Button onClick={fetchQuota} disabled={loading} className="px-2.5 py-1 text-xs">
-              {loading ? "Loading..." : "Refresh"}
+              {loading ? t("loading") : t("refresh")}
             </Button>
           </div>
         </div>
@@ -310,17 +312,17 @@ export default function QuotaPage() {
 
       {loading && !quotaData ? (
         <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-6 text-center text-sm text-slate-400">
-          Loading quota data...
+          {t("loadingQuota")}
         </div>
       ) : (
         <>
           <section className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Active Accounts</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("activeAccounts")}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-100">{activeAccounts}</p>
             </div>
             <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">Overall Capacity <HelpTooltip content="Weighted average of remaining quota across all active provider accounts" /></p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">{t("overallCapacity")} <HelpTooltip content="Weighted average of remaining quota across all active provider accounts" /></p>
               <p className="mt-0.5 text-xs font-semibold text-slate-100">{Math.round(overallCapacity.value * 100)}%</p>
             </div>
             <div className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-2.5 py-2">

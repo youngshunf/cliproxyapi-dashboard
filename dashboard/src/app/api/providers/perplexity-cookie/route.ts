@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
     const body: unknown = await request.json();
 
     if (!body || typeof body !== "object" || Array.isArray(body)) {
-      return Errors.validation("Invalid request body");
+      return Errors.validation("errors.validation.invalidRequestBody");
     }
 
     const { cookieData, label } = body as Record<string, unknown>;
@@ -191,7 +191,9 @@ export async function POST(request: NextRequest) {
 
     const cookieValidation = isValidCookieJson(cookieData);
     if (!cookieValidation.valid) {
-      return Errors.validation(`Invalid cookie data: ${cookieValidation.error}`);
+      return Errors.validation("errors.validation.invalidCookieData", undefined, {
+        error: String(cookieValidation.error),
+      });
     }
 
     await prisma.perplexityCookie.updateMany({
@@ -245,7 +247,7 @@ export async function DELETE(request: NextRequest) {
     const body: unknown = await request.json();
 
     if (!body || typeof body !== "object" || Array.isArray(body)) {
-      return Errors.validation("Invalid request body");
+      return Errors.validation("errors.validation.invalidRequestBody");
     }
 
     const { id } = body as Record<string, unknown>;
@@ -259,7 +261,7 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!existing) {
-      return Errors.notFound("Perplexity cookie");
+      return Errors.notFound("errors.resource.perplexityCookieNotFound");
     }
 
     await prisma.perplexityCookie.delete({ where: { id } });

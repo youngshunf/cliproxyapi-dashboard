@@ -3,6 +3,11 @@ import { verifySession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { updateCheckCache, CACHE_TTL } from "@/lib/cache";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 const GITHUB_REPO = process.env.GITHUB_REPO || "itsmylife44/cliproxyapi-dashboard";
 const DASHBOARD_VERSION = process.env.DASHBOARD_VERSION || "dev";
@@ -72,7 +77,7 @@ export async function GET() {
 
   if (!session) {
     return NextResponse.json(
-      { error: "Unauthorized" },
+      { error: t("errors.auth.unauthorized") },
       { status: 401 }
     );
   }
@@ -84,7 +89,7 @@ export async function GET() {
 
   if (!user?.isAdmin) {
     return NextResponse.json(
-      { error: "Forbidden: Admin access required" },
+      { error: t("errors.auth.adminRequired") },
       { status: 403 }
     );
   }
@@ -112,7 +117,7 @@ export async function GET() {
   } catch (error) {
     logger.error({ err: error }, "Update check error");
     return NextResponse.json(
-      { error: "Failed to check for updates" },
+      { error: t("errors.generic.checkFailed", { resource: t("resources.update") }) },
       { status: 500 }
     );
   }

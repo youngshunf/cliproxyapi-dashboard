@@ -30,7 +30,7 @@ export async function PUT(request: NextRequest) {
     });
 
     if (groups.length !== validated.groupIds.length) {
-      return Errors.validation("One or more provider groups do not belong to the current user");
+      return Errors.validation("errors.validation.providerGroupsNotOwned");
     }
 
     await prisma.$transaction(

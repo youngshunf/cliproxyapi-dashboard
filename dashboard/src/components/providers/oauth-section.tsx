@@ -12,6 +12,7 @@ import type { CurrentUserLike } from "@/components/providers/api-key-section";
 import { OAuthCredentialList, type OAuthAccountWithOwnership } from "@/components/providers/oauth-credential-list";
 import { OAuthImportForm } from "@/components/providers/oauth-import-form";
 import { OAuthActions } from "@/components/providers/oauth-actions";
+import { useTranslations } from "next-intl";
 
 type ShowToast = ReturnType<typeof useToast>["showToast"];
 
@@ -145,7 +146,7 @@ function isTabVisible(): boolean {
 
 const validateCallbackUrl = (value: string) => {
   if (!value.trim()) {
-    return { status: CALLBACK_VALIDATION.EMPTY, message: "Paste the full URL." };
+    return { status: CALLBACK_VALIDATION.EMPTY, messageKey: "pasteFull" };
   }
 
   let parsedUrl: URL;
@@ -154,7 +155,7 @@ const validateCallbackUrl = (value: string) => {
   } catch {
     return {
       status: CALLBACK_VALIDATION.INVALID,
-      message: "That doesn't look like a valid URL.",
+      messageKey: "invalidUrl",
     };
   }
 
@@ -164,13 +165,13 @@ const validateCallbackUrl = (value: string) => {
   if (!code || !state) {
     return {
       status: CALLBACK_VALIDATION.INVALID,
-      message: "URL must include both code and state parameters.",
+      messageKey: "missingParams",
     };
   }
 
   return {
     status: CALLBACK_VALIDATION.VALID,
-    message: "Callback URL looks good. Ready to submit.",
+    messageKey: "ready",
   };
 };
 
@@ -180,13 +181,14 @@ export function OAuthSection({
   refreshProviders,
   onAccountCountChange,
 }: OAuthSectionProps) {
+  const t = useTranslations("providers.oauthSection");
   const [isOAuthModalOpen, setIsOAuthModalOpen] = useState(false);
   const [oauthModalStatus, setOauthModalStatus] = useState<ModalStatus>(MODAL_STATUS.IDLE);
   const [selectedOAuthProviderId, setSelectedOAuthProviderId] = useState<OAuthProviderId | null>(null);
   const [authState, setAuthState] = useState<string | null>(null);
   const [callbackUrl, setCallbackUrl] = useState("");
   const [callbackValidation, setCallbackValidation] = useState<CallbackValidation>(CALLBACK_VALIDATION.EMPTY);
-  const [callbackMessage, setCallbackMessage] = useState("Paste the full URL.");
+  const [callbackMessage, setCallbackMessage] = useState("pasteFull");
   const [oauthErrorMessage, setOauthErrorMessage] = useState<string | null>(null);
   const pollingIntervalRef = useRef<number | null>(null);
   const pollingAttemptsRef = useRef(0);
@@ -232,7 +234,7 @@ export function OAuthSection({
     try {
       const res = await fetch(API_ENDPOINTS.PROVIDERS.OAUTH);
       if (!res.ok) {
-        showToast("Failed to load OAuth accounts", "error");
+        showToast(t("errors.loadAccounts"), "error");
         setOauthAccountsLoading(false);
         return;
       }
@@ -245,7 +247,7 @@ export function OAuthSection({
     } catch {
       setOauthAccountsLoading(false);
       showToast("Network error", "error");
-      setOauthErrorMessage("Network error while loading accounts.");
+      setOauthErrorMessage(t("errors.loadAccountsNetwork"));
     }
   }, [onAccountCountChange, showToast]);
 
@@ -259,9 +261,9 @@ export function OAuthSection({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        showToast(extractApiError(data, "Failed to update account"), "error");
+        showToast(extractApiError(data, t("errors.updateAccount")), "error");
       } else {
-        showToast(`OAuth account ${!currentlyDisabled ? "disabled" : "enabled"}`, "success");
+        showToast(!currentlyDisabled ? t("success.disabled") : t("success.enabled"), "success");
         await loadAccounts();
         await refreshProviders();
       }
@@ -291,7 +293,7 @@ export function OAuthSection({
       if (pollingAttemptsRef.current > 60) {
         stopPolling();
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("Timed out waiting for authorization.");
+        setOauthErrorMessage(t("errors.timeout"));
         return;
       }
 
@@ -302,7 +304,7 @@ export function OAuthSection({
         if (!res.ok) {
           stopPolling();
           setOauthModalStatus(MODAL_STATUS.ERROR);
-          setOauthErrorMessage("Failed to check authorization status.");
+          setOauthErrorMessage(t("errors.statusCheckFailed"));
           return;
         }
 
@@ -326,7 +328,7 @@ export function OAuthSection({
         if (data.status === "ok") {
           stopPolling();
           setOauthModalStatus(MODAL_STATUS.SUCCESS);
-          showToast("OAuth account connected", "success");
+          showToast(t("success.connected"), "success");
           await refreshProviders();
           void loadAccounts();
           return;
@@ -335,13 +337,13 @@ export function OAuthSection({
         if (data.status === "error") {
           stopPolling();
           setOauthModalStatus(MODAL_STATUS.ERROR);
-          setOauthErrorMessage(extractApiError(data, "OAuth authorization failed."));
+          setOauthErrorMessage(extractApiError(data, t("errors.authorizationFailed")));
           return;
         }
       } catch {
         stopPolling();
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("Network error while polling authorization.");
+        setOauthErrorMessage(t("errors.pollNetwork"));
       }
     }, isTabVisible() ? OAUTH_STATUS_POLL_INTERVAL_MS : OAUTH_STATUS_POLL_INTERVAL_HIDDEN_MS);
   };
@@ -356,7 +358,7 @@ export function OAuthSection({
     setAuthState(null);
     setCallbackUrl("");
     setCallbackValidation(CALLBACK_VALIDATION.EMPTY);
-    setCallbackMessage("Paste the full URL.");
+    setCallbackMessage("pasteFull");
     setOauthErrorMessage(null);
     setDeviceCodeInfo(null);
     deviceCodePopupOpenedRef.current = false;
@@ -397,7 +399,7 @@ export function OAuthSection({
         stopNoCallbackClaimPolling();
         stopPolling();
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage(extractApiError(data, "Failed to complete OAuth ownership claim."));
+        setOauthErrorMessage(extractApiError(data, t("errors.ownershipClaimFailed")));
         return;
       }
 
@@ -429,20 +431,20 @@ export function OAuthSection({
     setOauthErrorMessage(null);
     setCallbackUrl("");
     setCallbackValidation(CALLBACK_VALIDATION.EMPTY);
-    setCallbackMessage("Paste the full URL.");
+    setCallbackMessage("pasteFull");
 
     try {
       const res = await fetch(provider.authEndpoint);
       if (!res.ok) {
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("Failed to start OAuth flow.");
+        setOauthErrorMessage(t("errors.startFailed"));
         return;
       }
 
       const data: AuthUrlResponse = await res.json();
       if (!data.state) {
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("OAuth response missing state.");
+        setOauthErrorMessage(t("errors.missingState"));
         return;
       }
 
@@ -451,8 +453,8 @@ export function OAuthSection({
         setAuthState(data.state);
         setOauthModalStatus(MODAL_STATUS.POLLING);
         setCallbackValidation(CALLBACK_VALIDATION.VALID);
-        setCallbackMessage("Waiting for device authorization details...");
-        showToast("Initializing device authorization flow...", "info");
+        setCallbackMessage("deviceWaiting");
+        showToast(t("toast.deviceInit"), "info");
         pollAuthStatus(data.state);
         stopNoCallbackClaimPolling();
         void claimOAuthWithoutCallback(provider.id, data.state);
@@ -461,13 +463,13 @@ export function OAuthSection({
 
       if (!data.url) {
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("OAuth response missing URL.");
+        setOauthErrorMessage(t("errors.missingUrl"));
         return;
       }
       const popupOpened = openAuthPopup(data.url);
       if (!popupOpened) {
         setOauthModalStatus(MODAL_STATUS.ERROR);
-        setOauthErrorMessage("Popup blocked. Allow pop-ups and try again.");
+        setOauthErrorMessage(t("errors.popupBlocked"));
         return;
       }
       authStateRef.current = data.state;
@@ -475,13 +477,13 @@ export function OAuthSection({
       if (provider.requiresCallback) {
         setOauthModalStatus(MODAL_STATUS.WAITING);
         setCallbackValidation(CALLBACK_VALIDATION.EMPTY);
-        setCallbackMessage("Paste the full URL.");
-        showToast("OAuth window opened. Follow the steps below.", "info");
+        setCallbackMessage("pasteFull");
+        showToast(t("toast.windowOpenedWithCallback"), "info");
       } else {
         setOauthModalStatus(MODAL_STATUS.POLLING);
         setCallbackValidation(CALLBACK_VALIDATION.VALID);
-        setCallbackMessage("No callback URL needed. Complete sign-in in the popup window.");
-        showToast("OAuth window opened. Complete sign-in in the popup.", "info");
+        setCallbackMessage("noCallback");
+        showToast(t("toast.windowOpened"), "info");
         if (data.user_code && data.url) {
           setDeviceCodeInfo({
             verificationUrl: data.url,
@@ -496,7 +498,7 @@ export function OAuthSection({
       pollAuthStatus(data.state);
     } catch {
       setOauthModalStatus(MODAL_STATUS.ERROR);
-      setOauthErrorMessage("Network error while starting OAuth flow.");
+      setOauthErrorMessage(t("errors.startNetwork"));
     }
   };
 
@@ -504,7 +506,7 @@ export function OAuthSection({
     setCallbackUrl(value);
     const validation = validateCallbackUrl(value);
     setCallbackValidation(validation.status);
-    setCallbackMessage(validation.message);
+    setCallbackMessage(validation.messageKey);
   };
 
   const handleSubmitCallback = async () => {
@@ -513,14 +515,14 @@ export function OAuthSection({
     if (!currentProvider || !currentState) {
       console.warn("[OAuth] Submit failed - missing provider or state");
       setOauthModalStatus(MODAL_STATUS.ERROR);
-      setOauthErrorMessage("Missing provider or state. Please restart the flow.");
+      setOauthErrorMessage(t("errors.missingProviderState"));
       return;
     }
 
     const validation = validateCallbackUrl(callbackUrl);
     if (validation.status !== CALLBACK_VALIDATION.VALID) {
       setCallbackValidation(validation.status);
-      setCallbackMessage(validation.message);
+      setCallbackMessage(validation.messageKey);
       return;
     }
 
@@ -541,7 +543,7 @@ export function OAuthSection({
       if (!res.ok) {
         setOauthModalStatus(MODAL_STATUS.ERROR);
         setOauthErrorMessage(
-          extractApiError(data, "Failed to relay the OAuth callback URL.")
+          extractApiError(data, t("errors.callbackRelayFailed"))
         );
         return;
       }
@@ -551,7 +553,7 @@ export function OAuthSection({
       pollAuthStatus(currentState);
     } catch {
       setOauthModalStatus(MODAL_STATUS.ERROR);
-      setOauthErrorMessage("Network error while submitting callback URL.");
+      setOauthErrorMessage(t("errors.callbackNetwork"));
     }
   };
 
@@ -572,10 +574,10 @@ export function OAuthSection({
       });
       if (!res.ok) {
         const data = await res.json();
-        showToast(extractApiError(data, "Failed to remove OAuth account"), "error");
+        showToast(extractApiError(data, t("errors.removeFailed")), "error");
         return;
       }
-      showToast("OAuth account removed", "success");
+      showToast(t("success.removed"), "success");
       await refreshProviders();
       void loadAccounts();
     } catch {
@@ -608,7 +610,7 @@ export function OAuthSection({
     if (!file.name.endsWith(".json")) {
       setImportFileName("");
       setImportJsonContent("");
-      setImportErrorMessage("Please select a JSON file.");
+      setImportErrorMessage(t("import.notJson"));
       setImportStatus("error");
       return;
     }
@@ -616,7 +618,7 @@ export function OAuthSection({
     if (file.size > 1024 * 1024) {
       setImportFileName("");
       setImportJsonContent("");
-      setImportErrorMessage("File is too large (max 1MB).");
+      setImportErrorMessage(t("import.tooLarge"));
       setImportStatus("error");
       return;
     }
@@ -631,7 +633,7 @@ export function OAuthSection({
       }
     };
     reader.onerror = () => {
-      setImportErrorMessage("Failed to read file.");
+      setImportErrorMessage(t("import.readFailed"));
       setImportStatus("error");
     };
     reader.readAsText(file);
@@ -641,7 +643,7 @@ export function OAuthSection({
     try {
       const parsed = JSON.parse(content);
       if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-        setImportErrorMessage("File must contain a JSON object, not an array.");
+        setImportErrorMessage(t("import.mustBeObject"));
         setImportStatus("error");
         return false;
       }
@@ -649,7 +651,7 @@ export function OAuthSection({
       setImportStatus("idle");
       return true;
     } catch {
-      setImportErrorMessage("Invalid JSON content.");
+      setImportErrorMessage(t("import.invalidJson"));
       setImportStatus("error");
       return false;
     }
@@ -690,17 +692,17 @@ export function OAuthSection({
 
       if (!res.ok) {
         setImportStatus("error");
-        setImportErrorMessage(extractApiError(data, "Failed to import credential."));
+        setImportErrorMessage(extractApiError(data, t("import.uploadFailed")));
         return;
       }
 
       setImportStatus("success");
-      showToast("OAuth credential imported successfully", "success");
+      showToast(t("import.success"), "success");
       await refreshProviders();
       void loadAccounts();
     } catch {
       setImportStatus("error");
-      setImportErrorMessage("Network error while importing credential.");
+      setImportErrorMessage(t("import.networkError"));
     }
   };
 
@@ -732,10 +734,10 @@ export function OAuthSection({
       <section id="provider-oauth" className="space-y-3 rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-slate-100">OAuth Accounts</h2>
-            <p className="text-xs text-slate-400">Subscription-based provider connections</p>
+            <h2 className="text-sm font-semibold text-slate-100">{t("title")}</h2>
+            <p className="text-xs text-slate-400">{t("subtitle")}</p>
           </div>
-          <span className="text-xs font-medium text-slate-400">{accounts.length} connected</span>
+          <span className="text-xs font-medium text-slate-400">{t("connectedCount", { count: accounts.length })}</span>
         </div>
 
         <div className="space-y-3">
@@ -749,7 +751,7 @@ export function OAuthSection({
           />
 
           <div className="rounded-sm border border-slate-700/70 bg-slate-900/30 p-3 text-xs text-slate-400">
-            <strong className="text-slate-200">Note:</strong> OAuth flows open in a popup window. Make sure pop-ups are allowed in your browser.
+            <strong className="text-slate-200">{t("note.label")}</strong> {t("note.body")}
           </div>
 
           <OAuthActions
@@ -763,13 +765,13 @@ export function OAuthSection({
       <Modal isOpen={isOAuthModalOpen} onClose={handleOAuthModalClose}>
         <ModalHeader>
           <ModalTitle>
-            {selectedOAuthProvider ? `Connect ${selectedOAuthProvider.name}` : "Connect"}
+            {selectedOAuthProvider ? t("modal.title", { provider: selectedOAuthProvider.name }) : t("modal.titleFallback")}
           </ModalTitle>
         </ModalHeader>
         <ModalContent>
           {oauthModalStatus === MODAL_STATUS.LOADING && (
             <div className="rounded-xl border-l-4 border-white/30 bg-white/5 p-4 text-sm text-white/80 backdrop-blur-xl">
-              Fetching authorization link...
+              {t("modal.loading")}
             </div>
           )}
 
@@ -781,25 +783,21 @@ export function OAuthSection({
             <div className="space-y-4">
               <div className="rounded-xl border-l-4 border-purple-400/60 bg-white/10 p-4 text-sm backdrop-blur-xl">
                 <div className="font-medium text-white">
-                  Step-by-step
+                  {t("modal.stepTitle")}
                 </div>
                 <ol className="mt-3 list-decimal space-y-2 pl-4 text-white/90">
-                  <li>Log in and authorize in the popup window.</li>
+                  <li>{t("modal.steps.step1")}</li>
+                  <li>{t("modal.steps.step2")}</li>
                   <li>
-                    After authorizing, the page will fail to load (this is
-                    expected).
+                    {t("modal.steps.step3")}
                   </li>
-                  <li>
-                    Our server runs remotely, so the OAuth redirect can&apos;t reach
-                    it directly. Copy the FULL URL from the address bar.
-                  </li>
-                  <li>Paste the URL below and submit.</li>
+                  <li>{t("modal.steps.step4")}</li>
                 </ol>
               </div>
 
               <div>
                 <div className="mb-2 text-xs font-medium text-white/90">
-                  Paste callback URL
+                  {t("modal.callbackLabel")}
                 </div>
                 <Input
                   type="text"
@@ -822,7 +820,7 @@ export function OAuthSection({
                         : "border-white/30 bg-white/5 text-white/70 backdrop-blur-xl"
                   }`}
                 >
-                  {callbackMessage}
+                  {t(`callbackMessages.${callbackMessage}`)}
                 </div>
               </div>
             </div>
@@ -834,17 +832,17 @@ export function OAuthSection({
             !selectedOAuthProviderRequiresCallback && (
             <div className="rounded-xl border-l-4 border-purple-400/60 bg-white/10 p-4 text-sm backdrop-blur-xl">
               <div className="font-medium text-white">
-                Device Authorization
+                {t("modal.deviceTitle")}
               </div>
               <ol className="mt-3 list-decimal space-y-2 pl-4 text-white/90">
-                <li>A browser window has opened with the authorization page.</li>
-                <li>Log in and approve the access request.</li>
-                <li>Once approved, this dialog will update automatically.</li>
+                <li>{t("modal.deviceSteps.step1")}</li>
+                <li>{t("modal.deviceSteps.step2")}</li>
+                <li>{t("modal.deviceSteps.step3")}</li>
               </ol>
               {deviceCodeInfo && (
                 <div className="mt-4 space-y-3">
                   <div className="rounded-lg bg-slate-800/60 p-3">
-                    <p className="text-xs font-medium text-slate-400">Your authorization code:</p>
+                    <p className="text-xs font-medium text-slate-400">{t("modal.deviceCodeLabel")}</p>
                     <p className="mt-1 select-all font-mono text-lg font-bold tracking-wider text-white">{deviceCodeInfo.userCode}</p>
                   </div>
                   <p className="text-xs text-slate-400">
@@ -861,14 +859,14 @@ export function OAuthSection({
           {oauthModalStatus === MODAL_STATUS.POLLING && (
             <div className="mt-4 rounded-xl border-l-4 border-blue-400/60 bg-blue-500/20 p-4 text-sm text-white backdrop-blur-xl">
               {selectedOAuthProviderRequiresCallback
-                ? "Callback submitted. Waiting for CLIProxyAPI to finish token exchange..."
-                : "Waiting for CLIProxyAPI to finish OAuth authorization..."}
+                ? t("modal.pollingWithCallback")
+                : t("modal.pollingWithoutCallback")}
             </div>
           )}
 
           {oauthModalStatus === MODAL_STATUS.SUCCESS && (
             <div className="rounded-xl border-l-4 border-green-400/60 bg-green-500/20 p-4 text-sm text-white backdrop-blur-xl">
-              OAuth account connected successfully.
+              {t("success.message")}
             </div>
           )}
 
@@ -880,7 +878,7 @@ export function OAuthSection({
         </ModalContent>
         <ModalFooter>
           <Button variant="ghost" onClick={handleOAuthModalClose}>
-            Close
+            {t("actions.close") ?? "Close"}
           </Button>
           {oauthModalStatus !== MODAL_STATUS.SUCCESS && selectedOAuthProviderRequiresCallback && (
             <Button
@@ -889,15 +887,15 @@ export function OAuthSection({
               disabled={isOAuthSubmitDisabled}
             >
               {oauthModalStatus === MODAL_STATUS.SUBMITTING
-                ? "Submitting..."
+                ? t("actions.submitting")
                 : oauthModalStatus === MODAL_STATUS.POLLING
-                  ? "Waiting..."
-                  : "Submit URL"}
+                  ? t("actions.waiting")
+                  : t("actions.submitUrl")}
             </Button>
           )}
           {oauthModalStatus === MODAL_STATUS.SUCCESS && (
             <Button variant="secondary" onClick={handleOAuthModalClose}>
-              Done
+              {t("actions.done")}
             </Button>
           )}
         </ModalFooter>
@@ -910,10 +908,10 @@ export function OAuthSection({
           setPendingOAuthDelete(null);
         }}
         onConfirm={handleOAuthDelete}
-        title="Remove OAuth Account"
-        message={`Remove OAuth account ${pendingOAuthDelete?.accountName}?`}
-        confirmLabel="Remove"
-        cancelLabel="Cancel"
+        title={t("confirm.title")}
+        message={t("confirm.message", { name: pendingOAuthDelete?.accountName ?? "" })}
+        confirmLabel={t("confirm.confirmLabel")}
+        cancelLabel={t("confirm.cancelLabel") ?? "Cancel"}
         variant="danger"
       />
 

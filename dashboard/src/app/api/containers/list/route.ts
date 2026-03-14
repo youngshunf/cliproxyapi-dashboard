@@ -5,6 +5,11 @@ import { CONTAINER_CONFIG, getAllowedActions, type ContainerAction } from "@/lib
 import { execFile } from "child_process";
 import { promisify } from "util";
 import { logger } from "@/lib/logger";
+import { getRequestLocale } from "@/i18n/request-locale";
+import { getAppMessage } from "@/i18n/message-utils";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  getAppMessage(getRequestLocale(), key, values);
 
 const execFileAsync = promisify(execFile);
 const DOCKER_COMMAND_TIMEOUT_MS = 8000;
@@ -34,7 +39,7 @@ export async function GET() {
 
   if (!session) {
     return NextResponse.json(
-      { error: "Unauthorized" },
+      { error: t("errors.auth.unauthorized") },
       { status: 401 }
     );
   }
@@ -46,7 +51,7 @@ export async function GET() {
 
   if (!user?.isAdmin) {
     return NextResponse.json(
-      { error: "Forbidden: Admin access required" },
+      { error: t("errors.auth.adminRequired") },
       { status: 403 }
     );
   }
@@ -131,7 +136,7 @@ export async function GET() {
   } catch (error) {
     logger.error({ err: error }, "Container list error");
     return NextResponse.json(
-      { error: "Failed to list containers" },
+      { error: t("errors.generic.listFailed", { resource: t("resources.container") }) },
       { status: 500 }
     );
   }

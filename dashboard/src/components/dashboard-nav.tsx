@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useMobileSidebar } from "@/components/mobile-sidebar-context";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslations } from "next-intl";
 
 function IconPlayCircle({ className }: { className?: string }) {
   return (
@@ -116,23 +117,23 @@ function IconLogs({ className }: { className?: string }) {
 }
 
 const NAV_SECTIONS = [
-  { key: "general", label: "General" },
-  { key: "access", label: "Access" },
-  { key: "admin", label: "Admin" },
+  { key: "general", labelKey: "general" },
+  { key: "access", labelKey: "access" },
+  { key: "admin", labelKey: "admin" },
 ] as const;
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Quick Start", icon: IconPlayCircle, adminOnly: false, section: "general" },
-  { href: "/dashboard/providers", label: "Providers", icon: IconLayers, adminOnly: false, section: "general" },
-  { href: "/dashboard/usage", label: "Usage", icon: IconBarChart, adminOnly: false, section: "general" },
-  { href: "/dashboard/quota", label: "Quota", icon: IconGauge, adminOnly: false, section: "general" },
-  { href: "/dashboard/api-keys", label: "API Keys", icon: IconKey, adminOnly: false, section: "access" },
-  { href: "/dashboard/settings", label: "Settings", icon: IconSettings, adminOnly: false, section: "access" },
-  { href: "/dashboard/monitoring", label: "Monitoring", icon: IconActivity, adminOnly: true, section: "admin" },
-  { href: "/dashboard/containers", label: "Containers", icon: IconBox, adminOnly: true, section: "admin" },
-  { href: "/dashboard/config", label: "Config", icon: IconFileCode, adminOnly: true, section: "admin" },
-  { href: "/dashboard/admin/users", label: "Users", icon: IconUsers, adminOnly: true, section: "admin" },
-  { href: "/dashboard/admin/logs", label: "Logs", icon: IconLogs, adminOnly: true, section: "admin" },
+  { href: "/dashboard", labelKey: "quickStart", icon: IconPlayCircle, adminOnly: false, section: "general" },
+  { href: "/dashboard/providers", labelKey: "providers", icon: IconLayers, adminOnly: false, section: "general" },
+  { href: "/dashboard/usage", labelKey: "usage", icon: IconBarChart, adminOnly: false, section: "general" },
+  { href: "/dashboard/quota", labelKey: "quota", icon: IconGauge, adminOnly: false, section: "general" },
+  { href: "/dashboard/api-keys", labelKey: "apiKeys", icon: IconKey, adminOnly: false, section: "access" },
+  { href: "/dashboard/settings", labelKey: "settings", icon: IconSettings, adminOnly: false, section: "access" },
+  { href: "/dashboard/monitoring", labelKey: "monitoring", icon: IconActivity, adminOnly: true, section: "admin" },
+  { href: "/dashboard/containers", labelKey: "containers", icon: IconBox, adminOnly: true, section: "admin" },
+  { href: "/dashboard/config", labelKey: "config", icon: IconFileCode, adminOnly: true, section: "admin" },
+  { href: "/dashboard/admin/users", labelKey: "users", icon: IconUsers, adminOnly: true, section: "admin" },
+  { href: "/dashboard/admin/logs", labelKey: "logs", icon: IconLogs, adminOnly: true, section: "admin" },
 ] as const;
 
 export function DashboardNav() {
@@ -140,6 +141,7 @@ export function DashboardNav() {
   const { isOpen, isCollapsed, toggleCollapsed, close } = useMobileSidebar();
   const { user } = useAuth();
   const isAdmin = user?.isAdmin ?? false;
+  const t = useTranslations("nav");
 
   const handleNavClick = () => {
     close();
@@ -192,16 +194,16 @@ export function DashboardNav() {
             />
             <div className={cn(isCollapsed && "lg:hidden")}> 
               <h1 className="text-base font-semibold tracking-tight text-slate-100">
-                CLIProxy
+                {t("brandTitle")}
               </h1>
-              <p className="mt-0.5 text-xs text-slate-400">Management</p>
+              <p className="mt-0.5 text-xs text-slate-400">{t("brandSubtitle")}</p>
             </div>
             </div>
             <button
               type="button"
               onClick={toggleCollapsed}
               className="hidden rounded-md border border-slate-700/70 bg-slate-800/60 p-1.5 text-slate-300 transition-colors hover:bg-slate-700/70 hover:text-slate-100 lg:inline-flex"
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={isCollapsed ? t("expand") : t("collapse")}
               aria-expanded={!isCollapsed}
             >
               <svg className={cn("h-4 w-4 transition-transform", isCollapsed && "rotate-180")} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -221,7 +223,7 @@ export function DashboardNav() {
             return (
               <li key={section.key} className="space-y-1.5">
                 <p className={cn("px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500", isCollapsed && "lg:hidden")}>
-                  {section.label}
+                  {t(section.labelKey)}
                 </p>
                 <ul className="space-y-1">
                   {items.map((item) => {
@@ -240,10 +242,10 @@ export function DashboardNav() {
                               ? "glass-nav-item-active text-slate-100"
                               : "glass-nav-item text-slate-300 hover:text-slate-100"
                           )}
-                          title={isCollapsed ? item.label : undefined}
+                          title={isCollapsed ? t(item.labelKey) : undefined}
                         >
                           <IconComponent className="h-4 w-4" />
-                          <span className={cn(isCollapsed && "lg:hidden")}>{item.label}</span>
+                          <span className={cn(isCollapsed && "lg:hidden")}>{t(item.labelKey)}</span>
                         </Link>
                       </li>
                     );

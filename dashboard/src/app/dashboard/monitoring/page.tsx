@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ServiceStatus } from "@/components/monitoring/service-status";
 import { UsageStats } from "@/components/monitoring/usage-stats";
@@ -87,6 +88,7 @@ function parseLogLine(line: string, index: number): LogLine {
 }
 
 export default function MonitoringPage() {
+  const t = useTranslations("monitoring");
   const { provide: provideProxyStatus, clear: clearProxyStatus } = useProxyStatusProvider();
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [usage, setUsage] = useState<UsageResponse | null>(null);
@@ -307,7 +309,7 @@ export default function MonitoringPage() {
   return (
     <div className="space-y-4">
       <section className="rounded-lg border border-slate-700/70 bg-slate-900/40 p-4">
-        <h1 className="text-xl font-semibold tracking-tight text-slate-100">Monitoring</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-100">{t("title")}</h1>
       </section>
 
       <ServiceStatus
@@ -320,10 +322,10 @@ export default function MonitoringPage() {
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
         onConfirm={handleRestart}
-        title="Restart Service"
-        message="Are you sure you want to restart the CLIProxyAPI service?"
-        confirmLabel="Restart"
-        cancelLabel="Cancel"
+        title={t("confirmRestartTitle")}
+        message={t("confirmRestartMsg")}
+        confirmLabel={t("restart")}
+        cancelLabel={t("cancel")}
         variant="warning"
       />
 
