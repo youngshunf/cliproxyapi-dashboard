@@ -3,7 +3,13 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --legacy-peer-deps && npm cache clean --force
+RUN npm ci --legacy-peer-deps --force && \
+    npm install --no-save \
+      @parcel/watcher-linux-x64-musl \
+      @tailwindcss/oxide-linux-x64-musl \
+      lightningcss-linux-x64-musl \
+      2>/dev/null || true && \
+    npm cache clean --force
 
 FROM node:20-alpine AS builder
 WORKDIR /app
